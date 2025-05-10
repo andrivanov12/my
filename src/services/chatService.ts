@@ -37,10 +37,16 @@ const cleanAIResponse = (text: string): string => {
   // Remove quote markers (>)
   text = text.replace(/^\s*>\s*/gm, '');
   
-  // Remove unnecessary line breaks
-  text = text.replace(/\n{3,}/g, '\n\n');
+  // Remove unnecessary line breaks while preserving code blocks
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  const processed = parts.map((part, index) => {
+    // If it's a code block (odd indices), leave it unchanged
+    if (index % 2 === 1) return part;
+    // Otherwise, clean up excessive newlines
+    return part.replace(/\n{3,}/g, '\n\n');
+  });
   
-  return text.trim();
+  return processed.join('').trim();
 };
 
 export const sendMessageToAI = async (
