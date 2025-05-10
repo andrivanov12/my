@@ -53,6 +53,7 @@ const ChatPage: React.FC = () => {
         <title>Диалог с ЧатGPT - Общайтесь с ИИ без регистрации</title>
         <meta name="description" content="Общайтесь с ЧатGPT прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений." />
         <meta name="keywords" content="чатгпт диалог, чат с ии, онлайн чат, искусственный интеллект чат, чатбот без регистрации" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2451745015940423" crossorigin="anonymous"></script>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
