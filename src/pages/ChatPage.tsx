@@ -9,7 +9,6 @@ const AdBlock = ({ position }: { position: string }) => {
 
   useEffect(() => {
     if (position === "Верхний 2" && adRef.current) {
-      // Initialize Yandex.RTB
       const script = document.createElement('script');
       script.text = 'window.yaContextCb=window.yaContextCb||[]';
       adRef.current.appendChild(script);
@@ -102,14 +101,26 @@ const ChatPage: React.FC = () => {
           </div>
 
           <div className="max-w-3xl mx-auto relative">
+            {/* Desktop donation button */}
             <a
               href="https://pay.cloudtips.ru/p/0196436e"
               target="_blank"
               rel="noopener noreferrer"
-              className="fixed left-4 top-1/2 transform -translate-y-1/2 hidden lg:flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 group animate-pulse-light"
+              className="fixed left-4 top-1/2 transform -translate-y-1/2 hidden lg:flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105"
             >
               <Heart className="h-5 w-5 group-hover:text-red-200 transition-colors duration-300" />
-              <span className="font-medium">Донат на развитие сайта</span>
+              <span className="font-medium whitespace-nowrap">Донат на развитие сайта</span>
+            </a>
+
+            {/* Mobile/Tablet donation button */}
+            <a
+              href="https://pay.cloudtips.ru/p/0196436e"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fixed bottom-20 right-4 lg:hidden flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group z-50"
+            >
+              <Heart className="h-5 w-5 group-hover:text-red-200 transition-colors duration-300 animate-pulse" />
+              <span className="font-medium text-sm sm:text-base">Поддержать проект</span>
             </a>
 
             <div className="flex flex-col h-[calc(100vh-280px)] md:h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
