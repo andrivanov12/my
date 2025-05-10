@@ -21,6 +21,25 @@ export const AI_MODELS: AIModel[] = [
   { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
 ];
 
+const cleanAIResponse = (text: string): string => {
+  // Remove markdown headers (###)
+  text = text.replace(/#{1,6}\s/g, '');
+  
+  // Remove markdown bold/italic (**text** or *text*)
+  text = text.replace(/\*{1,2}(.*?)\*{1,2}/g, '$1');
+  
+  // Remove backticks for code blocks
+  text = text.replace(/`{1,3}/g, '');
+  
+  // Remove markdown links
+  text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+  
+  // Remove unnecessary line breaks
+  text = text.replace(/\n{3,}/g, '\n\n');
+  
+  return text.trim();
+};
+
 export const sendMessageToAI = async (
   message: string, 
   previousMessages: Message[],
@@ -67,7 +86,7 @@ export const sendMessageToAI = async (
       throw new Error('Invalid response format from AI service');
     }
 
-    return response.data.choices[0].message.content;
+    return cleanAIResponse(response.data.choices[0].message.content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
     if (axios.isAxiosError(error)) {
