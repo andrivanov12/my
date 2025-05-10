@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Loader2, Settings, Heart } from 'lucide-react';
+import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
@@ -34,10 +34,53 @@ const AdBlock = ({ position }: { position: string }) => {
   );
 };
 
+const ModelSelector = () => {
+  const { selectedModel, availableModels, setSelectedModel } = useChat();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const currentModel = availableModels.find(model => model.id === selectedModel);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+      >
+        <div className="flex items-center gap-2">
+          <Settings className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {currentModel?.name || 'Выберите модель'}
+          </span>
+        </div>
+        <ChevronDown className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+          {availableModels.map(model => (
+            <button
+              key={model.id}
+              onClick={() => {
+                setSelectedModel(model.id);
+                setIsOpen(false);
+              }}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors duration-200
+                ${selectedModel === model.id 
+                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' 
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+            >
+              {model.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ChatPage: React.FC = () => {
-  const { messages, loading, sendMessage, clearChat, selectedModel, availableModels, setSelectedModel } = useChat();
+  const { messages, loading, sendMessage, clearChat } = useChat();
   const [inputMessage, setInputMessage] = useState('');
-  const [showModelSelect, setShowModelSelect] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -75,21 +118,6 @@ const ChatPage: React.FC = () => {
         <title>Диалог с ЧатGPT - Общайтесь с ИИ без регистрации</title>
         <meta name="description" content="Общайтесь с ЧатGPT прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений." />
         <meta name="keywords" content="чатгпт диалог, чат с ии, онлайн чат, искусственный интеллект чат, чатбот без регистрации" />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2451745015940423" crossorigin="anonymous"></script>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "ЧатGPT Диалог",
-            "applicationCategory": "ChatBot",
-            "operatingSystem": "Any",
-            "description": "Онлайн чат с искусственным интеллектом без регистрации",
-            "offers": {
-              "@type": "Offer",
-              "price": "0"
-            }
-          })}
-        </script>
       </Helmet>
 
       <div className="min-h-screen w-full">
@@ -124,40 +152,9 @@ const ChatPage: React.FC = () => {
             </a>
 
             <div className="flex flex-col h-[calc(100vh-280px)] md:h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-              <div className="flex items-center justify-between px-3 md:px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowModelSelect(!showModelSelect)}
-                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Текущая модель: {availableModels.find(model => model.id === selectedModel)?.name}</span>
-                  </button>
-                </div>
+              <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700">
+                <ModelSelector />
               </div>
-              
-              {showModelSelect && (
-                <div className="p-3 md:p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {availableModels.map(model => (
-                      <button
-                        key={model.id}
-                        onClick={() => {
-                          setSelectedModel(model.id);
-                          setShowModelSelect(false);
-                        }}
-                        className={`p-2 rounded-lg text-sm text-center transition-colors duration-200 ${
-                          selectedModel === model.id
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        {model.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 md:p-4">
                 {messages.length === 0 ? (
