@@ -34,6 +34,9 @@ const cleanAIResponse = (text: string): string => {
   // Remove markdown links
   text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
   
+  // Remove quote markers (>)
+  text = text.replace(/^\s*>\s*/gm, '');
+  
   // Remove unnecessary line breaks
   text = text.replace(/\n{3,}/g, '\n\n');
   
