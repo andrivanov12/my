@@ -39,7 +39,16 @@ const cleanAIResponse = (text: string): string => {
   const processed = parts.map((part, index) => {
     // If it's a code block (odd indices), leave it unchanged
     if (index % 2 === 1) return part;
-    // Otherwise, clean up excessive newlines and spacing
+    
+    // Process numbered lists
+    part = part.replace(/^\d+\.\s+/gm, (match) => {
+      return `⊚ `;
+    });
+    
+    // Process bullet points
+    part = part.replace(/^[-•]\s+/gm, '• ');
+    
+    // Clean up excessive newlines and spacing
     return part
       .replace(/\n{3,}/g, '\n\n')
       .replace(/\s+$/gm, '')  // Remove trailing spaces

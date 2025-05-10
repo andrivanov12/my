@@ -44,7 +44,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         const code = firstLineEnd > -1 ? content.slice(firstLineEnd + 1).trim() : content.trim();
 
         return (
-          <div key={index} className="my-3 first:mt-0 last:mb-0">
+          <div key={index} className="my-4 first:mt-2 last:mb-2">
             <div className="relative rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 {language && (
@@ -77,10 +77,35 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         );
       }
       
-      // Regular text
+      // Regular text with enhanced formatting
       return part.trim() ? (
-        <div key={index} className="whitespace-pre-wrap my-2 first:mt-0 last:mb-0">
-          {part.trim()}
+        <div 
+          key={index} 
+          className="prose dark:prose-invert max-w-none my-2 first:mt-0 last:mb-0 text-gray-800 dark:text-gray-200"
+        >
+          {part.split('\n').map((line, lineIndex) => {
+            // Check for list items
+            if (line.startsWith('• ') || line.startsWith('⊚ ')) {
+              return (
+                <div 
+                  key={lineIndex}
+                  className="flex items-start gap-2 my-1.5 pl-2"
+                >
+                  <span className="text-primary-500 dark:text-primary-400 font-medium leading-relaxed">
+                    {line.startsWith('⊚ ') ? '⊚' : '•'}
+                  </span>
+                  <span className="flex-1">{line.slice(2)}</span>
+                </div>
+              );
+            }
+            
+            // Regular paragraph
+            return line.trim() ? (
+              <p key={lineIndex} className="my-2 leading-relaxed">
+                {line}
+              </p>
+            ) : null;
+          }).filter(Boolean)}
         </div>
       ) : null;
     }).filter(Boolean);
