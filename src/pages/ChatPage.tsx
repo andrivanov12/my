@@ -4,13 +4,36 @@ import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 
-const AdBlock = ({ position }: { position: string }) => (
-  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
-    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]">
-      <span className="text-gray-500 dark:text-gray-400 text-sm md:text-base">Рекламный блок - {position}</span>
+const AdBlock = ({ position }: { position: string }) => {
+  const adRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (position === "Верхний 2" && adRef.current) {
+      // Initialize Yandex.RTB
+      const script = document.createElement('script');
+      script.text = 'window.yaContextCb=window.yaContextCb||[]';
+      adRef.current.appendChild(script);
+
+      const rtbScript = document.createElement('script');
+      rtbScript.src = 'https://yandex.ru/ads/system/context.js';
+      rtbScript.async = true;
+      adRef.current.appendChild(rtbScript);
+    }
+  }, [position]);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+      <div 
+        ref={adRef}
+        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]"
+      >
+        <span className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
+          Рекламный блок - {position}
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ChatPage: React.FC = () => {
   const { messages, loading, sendMessage, clearChat, selectedModel, availableModels, setSelectedModel } = useChat();
@@ -54,8 +77,6 @@ const ChatPage: React.FC = () => {
         <meta name="description" content="Общайтесь с ЧатGPT прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений." />
         <meta name="keywords" content="чатгпт диалог, чат с ии, онлайн чат, искусственный интеллект чат, чатбот без регистрации" />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2451745015940423" crossorigin="anonymous"></script>
-        <script>{`window.yaContextCb=window.yaContextCb||[]`}</script>
-        <script src="https://yandex.ru/ads/system/context.js" async></script>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
