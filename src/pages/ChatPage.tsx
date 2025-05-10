@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Loader2, Settings } from 'lucide-react';
+import { Send, Trash2, Loader2, Settings, Heart } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
@@ -101,7 +101,17 @@ const ChatPage: React.FC = () => {
             <AdBlock position="Верхний 3" />
           </div>
 
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl mx-auto relative">
+            <a
+              href="https://pay.cloudtips.ru/p/0196436e"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fixed left-4 top-1/2 transform -translate-y-1/2 hidden lg:flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 group animate-pulse-light"
+            >
+              <Heart className="h-5 w-5 group-hover:text-red-200 transition-colors duration-300" />
+              <span className="font-medium">Донат на развитие сайта</span>
+            </a>
+
             <div className="flex flex-col h-[calc(100vh-280px)] md:h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
               <div className="flex items-center justify-between px-3 md:px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2">
