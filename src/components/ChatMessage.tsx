@@ -31,68 +31,63 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       return <div className="whitespace-pre-wrap">{message.content}</div>;
     }
 
-    // Split content by code blocks, including empty lines as separators
-    const blocks = message.content.split(/(?=```[\s\S]*?```)/);
+    // Split content by code blocks
+    const parts = message.content.split(/(```[\s\S]*?```)/g);
     
-    return blocks.map((block, index) => {
-      // Check if this block contains a code section
-      const codeMatch = block.match(/```([\s\S]*?)```/);
-      
-      if (codeMatch) {
-        // Extract the text before the code block
-        const textBefore = block.slice(0, block.indexOf('```')).trim();
-        
+    return parts.map((part, index) => {
+      // Check if this is a code block
+      if (part.startsWith('```') && part.endsWith('```')) {
         // Extract language and code
-        const codeContent = codeMatch[1];
-        const firstLineEnd = codeContent.indexOf('\n');
-        const language = firstLineEnd > -1 ? codeContent.slice(0, firstLineEnd).trim() : '';
-        const code = firstLineEnd > -1 ? codeContent.slice(firstLineEnd + 1).trim() : codeContent.trim();
-        
+        const content = part.slice(3, -3).trim();
+        const firstLineEnd = content.indexOf('\n');
+        const language = firstLineEnd > -1 ? content.slice(0, firstLineEnd).trim() : '';
+        const code = firstLineEnd > -1 ? content.slice(firstLineEnd + 1).trim() : content.trim();
+
         return (
-          <div key={index} className="space-y-2">
-            {textBefore && (
-              <div className="whitespace-pre-wrap">{textBefore}</div>
-            )}
-            <div className="relative rounded-lg overflow-hidden">
-              {language && (
-                <div className="absolute top-0 right-0 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-bl-lg">
-                  {language}
-                </div>
-              )}
-              <div className="relative group">
-                <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto font-mono text-sm">
-                  <code>{code}</code>
-                </pre>
+          <div key={index} className="my-3 first:mt-0 last:mb-0">
+            <div className="relative rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                {language && (
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    {language}
+                  </span>
+                )}
                 <button
                   onClick={() => handleCopy(code, index)}
-                  className="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  title="Copy code"
+                  className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
                 >
                   {copiedIndex === index ? (
-                    <Check className="h-4 w-4 text-green-500" />
+                    <>
+                      <Check className="h-3.5 w-3.5" />
+                      <span>Скопировано!</span>
+                    </>
                   ) : (
-                    <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>Копировать</span>
+                    </>
                   )}
                 </button>
               </div>
+              <pre className="p-4 m-0 overflow-x-auto font-mono text-sm">
+                <code>{code}</code>
+              </pre>
             </div>
           </div>
         );
       }
       
-      // Regular text block
-      return block.trim() ? (
-        <div key={index} className="whitespace-pre-wrap">
-          {block.trim()}
+      // Regular text
+      return part.trim() ? (
+        <div key={index} className="whitespace-pre-wrap my-2 first:mt-0 last:mb-0">
+          {part.trim()}
         </div>
       ) : null;
-    });
+    }).filter(Boolean);
   };
 
   return (
-    <div 
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-    >
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div 
         className={`max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-lg p-2 md:p-3 ${
           isUser 
@@ -100,7 +95,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             : 'bg-white dark:bg-gray-700 shadow-sm rounded-tl-none'
         } ${message.isError ? 'border border-red-300 dark:border-red-700' : ''}`}
       >
-        <div className="flex items-center gap-1.5 md:gap-2 mb-1">
+        <div className="flex items-center gap-1.5 md:gap-2 mb-2">
           {!isUser && (
             <div className="p-0.5 md:p-1 bg-primary-500 rounded-full">
               {message.isError 
@@ -114,7 +109,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           </span>
         </div>
         
-        <div className="text-sm md:text-base space-y-2">
+        <div className="text-sm md:text-base">
           {formatContent()}
         </div>
       </div>

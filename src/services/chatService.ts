@@ -28,25 +28,25 @@ const cleanAIResponse = (text: string): string => {
   // Remove markdown bold/italic (**text** or *text*)
   text = text.replace(/\*{1,2}(.*?)\*{1,2}/g, '$1');
   
-  // Remove backticks for code blocks
-  text = text.replace(/`{1,3}/g, '');
-  
   // Remove markdown links
   text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
   
   // Remove quote markers (>)
   text = text.replace(/^\s*>\s*/gm, '');
   
-  // Remove unnecessary line breaks while preserving code blocks
+  // Split by code blocks and process non-code parts
   const parts = text.split(/(```[\s\S]*?```)/g);
   const processed = parts.map((part, index) => {
     // If it's a code block (odd indices), leave it unchanged
     if (index % 2 === 1) return part;
-    // Otherwise, clean up excessive newlines
-    return part.replace(/\n{3,}/g, '\n\n');
+    // Otherwise, clean up excessive newlines and spacing
+    return part
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\s+$/gm, '')  // Remove trailing spaces
+      .replace(/^\s+/gm, ''); // Remove leading spaces
   });
   
-  return processed.join('').trim();
+  return processed.join('\n').trim();
 };
 
 export const sendMessageToAI = async (
