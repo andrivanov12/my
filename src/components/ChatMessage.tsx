@@ -27,36 +27,54 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   // Function to format message content with copyable code blocks
   const formatContent = () => {
+    if (isUser) {
+      return <div className="whitespace-pre-wrap">{message.content}</div>;
+    }
+
     // Split content by code block markers (```), preserving the markers
     const parts = message.content.split(/(```[\s\S]*?```)/g);
     
     return parts.map((part, index) => {
       // Check if this part is a code block
       if (part.startsWith('```') && part.endsWith('```')) {
-        // Extract the code content without the markers
-        const code = part.slice(3, -3).trim();
+        // Extract language if specified
+        const firstLineEnd = part.indexOf('\n');
+        const firstLine = part.slice(3, firstLineEnd).trim();
+        const code = part.slice(firstLineEnd + 1, -3).trim();
+        const language = firstLine.length > 0 ? firstLine : 'plaintext';
         
         return (
-          <div key={index} className="relative my-2 group">
-            <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3 overflow-x-auto">
-              <code className="text-sm font-mono">{code}</code>
-            </pre>
-            <button
-              onClick={() => handleCopy(code, index)}
-              className="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              title="Copy code"
-            >
-              {copiedIndex === index ? (
-                <Check className="h-4 w-4 text-green-500" />
-              ) : (
-                <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              )}
-            </button>
+          <div key={index} className="relative my-4 first:mt-2 last:mb-2">
+            {language !== 'plaintext' && (
+              <div className="absolute top-0 left-2 px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded-t-lg">
+                {language}
+              </div>
+            )}
+            <div className="relative group">
+              <pre className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto font-mono text-sm">
+                <code>{code}</code>
+              </pre>
+              <button
+                onClick={() => handleCopy(code, index)}
+                className="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm"
+                title="Copy code"
+              >
+                {copiedIndex === index ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                )}
+              </button>
+            </div>
           </div>
         );
       }
       // Regular text
-      return <span key={index}>{part}</span>;
+      return (
+        <div key={index} className="whitespace-pre-wrap my-2 first:mt-0 last:mb-0">
+          {part.trim()}
+        </div>
+      );
     });
   };
 
@@ -85,7 +103,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           </span>
         </div>
         
-        <div className="whitespace-pre-wrap text-sm md:text-base">
+        <div className="text-sm md:text-base">
           {formatContent()}
         </div>
       </div>
