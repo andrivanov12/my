@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, AlertTriangle, Copy, Check, FileText, Download } from 'lucide-react';
+import { MessageSquare, AlertTriangle, Copy, Check } from 'lucide-react';
 import { Message } from '../services/chatService';
 
 interface ChatMessageProps {
@@ -28,32 +28,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   // Function to format message content with copyable code blocks
   const formatContent = () => {
     if (isUser) {
-      return (
-        <>
-          <div className="whitespace-pre-wrap">{message.content}</div>
-          {message.attachments && message.attachments.length > 0 && (
-            <div className="mt-2 space-y-2">
-              {message.attachments.map((attachment, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-                >
-                  <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="flex-1 text-sm truncate">{attachment.name}</span>
-                  <a
-                    href={attachment.url}
-                    download={attachment.name}
-                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
-                    title="Download file"
-                  >
-                    <Download className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      );
+      return <div className="whitespace-pre-wrap">{message.content}</div>;
     }
 
     // Split content by code blocks
