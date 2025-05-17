@@ -183,7 +183,7 @@ export const sendMessageToAI = async (
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
     
     if (!apiKey) {
-      throw new Error('OpenRouter API key not found. Please add VITE_OPENROUTER_API_KEY to your .env file.');
+      throw new Error('OpenRouter API key not configured. Please check your environment variables.');
     }
 
     const selectedModel = AI_MODELS.find(model => model.id === modelId);
@@ -191,50 +191,64 @@ export const sendMessageToAI = async (
       throw new Error('Invalid model selected');
     }
 
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: selectedModel.value,
-        messages: [
-          ...previousMessages.slice(-10).map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          {
-            role: 'user',
-            content
-          }
-        ]
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'ChatGPT'
+    try {
+      const response = await axios.post(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model: selectedModel.value,
+          messages: [
+            ...previousMessages.slice(-10).map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })),
+            {
+              role: 'user',
+              content
+            }
+          ]
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'ChatGPT'
+          },
+          timeout: 30000 // 30 second timeout
         }
+      );
+
+      if (!response.data?.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from AI service');
       }
-    );
 
-    if (!response.data?.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from AI service');
+      return cleanAIResponse(response.data.choices[0].message.content);
+    } catch (axiosError) {
+      if (axios.isAxiosError(axiosError)) {
+        if (axiosError.code === 'ECONNABORTED') {
+          throw new Error('Request timed out. Please try again.');
+        }
+        if (!axiosError.response) {
+          throw new Error('Network error. Please check your internet connection and try again.');
+        }
+        if (axiosError.response.status === 401) {
+          throw new Error('Invalid API key. Please check your OpenRouter API key configuration.');
+        }
+        if (axiosError.response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+        }
+        if (axiosError.response.status === 402) {
+          throw new Error('Insufficient credits. Please check your OpenRouter account balance.');
+        }
+        throw new Error(`API Error: ${axiosError.response.data?.error?.message || 'Unknown error occurred'}`);
+      }
+      throw axiosError;
     }
-
-    return cleanAIResponse(response.data.choices[0].message.content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        throw new Error('Authentication failed. Please check your OpenRouter API key.');
-      } else if (error.response?.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      } else if (error.response?.status === 402) {
-        throw new Error('Insufficient credits. Please check your OpenRouter account.');
-      }
-    }
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to get response from AI service. Please try again.');
+    throw new Error('An unexpected error occurred. Please try again.');
   }
 };
