@@ -224,3 +224,5 @@ export const deleteChat = async (chatId: string) => {
 
   if (error) throw error;
 };
+
+export { SUPPORTED_FILE_TYPES }
