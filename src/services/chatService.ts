@@ -125,7 +125,7 @@ export const uploadFile = async (file: File) => {
 const checkApiKey = () => {
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error('API ключ не настроен. Пожалуйста, добавьте ваш OpenRouter API ключ для продолжения.');
+    throw new Error('API ключ не настроен. Пожалуйста, добавьте ваш OpenRouter API ключ в файл .env');
   }
   return apiKey;
 };
@@ -148,47 +148,62 @@ export const sendMessageToAI = async (
       throw new Error('Выбрана неверная модель');
     }
 
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: selectedModel.value,
-        messages: [
-          ...previousMessages.slice(-10).map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          {
-            role: 'user',
-            content: message
-          }
-        ]
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'ChatGPT'
+    // Add debug logging
+    console.log('Sending request to OpenRouter API:', {
+      model: selectedModel.value,
+      messagesCount: previousMessages.length + 1,
+      hasApiKey: !!apiKey
+    });
+
+    try {
+      const response = await axios.post(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model: selectedModel.value,
+          messages: [
+            ...previousMessages.slice(-10).map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })),
+            {
+              role: 'user',
+              content: message
+            }
+          ]
         },
-        timeout: 30000 // 30 second timeout
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'ChatGPT',
+            'Origin': window.location.origin
+          },
+          timeout: 60000 // Increased timeout to 60 seconds
+        }
+      );
+
+      if (!response.data?.choices?.[0]?.message?.content) {
+        throw new Error('Некорректный формат ответа от AI сервиса');
       }
-    );
 
-    if (!response.data?.choices?.[0]?.message?.content) {
-      throw new Error('Некорректный формат ответа от AI сервиса');
+      return cleanAIResponse(response.data.choices[0].message.content);
+    } catch (axiosError) {
+      // Log the full error for debugging
+      console.error('OpenRouter API Error:', axiosError);
+      throw axiosError;
     }
-
-    return cleanAIResponse(response.data.choices[0].message.content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
     
     // If we haven't exceeded max retries and it's a network error, retry
-    if (retryCount < 2 && (
+    if (retryCount < 3 && ( // Increased max retries to 3
       !navigator.onLine || 
       (axios.isAxiosError(error) && !error.response)
     )) {
       console.log(`Retrying request (attempt ${retryCount + 1})...`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+      // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
       return sendMessageToAI(message, previousMessages, modelId, retryCount + 1);
     }
     
@@ -198,20 +213,22 @@ export const sendMessageToAI = async (
       }
       
       if (!error.response) {
-        throw new Error('Ошибка сети. Пожалуйста, проверьте подключение к интернету и попробуйте снова.');
+        throw new Error('Ошибка сети при подключении к OpenRouter API. Пожалуйста, проверьте подключение к интернету и попробуйте снова.');
       }
+      
+      const errorMessage = error.response.data?.error?.message || error.response.data?.message;
       
       switch (error.response.status) {
         case 401:
-          throw new Error('Неверный API ключ. Пожалуйста, проверьте конфигурацию OpenRouter API ключа.');
+          throw new Error(`Ошибка авторизации: ${errorMessage || 'Неверный API ключ. Пожалуйста, проверьте конфигурацию OpenRouter API ключа.'}`);
         case 402:
-          throw new Error('Недостаточно кредитов. Пожалуйста, проверьте баланс вашего аккаунта OpenRouter.');
+          throw new Error(`Ошибка оплаты: ${errorMessage || 'Недостаточно кредитов. Пожалуйста, проверьте баланс вашего аккаунта OpenRouter.'}`);
         case 429:
-          throw new Error('Слишком много запросов. Пожалуйста, подождите немного и попробуйте снова.');
+          throw new Error(`Превышен лимит запросов: ${errorMessage || 'Слишком много запросов. Пожалуйста, подождите немного и попробуйте снова.'}`);
         case 500:
-          throw new Error('AI сервис временно недоступен. Пожалуйста, попробуйте позже.');
+          throw new Error(`Ошибка сервера: ${errorMessage || 'AI сервис временно недоступен. Пожалуйста, попробуйте позже.'}`);
         default:
-          throw new Error(`Ошибка AI сервиса (${error.response.status}). Пожалуйста, попробуйте позже.`);
+          throw new Error(`Ошибка AI сервиса (${error.response.status}): ${errorMessage || 'Пожалуйста, попробуйте позже.'}`);
       }
     }
     
@@ -219,7 +236,7 @@ export const sendMessageToAI = async (
       throw error;
     }
     
-    throw new Error('Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова.');
+    throw new Error('Произошла непредвиденная ошибка при отправке сообщения. Пожалуйста, попробуйте снова.');
   }
 };
 
