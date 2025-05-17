@@ -49,6 +49,7 @@ export const validateFile = (file: File): string | null => {
 
 export const AI_MODELS: AIModel[] = [
   { id: 'qwen3-235b', name: 'Qwen 3 235B', value: 'qwen/qwen3-235b-a22b' },
+  { id: 'llama4', name: 'Llama 4 Maverick', value: 'meta-llama/llama-4-maverick' },
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
   { id: 'gemini-25', name: 'Gemini 2.5 Flash', value: 'google/gemini-2.5-flash-preview' },
   { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
