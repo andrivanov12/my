@@ -20,6 +20,40 @@ export interface AIModel {
   value: string;
 }
 
+// Add the missing exports
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB max file size
+
+export const SUPPORTED_FILE_TYPES = {
+  // Images
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'image/webp': true,
+  // Documents
+  'application/pdf': true,
+  'text/plain': true,
+  'application/msword': true,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
+  // Audio
+  'audio/mpeg': true,
+  'audio/wav': true,
+  'audio/ogg': true,
+  // Video
+  'video/mp4': true,
+  'video/webm': true,
+  'video/ogg': true
+};
+
+export const validateFile = (file: File): string | null => {
+  if (!SUPPORTED_FILE_TYPES[file.type]) {
+    return 'File type not supported';
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`;
+  }
+  return null;
+};
+
 export const AI_MODELS: AIModel[] = [
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
   { id: 'gemini-25', name: 'Gemini 2.5 Flash', value: 'google/gemini-2.5-flash-preview' },
