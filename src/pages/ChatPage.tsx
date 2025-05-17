@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-react';
+import { Send, Trash2, Loader2, Settings, Heart, ChevronDown, Paperclip } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
@@ -84,8 +84,10 @@ const ModelSelector = () => {
 const ChatPage: React.FC = () => {
   const { messages, loading, sendMessage, clearChat } = useChat();
   const [inputMessage, setInputMessage] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,12 +101,28 @@ const ChatPage: React.FC = () => {
     inputRef.current?.focus();
   }, []);
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setAttachments(prev => [...prev, ...files]);
+    if (event.target.value) event.target.value = '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() && !loading) {
+    if ((inputMessage.trim() || attachments.length > 0) && !loading) {
       const messageToSend = inputMessage;
       setInputMessage('');
-      await sendMessage(messageToSend);
+      
+      try {
+        const uploadedFiles = await Promise.all(
+          attachments.map(file => uploadFile(file))
+        );
+        
+        await sendMessage(messageToSend, uploadedFiles);
+        setAttachments([]);
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
   };
 
@@ -181,7 +199,43 @@ const ChatPage: React.FC = () => {
               </div>
               
               <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 bg-gray-50 dark:bg-gray-900">
+                {attachments.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg text-sm border border-gray-200 dark:border-gray-700"
+                      >
+                        <span className="truncate max-w-[150px]">{file.name}</span>
+                        <button
+                          onClick={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                          className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
                 <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    multiple
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-primary-500 dark:text-gray-400 dark:hover:text-primary-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
+                    title="Прикрепить файл"
+                  >
+                    <Paperclip className="h-5 w-5" />
+                  </button>
+                  
                   <textarea
                     ref={inputRef}
                     value={inputMessage}
@@ -198,7 +252,7 @@ const ChatPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={clearChat}
-                      className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
+                      className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300  dark:border-gray-600 transition-colors duration-200"
                       title="Очистить чат"
                       disabled={loading}
                     >
@@ -209,9 +263,9 @@ const ChatPage: React.FC = () => {
                   <button
                     type="submit"
                     className={`h-10 w-10 flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 ${
-                      loading || !inputMessage.trim() ? 'opacity-70 cursor-not-allowed' : ''
+                      loading || (!inputMessage.trim() && attachments.length === 0) ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
-                    disabled={loading || !inputMessage.trim()}
+                    disabled={loading || (!inputMessage.trim() && attachments.length === 0)}
                   >
                     {loading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />

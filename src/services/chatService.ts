@@ -7,6 +7,11 @@ export interface Message {
   content: string;
   timestamp: string;
   isError?: boolean;
+  attachments?: Array<{
+    name: string;
+    url: string;
+    type: string;
+  }>;
 }
 
 export interface AIModel {
@@ -56,6 +61,28 @@ const cleanAIResponse = (text: string): string => {
   });
   
   return processed.join('\n').trim();
+};
+
+export const uploadFile = async (file: File) => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+  const filePath = `uploads/${fileName}`;
+
+  const { data, error } = await supabase.storage
+    .from('chat-attachments')
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('chat-attachments')
+    .getPublicUrl(filePath);
+
+  return {
+    name: file.name,
+    url: publicUrl,
+    type: file.type
+  };
 };
 
 export const sendMessageToAI = async (
@@ -142,7 +169,8 @@ export const saveMessage = async (chatId: string, message: Omit<Message, 'id'>) 
       role: message.role,
       content: message.content,
       timestamp: message.timestamp,
-      is_error: message.isError || false
+      is_error: message.isError || false,
+      attachments: message.attachments || null
     }])
     .select()
     .single();
