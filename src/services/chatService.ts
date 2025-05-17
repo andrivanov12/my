@@ -55,40 +55,49 @@ export const AI_MODELS: AIModel[] = [
 ];
 
 const cleanAIResponse = (text: string): string => {
-  // Remove markdown headers (###)
-  text = text.replace(/#{1,6}\s/g, '');
-  
-  // Remove markdown bold/italic (**text** or *text*)
-  text = text.replace(/\*{1,2}(.*?)\*{1,2}/g, '$1');
-  
-  // Remove markdown links
-  text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
-  
-  // Remove quote markers (>)
-  text = text.replace(/^\s*>\s*/gm, '');
-  
-  // Split by code blocks and process non-code parts
-  const parts = text.split(/(```[\s\S]*?```)/g);
-  const processed = parts.map((part, index) => {
-    // If it's a code block (odd indices), leave it unchanged
-    if (index % 2 === 1) return part;
+  if (!text || typeof text !== 'string') {
+    return 'No response received from AI service';
+  }
+
+  try {
+    // Remove markdown headers (###)
+    text = text.replace(/#{1,6}\s/g, '');
     
-    // Process numbered lists
-    part = part.replace(/^\d+\.\s+/gm, (match) => {
-      return `⊚ `;
+    // Remove markdown bold/italic (**text** or *text*)
+    text = text.replace(/\*{1,2}(.*?)\*{1,2}/g, '$1');
+    
+    // Remove markdown links
+    text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+    
+    // Remove quote markers (>)
+    text = text.replace(/^\s*>\s*/gm, '');
+    
+    // Split by code blocks and process non-code parts
+    const parts = text.split(/(```[\s\S]*?```)/g);
+    const processed = parts.map((part, index) => {
+      // If it's a code block (odd indices), leave it unchanged
+      if (index % 2 === 1) return part;
+      
+      // Process numbered lists
+      part = part.replace(/^\d+\.\s+/gm, (match) => {
+        return `⊚ `;
+      });
+      
+      // Process bullet points
+      part = part.replace(/^[-•]\s+/gm, '• ');
+      
+      // Clean up excessive newlines and spacing
+      return part
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/\s+$/gm, '')  // Remove trailing spaces
+        .replace(/^\s+/gm, ''); // Remove leading spaces
     });
     
-    // Process bullet points
-    part = part.replace(/^[-•]\s+/gm, '• ');
-    
-    // Clean up excessive newlines and spacing
-    return part
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/\s+$/gm, '')  // Remove trailing spaces
-      .replace(/^\s+/gm, ''); // Remove leading spaces
-  });
-  
-  return processed.join('\n').trim();
+    return processed.join('\n').trim();
+  } catch (error) {
+    console.error('Error cleaning AI response:', error);
+    return text; // Return original text if cleaning fails
+  }
 };
 
 export const uploadFile = async (file: File): Promise<string> => {
@@ -168,11 +177,32 @@ export const sendMessageToAI = async (
       }
     );
 
-    if (!response.data?.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from AI service');
+    // Log the raw response for debugging
+    console.debug('AI service response:', response.data);
+
+    // More robust response validation
+    if (!response.data) {
+      throw new Error('Empty response received from AI service');
     }
 
-    return cleanAIResponse(response.data.choices[0].message.content);
+    if (!response.data.choices || !Array.isArray(response.data.choices) || response.data.choices.length === 0) {
+      throw new Error('No choices received in AI service response');
+    }
+
+    const firstChoice = response.data.choices[0];
+    if (!firstChoice || typeof firstChoice !== 'object') {
+      throw new Error('Invalid choice format in AI service response');
+    }
+
+    if (!firstChoice.message || typeof firstChoice.message !== 'object') {
+      throw new Error('Invalid message format in AI service response');
+    }
+
+    if (typeof firstChoice.message.content !== 'string') {
+      throw new Error('Invalid content format in AI service response');
+    }
+
+    return cleanAIResponse(firstChoice.message.content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
     if (axios.isAxiosError(error)) {
@@ -182,6 +212,9 @@ export const sendMessageToAI = async (
         throw new Error('Rate limit exceeded. Please try again later.');
       } else if (error.response?.status === 402) {
         throw new Error('Insufficient credits. Please check your OpenRouter account.');
+      } else {
+        // Log the error response for debugging
+        console.error('AI service error response:', error.response?.data);
       }
     }
     if (error instanceof Error) {
