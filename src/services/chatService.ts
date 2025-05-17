@@ -50,7 +50,8 @@ export const validateFile = (file: File): string | null => {
 export const AI_MODELS: AIModel[] = [
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
   { id: 'gemini-25', name: 'Gemini 2.5 Flash', value: 'google/gemini-2.5-flash-preview' },
-  { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
+  { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' },
+  { id: 'gpt4-nano', name: 'GPT-4 Nano', value: 'openai/gpt-4.1-nano' }
 ];
 
 const cleanAIResponse = (text: string): string => {
