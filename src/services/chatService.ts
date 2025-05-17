@@ -180,6 +180,31 @@ export const sendMessageToAI = async (
     // Log the complete response data for debugging
     console.debug('AI service complete response:', JSON.stringify(response.data, null, 2));
 
+    // Check for error response first
+    if (response.data.error) {
+      const error = response.data.error;
+      
+      // Check for region restriction error
+      if (error.metadata?.raw) {
+        try {
+          const rawError = JSON.parse(error.metadata.raw);
+          if (rawError.error?.code === 'unsupported_country_region_territory') {
+            throw new Error(
+              'Your region is currently not supported by this AI model. ' +
+              'Please try using a VPN service or switch to a different AI model. ' +
+              'Available models can be selected from the dropdown menu above.'
+            );
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, throw the original error message
+          throw new Error(error.message || 'Unknown error occurred');
+        }
+      }
+      
+      // For other errors, throw the error message
+      throw new Error(error.message || 'Unknown error occurred');
+    }
+
     // Enhanced response validation with more detailed error messages
     if (!response.data) {
       console.error('Empty response received:', response);
@@ -228,6 +253,22 @@ export const sendMessageToAI = async (
       }
 
       console.error('AI service error response:', error.response.data);
+
+      // Check for region restriction error in axios error response
+      if (error.response.data?.error?.metadata?.raw) {
+        try {
+          const rawError = JSON.parse(error.response.data.error.metadata.raw);
+          if (rawError.error?.code === 'unsupported_country_region_territory') {
+            throw new Error(
+              'Your region is currently not supported by this AI model. ' +
+              'Please try using a VPN service or switch to a different AI model. ' +
+              'Available models can be selected from the dropdown menu above.'
+            );
+          }
+        } catch (parseError) {
+          // Continue with normal error handling if JSON parsing fails
+        }
+      }
 
       if (error.response.status === 401) {
         throw new Error('Authentication failed. Please check your OpenRouter API key.');
