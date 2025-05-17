@@ -178,33 +178,39 @@ export const sendMessageToAI = async (
     );
 
     // Log the complete response data for debugging
-    console.debug('AI service complete response:', response.data);
+    console.debug('AI service complete response:', JSON.stringify(response.data, null, 2));
 
-    // More robust response validation with detailed error messages
+    // Enhanced response validation with more detailed error messages
     if (!response.data) {
+      console.error('Empty response received:', response);
       throw new Error('Empty response received from AI service. Please try again or check OpenRouter status.');
     }
 
     if (!response.data.choices || !Array.isArray(response.data.choices)) {
-      throw new Error('Invalid response format from AI service. The response is missing the choices array.');
+      console.error('Invalid response format:', response.data);
+      throw new Error(`Invalid response format from AI service. Expected 'choices' array but received: ${JSON.stringify(response.data)}`);
     }
 
     if (response.data.choices.length === 0) {
+      console.error('Empty choices array:', response.data);
       throw new Error('AI service returned an empty response. Please try again or check if the model is currently available.');
     }
 
     const firstChoice = response.data.choices[0];
     if (!firstChoice) {
+      console.error('Missing first choice:', response.data.choices);
       throw new Error('AI service response is missing the first choice. Please try again.');
     }
 
     if (!firstChoice.message) {
+      console.error('Missing message in first choice:', firstChoice);
       throw new Error('AI service response is missing the message object. Please try again.');
     }
 
     const content = firstChoice.message.content;
     if (typeof content !== 'string') {
-      throw new Error('AI service response content is invalid. Please try again.');
+      console.error('Invalid content type:', typeof content, content);
+      throw new Error(`AI service response content is invalid. Expected string but got ${typeof content}`);
     }
 
     if (content.trim() === '') {
@@ -217,25 +223,30 @@ export const sendMessageToAI = async (
     
     // Enhanced error handling with more specific error messages
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
+      if (!error.response) {
+        throw new Error('Network error: Unable to reach the AI service. Please check your internet connection.');
+      }
+
+      console.error('AI service error response:', error.response.data);
+
+      if (error.response.status === 401) {
         throw new Error('Authentication failed. Please check your OpenRouter API key.');
-      } else if (error.response?.status === 429) {
+      } else if (error.response.status === 429) {
         throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
-      } else if (error.response?.status === 402) {
+      } else if (error.response.status === 402) {
         throw new Error('Insufficient credits. Please check your OpenRouter account balance.');
-      } else if (error.response?.status === 503) {
+      } else if (error.response.status === 503) {
         throw new Error('AI service is temporarily unavailable. Please try again later.');
-      } else if (error.response?.status === 504) {
+      } else if (error.response.status === 504) {
         throw new Error('AI service request timed out. Please try again.');
       } else {
-        console.error('AI service detailed error response:', error.response?.data);
-        throw new Error(`AI service error (${error.response?.status || 'unknown'}). Please try again later.`);
+        throw new Error(`AI service error (${error.response.status}): ${error.response.data.error || 'Unknown error'}. Please try again later.`);
       }
     }
     
     if (error instanceof Error) {
-      // Preserve custom error messages
-      throw error;
+      // Preserve custom error messages but add debugging context
+      throw new Error(`${error.message} (Debug info: Check console for detailed error logs)`);
     }
     
     throw new Error('An unexpected error occurred while communicating with the AI service. Please try again.');
