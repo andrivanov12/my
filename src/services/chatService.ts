@@ -21,6 +21,7 @@ export interface AIModel {
   id: string;
   name: string;
   value: string;
+  supportsImages?: boolean;
 }
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -29,10 +30,7 @@ export const SUPPORTED_FILE_TYPES = {
   'image/jpeg': true,
   'image/png': true,
   'image/gif': true,
-  'application/pdf': true,
-  'text/plain': true,
-  'application/msword': true,
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true
+  'image/webp': true
 };
 
 export const validateFile = (file: File): string | null => {
@@ -41,7 +39,7 @@ export const validateFile = (file: File): string | null => {
   }
   
   if (!SUPPORTED_FILE_TYPES[file.type]) {
-    return 'Unsupported file type';
+    return 'Only images (JPEG, PNG, GIF, WebP) are supported';
   }
   
   return null;
@@ -49,7 +47,12 @@ export const validateFile = (file: File): string | null => {
 
 export const AI_MODELS: AIModel[] = [
   { id: 'gemini-25', name: 'Gemini 2.5 Flash', value: 'google/gemini-2.5-flash-preview' },
-  { id: 'llama4', name: 'Llama 4 Maverick', value: 'meta-llama/llama-4-maverick' },
+  { 
+    id: 'llama4', 
+    name: 'Llama 4 Maverick', 
+    value: 'meta-llama/llama-4-maverick',
+    supportsImages: true 
+  },
   { id: 'qwen3-235b', name: 'Qwen 3 235B', value: 'qwen/qwen3-235b-a22b' },
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
   { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
@@ -133,6 +136,11 @@ export const sendMessageToAI = async (
       throw new Error('Invalid model selected');
     }
 
+    // Check if images are supported
+    if (attachments?.length && !selectedModel.supportsImages) {
+      throw new Error('The selected model does not support image processing. Please switch to Llama 4 Maverick to analyze images.');
+    }
+
     // Upload files if present
     const uploadedAttachments = attachments ? await Promise.all(
       attachments.map(async (file) => {
@@ -146,12 +154,23 @@ export const sendMessageToAI = async (
       })
     ) : [];
 
-    // Prepare message content with file information
-    const messageWithAttachments = attachments?.length 
-      ? `${message}\n\nПрикрепленные файлы:\n${uploadedAttachments
-          .map(att => `- ${att.name} (${att.type})`)
-          .join('\n')}`
-      : message;
+    // Prepare message content based on model and attachments
+    let messageContent: any = message;
+
+    if (selectedModel.supportsImages && uploadedAttachments.length > 0) {
+      messageContent = [
+        {
+          type: "text",
+          text: message || "What is in this image?"
+        },
+        ...uploadedAttachments.map(att => ({
+          type: "image_url",
+          image_url: {
+            url: att.url
+          }
+        }))
+      ];
+    }
 
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
@@ -164,7 +183,7 @@ export const sendMessageToAI = async (
           })),
           {
             role: 'user',
-            content: messageWithAttachments
+            content: messageContent
           }
         ]
       },

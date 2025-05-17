@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Paperclip, X, FileText, Image, Film, Music, File } from 'lucide-react';
+import { Paperclip, X, Image } from 'lucide-react';
 import { validateFile, MAX_FILE_SIZE, SUPPORTED_FILE_TYPES } from '../services/chatService';
 
 interface FileUploadProps {
@@ -61,14 +61,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     handleFileSelect(e.dataTransfer.files);
   };
 
-  const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="h-4 w-4" />;
-    if (type.startsWith('video/')) return <Film className="h-4 w-4" />;
-    if (type.startsWith('audio/')) return <Music className="h-4 w-4" />;
-    if (type.startsWith('text/') || type.includes('document')) return <FileText className="h-4 w-4" />;
-    return <File className="h-4 w-4" />;
-  };
-
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -85,7 +77,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onChange={(e) => handleFileSelect(e.target.files)}
         className="hidden"
         multiple
-        accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+        accept="image/*"
         disabled={disabled}
       />
 
@@ -100,16 +92,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-primary-500 dark:text-gray-400 dark:hover:text-primary-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
-          title="Прикрепить файл"
+          title="Прикрепить изображение"
           disabled={disabled}
         >
-          <Paperclip className="h-5 w-5" />
+          <Image className="h-5 w-5" />
         </button>
 
         {isDragging && (
           <div className="absolute inset-0 border-2 border-dashed border-primary-400 dark:border-primary-600 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
             <span className="text-primary-600 dark:text-primary-400">
-              Перетащите файлы сюда
+              Перетащите изображения сюда
             </span>
           </div>
         )}
@@ -128,7 +120,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               key={index}
               className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700"
             >
-              {getFileIcon(file.type)}
+              <Image className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">
                   {file.name}
