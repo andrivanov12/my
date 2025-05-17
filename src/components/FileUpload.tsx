@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Paperclip, X, FileText, Image, Film, Music, File } from 'lucide-react';
-import { validateFile, MAX_FILE_SIZE } from '../services/chatService';
+import { validateFile, MAX_FILE_SIZE, SUPPORTED_FILE_TYPES } from '../services/chatService';
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
