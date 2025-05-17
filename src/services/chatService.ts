@@ -20,7 +20,6 @@ export interface AIModel {
   value: string;
 }
 
-// Add the missing exports
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB max file size
 
 export const SUPPORTED_FILE_TYPES = {
@@ -98,6 +97,10 @@ const cleanAIResponse = (text: string): string => {
 };
 
 export const uploadFile = async (file: File) => {
+  if (!navigator.onLine) {
+    throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
+  }
+
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
   const filePath = `uploads/${fileName}`;
@@ -119,21 +122,30 @@ export const uploadFile = async (file: File) => {
   };
 };
 
+const checkApiKey = () => {
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('API ключ не настроен. Пожалуйста, добавьте ваш OpenRouter API ключ для продолжения.');
+  }
+  return apiKey;
+};
+
 export const sendMessageToAI = async (
   message: string, 
   previousMessages: Message[],
-  modelId: string = 'qwen3'
+  modelId: string = 'qwen3',
+  retryCount = 0
 ): Promise<string> => {
   try {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('API key not configured. Please add your OpenRouter API key to continue.');
+    if (!navigator.onLine) {
+      throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
     }
 
+    const apiKey = checkApiKey();
+    
     const selectedModel = AI_MODELS.find(model => model.id === modelId);
     if (!selectedModel) {
-      throw new Error('Invalid model selected');
+      throw new Error('Выбрана неверная модель');
     }
 
     const response = await axios.post(
@@ -163,33 +175,43 @@ export const sendMessageToAI = async (
     );
 
     if (!response.data?.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from AI service');
+      throw new Error('Некорректный формат ответа от AI сервиса');
     }
 
     return cleanAIResponse(response.data.choices[0].message.content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
     
+    // If we haven't exceeded max retries and it's a network error, retry
+    if (retryCount < 2 && (
+      !navigator.onLine || 
+      (axios.isAxiosError(error) && !error.response)
+    )) {
+      console.log(`Retrying request (attempt ${retryCount + 1})...`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+      return sendMessageToAI(message, previousMessages, modelId, retryCount + 1);
+    }
+    
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timed out. Please try again.');
+        throw new Error('Превышено время ожидания запроса. Пожалуйста, попробуйте снова.');
       }
       
       if (!error.response) {
-        throw new Error('Network error. Please check your internet connection and try again.');
+        throw new Error('Ошибка сети. Пожалуйста, проверьте подключение к интернету и попробуйте снова.');
       }
       
       switch (error.response.status) {
         case 401:
-          throw new Error('Invalid API key. Please check your OpenRouter API key configuration.');
+          throw new Error('Неверный API ключ. Пожалуйста, проверьте конфигурацию OpenRouter API ключа.');
         case 402:
-          throw new Error('Insufficient credits. Please check your OpenRouter account balance.');
+          throw new Error('Недостаточно кредитов. Пожалуйста, проверьте баланс вашего аккаунта OpenRouter.');
         case 429:
-          throw new Error('Too many requests. Please wait a moment and try again.');
+          throw new Error('Слишком много запросов. Пожалуйста, подождите немного и попробуйте снова.');
         case 500:
-          throw new Error('AI service is temporarily unavailable. Please try again later.');
+          throw new Error('AI сервис временно недоступен. Пожалуйста, попробуйте позже.');
         default:
-          throw new Error(`AI service error (${error.response.status}). Please try again later.`);
+          throw new Error(`Ошибка AI сервиса (${error.response.status}). Пожалуйста, попробуйте позже.`);
       }
     }
     
@@ -197,11 +219,15 @@ export const sendMessageToAI = async (
       throw error;
     }
     
-    throw new Error('An unexpected error occurred. Please try again.');
+    throw new Error('Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова.');
   }
 };
 
 export const createChat = async (userId: string, model: string = 'qwen3') => {
+  if (!navigator.onLine) {
+    throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
+  }
+
   const { data: chat, error } = await supabase
     .from('chats')
     .insert([{ user_id: userId, model }])
@@ -213,6 +239,10 @@ export const createChat = async (userId: string, model: string = 'qwen3') => {
 };
 
 export const saveMessage = async (chatId: string, message: Omit<Message, 'id'>) => {
+  if (!navigator.onLine) {
+    throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
+  }
+
   const { data, error } = await supabase
     .from('messages')
     .insert([{
@@ -231,6 +261,10 @@ export const saveMessage = async (chatId: string, message: Omit<Message, 'id'>) 
 };
 
 export const getChatMessages = async (chatId: string) => {
+  if (!navigator.onLine) {
+    throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
+  }
+
   const { data: messages, error } = await supabase
     .from('messages')
     .select('*')
@@ -242,6 +276,10 @@ export const getChatMessages = async (chatId: string) => {
 };
 
 export const deleteChat = async (chatId: string) => {
+  if (!navigator.onLine) {
+    throw new Error('Нет подключения к интернету. Пожалуйста, проверьте соединение и попробуйте снова.');
+  }
+
   const { error } = await supabase
     .from('chats')
     .delete()
