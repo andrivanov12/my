@@ -53,7 +53,6 @@ export const AI_MODELS: AIModel[] = [
     value: 'meta-llama/llama-4-maverick',
     supportsImages: true 
   },
-  { id: 'grok3', name: 'Grok 3 Mini Beta', value: 'x-ai/grok-3-mini-beta' },
   { id: 'deepseek', name: 'Deepseek Chat', value: 'deepseek/deepseek-chat-v3-0324' },
   { id: 'qwen3-235b', name: 'Qwen 3 235B', value: 'qwen/qwen3-235b-a22b' },
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
