@@ -3,6 +3,7 @@ import { Send, Trash2, Loader2, Settings, Heart, ChevronDown, Paperclip } from '
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
+import { uploadFile } from '../services/chatService';
 
 const AdBlock = ({ position }: { position: string }) => {
   const adRef = useRef<HTMLDivElement>(null);
