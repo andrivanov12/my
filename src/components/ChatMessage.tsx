@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { MessageSquare, AlertTriangle, Copy, Check, FileText, Image, Film, Music, File, Download } from 'lucide-react';
-import { Message, Attachment } from '../services/chatService';
+import { MessageSquare, AlertTriangle, Copy, Check, FileText, Download } from 'lucide-react';
+import { Message } from '../services/chatService';
 
 interface ChatMessageProps {
   message: Message;
@@ -14,6 +14,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     minute: '2-digit' 
   });
 
+  // Function to handle copying code
   const handleCopy = async (text: string, index: number) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -24,77 +25,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     }
   };
 
-  const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="h-4 w-4" />;
-    if (type.startsWith('video/')) return <Film className="h-4 w-4" />;
-    if (type.startsWith('audio/')) return <Music className="h-4 w-4" />;
-    if (type.startsWith('text/') || type.includes('document')) return <FileText className="h-4 w-4" />;
-    return <File className="h-4 w-4" />;
-  };
-
-  const renderAttachment = (attachment: Attachment) => {
-    if (attachment.type.startsWith('image/')) {
-      return (
-        <div className="relative group">
-          <img
-            src={attachment.url}
-            alt={attachment.name}
-            className="max-w-full h-auto rounded-lg"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-            <a
-              href={attachment.url}
-              download={attachment.name}
-              className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-              title="Скачать изображение"
-            >
-              <Download className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    if (attachment.type.startsWith('video/')) {
-      return (
-        <video
-          controls
-          className="max-w-full rounded-lg"
-          src={attachment.url}
-        >
-          Your browser does not support the video tag.
-        </video>
-      );
-    }
-
-    if (attachment.type.startsWith('audio/')) {
-      return (
-        <audio
-          controls
-          className="w-full"
-          src={attachment.url}
-        >
-          Your browser does not support the audio tag.
-        </audio>
-      );
-    }
-
-    return (
-      <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-        {getFileIcon(attachment.type)}
-        <span className="flex-1 text-sm truncate">{attachment.name}</span>
-        <a
-          href={attachment.url}
-          download={attachment.name}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
-          title="Скачать файл"
-        >
-          <Download className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-        </a>
-      </div>
-    );
-  };
-
+  // Function to format message content with copyable code blocks
   const formatContent = () => {
     if (isUser) {
       return (
@@ -103,8 +34,20 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           {message.attachments && message.attachments.length > 0 && (
             <div className="mt-2 space-y-2">
               {message.attachments.map((attachment, index) => (
-                <div key={index}>
-                  {renderAttachment(attachment)}
+                <div 
+                  key={index}
+                  className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <span className="flex-1 text-sm truncate">{attachment.name}</span>
+                  <a
+                    href={attachment.url}
+                    download={attachment.name}
+                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
+                    title="Download file"
+                  >
+                    <Download className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  </a>
                 </div>
               ))}
             </div>
@@ -113,10 +56,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       );
     }
 
+    // Split content by code blocks
     const parts = message.content.split(/(```[\s\S]*?```)/g);
     
     return parts.map((part, index) => {
+      // Check if this is a code block
       if (part.startsWith('```') && part.endsWith('```')) {
+        // Extract language and code
         const content = part.slice(3, -3).trim();
         const firstLineEnd = content.indexOf('\n');
         const language = firstLineEnd > -1 ? content.slice(0, firstLineEnd).trim() : '';
@@ -156,12 +102,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         );
       }
       
+      // Regular text with enhanced formatting
       return part.trim() ? (
         <div 
           key={index} 
           className="prose dark:prose-invert max-w-none my-2 first:mt-0 last:mb-0 text-gray-800 dark:text-gray-200"
         >
           {part.split('\n').map((line, lineIndex) => {
+            // Check for list items
             if (line.startsWith('• ') || line.startsWith('⊚ ')) {
               return (
                 <div 
@@ -176,6 +124,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               );
             }
             
+            // Regular paragraph
             return line.trim() ? (
               <p key={lineIndex} className="my-2 leading-relaxed">
                 {line}

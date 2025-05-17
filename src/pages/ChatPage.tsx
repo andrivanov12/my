@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-react';
+import { Send, Trash2, Loader2, Settings, Heart, ChevronDown, Paperclip } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
-import FileUpload from '../components/FileUpload';
-import { uploadFile } from '../services/chatService';
 
 const AdBlock = ({ position }: { position: string }) => {
   const adRef = useRef<HTMLDivElement>(null);
@@ -87,9 +85,9 @@ const ChatPage: React.FC = () => {
   const { messages, loading, sendMessage, clearChat } = useChat();
   const [inputMessage, setInputMessage] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,12 +101,10 @@ const ChatPage: React.FC = () => {
     inputRef.current?.focus();
   }, []);
 
-  const handleFilesSelected = (files: File[]) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
     setAttachments(prev => [...prev, ...files]);
-  };
-
-  const handleFileRemove = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    if (event.target.value) event.target.value = '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,21 +114,14 @@ const ChatPage: React.FC = () => {
       setInputMessage('');
       
       try {
-        setUploadProgress(0);
         const uploadedFiles = await Promise.all(
-          attachments.map(async (file, index) => {
-            const result = await uploadFile(file);
-            setUploadProgress((index + 1) / attachments.length * 100);
-            return result;
-          })
+          attachments.map(file => uploadFile(file))
         );
         
         await sendMessage(messageToSend, uploadedFiles);
         setAttachments([]);
-        setUploadProgress(0);
       } catch (error) {
         console.error('Error sending message:', error);
-        setUploadProgress(0);
       }
     }
   };
@@ -141,22 +130,6 @@ const ChatPage: React.FC = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
-    }
-  };
-
-  const handlePaste = async (e: React.ClipboardEvent) => {
-    const items = e.clipboardData.items;
-    const files: File[] = [];
-
-    for (const item of Array.from(items)) {
-      if (item.kind === 'file') {
-        const file = item.getAsFile();
-        if (file) files.push(file);
-      }
-    }
-
-    if (files.length > 0) {
-      handleFilesSelected(files);
     }
   };
 
@@ -226,65 +199,80 @@ const ChatPage: React.FC = () => {
               </div>
               
               <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 bg-gray-50 dark:bg-gray-900">
-                {uploadProgress > 0 && (
-                  <div className="mb-2">
-                    <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-primary-500 transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
+                {attachments.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg text-sm border border-gray-200 dark:border-gray-700"
+                      >
+                        <span className="truncate max-w-[150px]">{file.name}</span>
+                        <button
+                          onClick={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                          className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-                  <FileUpload
-                    onFilesSelected={handleFilesSelected}
-                    onFileRemove={handleFileRemove}
-                    attachments={attachments}
+                
+                <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    multiple
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-primary-500 dark:text-gray-400 dark:hover:text-primary-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
+                    title="Прикрепить файл"
+                  >
+                    <Paperclip className="h-5 w-5" />
+                  </button>
+                  
+                  <textarea
+                    ref={inputRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Напишите сообщение..."
+                    className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
+                    style={{ minHeight: '40px', maxHeight: '40px' }}
+                    rows={1}
                     disabled={loading}
                   />
                   
-                  <div className="flex items-center gap-2">
-                    <textarea
-                      ref={inputRef}
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      onPaste={handlePaste}
-                      placeholder="Напишите сообщение..."
-                      className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
-                      style={{ minHeight: '40px', maxHeight: '40px' }}
-                      rows={1}
-                      disabled={loading}
-                    />
-                    
-                    {messages.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={clearChat}
-                        className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
-                        title="Очистить чат"
-                        disabled={loading}
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    )}
-                    
+                  {messages.length > 0 && (
                     <button
-                      type="submit"
-                      className={`h-10 w-10 flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 ${
-                        loading || (!inputMessage.trim() && attachments.length === 0) ? 'opacity-70 cursor-not-allowed' : ''
-                      }`}
-                      disabled={loading || (!inputMessage.trim() && attachments.length === 0)}
+                      type="button"
+                      onClick={clearChat}
+                      className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300  dark:border-gray-600 transition-colors duration-200"
+                      title="Очистить чат"
+                      disabled={loading}
                     >
-                      {loading ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Send className="h-5 w-5" />
-                      )}
+                      <Trash2 className="h-5 w-5" />
                     </button>
-                  </div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className={`h-10 w-10 flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 ${
+                      loading || (!inputMessage.trim() && attachments.length === 0) ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
+                    disabled={loading || (!inputMessage.trim() && attachments.length === 0)}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Send className="h-5 w-5" />
+                    )}
+                  </button>
                 </form>
               </div>
             </div>

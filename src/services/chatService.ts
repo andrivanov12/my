@@ -26,36 +26,6 @@ export const AI_MODELS: AIModel[] = [
   { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
 ];
 
-export const SUPPORTED_FILE_TYPES = {
-  'image/jpeg': true,
-  'image/png': true,
-  'image/gif': true,
-  'image/webp': true,
-  'application/pdf': true,
-  'text/plain': true,
-  'application/msword': true,
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
-  'audio/mpeg': true,
-  'audio/wav': true,
-  'audio/ogg': true,
-  'video/mp4': true,
-  'video/webm': true
-};
-
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-export const validateFile = (file: File): string | null => {
-  if (!SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES]) {
-    return 'Unsupported file type';
-  }
-  
-  if (file.size > MAX_FILE_SIZE) {
-    return 'File size exceeds 10MB limit';
-  }
-  
-  return null;
-};
-
 const cleanAIResponse = (text: string): string => {
   // Remove markdown headers (###)
   text = text.replace(/#{1,6}\s/g, '');
@@ -94,25 +64,15 @@ const cleanAIResponse = (text: string): string => {
 };
 
 export const uploadFile = async (file: File) => {
-  if (!SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES]) {
-    throw new Error('Unsupported file type');
-  }
-
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
   const filePath = `uploads/${fileName}`;
 
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('chat-attachments')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
+    .upload(filePath, file);
 
-  if (uploadError) {
-    console.error('Upload error:', uploadError);
-    throw new Error('Failed to upload file');
-  }
+  if (error) throw error;
 
   const { data: { publicUrl } } = supabase.storage
     .from('chat-attachments')
