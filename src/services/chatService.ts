@@ -26,21 +26,35 @@ export const AI_MODELS: AIModel[] = [
   { id: 'gemini-20', name: 'Gemini 2.0 Flash', value: 'google/gemini-2.0-flash-lite-001' }
 ];
 
-const SUPPORTED_FILE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'application/pdf',
-  'text/plain',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'audio/mpeg',
-  'audio/wav',
-  'audio/ogg',
-  'video/mp4',
-  'video/webm'
-];
+export const SUPPORTED_FILE_TYPES = {
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'image/webp': true,
+  'application/pdf': true,
+  'text/plain': true,
+  'application/msword': true,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
+  'audio/mpeg': true,
+  'audio/wav': true,
+  'audio/ogg': true,
+  'video/mp4': true,
+  'video/webm': true
+};
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export const validateFile = (file: File): string | null => {
+  if (!SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES]) {
+    return 'Unsupported file type';
+  }
+  
+  if (file.size > MAX_FILE_SIZE) {
+    return 'File size exceeds 10MB limit';
+  }
+  
+  return null;
+};
 
 const cleanAIResponse = (text: string): string => {
   // Remove markdown headers (###)
@@ -80,7 +94,7 @@ const cleanAIResponse = (text: string): string => {
 };
 
 export const uploadFile = async (file: File) => {
-  if (!SUPPORTED_FILE_TYPES.includes(file.type)) {
+  if (!SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES]) {
     throw new Error('Unsupported file type');
   }
 
@@ -224,5 +238,3 @@ export const deleteChat = async (chatId: string) => {
 
   if (error) throw error;
 };
-
-export { SUPPORTED_FILE_TYPES }
