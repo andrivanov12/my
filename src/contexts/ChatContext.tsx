@@ -92,15 +92,33 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Error sending message:', error);
       
-      const errorMessage: Message = {
+      let errorMessage = 'An error occurred while processing your request.';
+      
+      if (error instanceof Error) {
+        // Check for specific error types and provide user-friendly messages
+        if (error.message.includes('rate limit')) {
+          errorMessage = 'You have reached the rate limit. Please wait a moment before sending another message.';
+        } else if (error.message.includes('authentication')) {
+          errorMessage = 'There was an authentication error. Please try selecting a different AI model.';
+        } else if (error.message.includes('credits')) {
+          errorMessage = 'Insufficient credits. Please try selecting a different AI model or try again later.';
+        } else if (error.message.includes('Provider returned error')) {
+          errorMessage = 'The AI service is currently unavailable. Please try selecting a different model or try again later.';
+        } else {
+          // Include the actual error message for other cases
+          errorMessage = `Error: ${error.message}`;
+        }
+      }
+
+      const errorResponse: Message = {
         id: uuidv4(),
         role: 'assistant',
-        content: error instanceof Error ? error.message : 'An error occurred while processing your request.',
+        content: errorMessage,
         timestamp: new Date().toISOString(),
         isError: true,
       };
 
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      setMessages((prevMessages) => [...prevMessages, errorResponse]);
     } finally {
       setLoading(false);
     }
