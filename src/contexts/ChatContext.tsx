@@ -9,7 +9,7 @@ interface ChatContextType {
   sessionId: string;
   selectedModel: string;
   availableModels: AIModel[];
-  sendMessage: (content: string) => Promise<void>;
+  sendMessage: (content: string, attachments?: File[]) => Promise<void>;
   clearChat: () => void;
   setSelectedModel: (modelId: string) => void;
 }
@@ -60,21 +60,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     localStorage.setItem('selected_model', selectedModel);
   }, [selectedModel]);
 
-  const sendMessage = async (content: string) => {
-    if (!content.trim()) return;
+  const sendMessage = async (content: string, attachments?: File[]) => {
+    if (!content.trim() && (!attachments || attachments.length === 0)) return;
 
     const userMessage: Message = {
       id: uuidv4(),
       role: 'user',
       content,
       timestamp: new Date().toISOString(),
+      attachments: attachments?.map(file => ({
+        name: file.name,
+        type: file.type,
+        size: file.size
+      }))
     };
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setLoading(true);
 
     try {
-      const aiResponse = await sendMessageToAI(content, messages, selectedModel);
+      const aiResponse = await sendMessageToAI(content, messages, selectedModel, attachments);
       
       const aiMessage: Message = {
         id: uuidv4(),

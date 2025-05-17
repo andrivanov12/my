@@ -7,6 +7,14 @@ export interface Message {
   content: string;
   timestamp: string;
   isError?: boolean;
+  attachments?: FileAttachment[];
+}
+
+export interface FileAttachment {
+  name: string;
+  type: string;
+  size: number;
+  url?: string;
 }
 
 export interface AIModel {
@@ -14,6 +22,30 @@ export interface AIModel {
   name: string;
   value: string;
 }
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export const SUPPORTED_FILE_TYPES = {
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'application/pdf': true,
+  'text/plain': true,
+  'application/msword': true,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true
+};
+
+export const validateFile = (file: File): string | null => {
+  if (file.size > MAX_FILE_SIZE) {
+    return 'File size exceeds 10MB limit';
+  }
+  
+  if (!SUPPORTED_FILE_TYPES[file.type]) {
+    return 'Unsupported file type';
+  }
+  
+  return null;
+};
 
 export const AI_MODELS: AIModel[] = [
   { id: 'qwen3', name: 'Qwen 3 30B', value: 'qwen/qwen3-30b-a3b' },
@@ -58,10 +90,25 @@ const cleanAIResponse = (text: string): string => {
   return processed.join('\n').trim();
 };
 
+export const uploadFile = async (file: File): Promise<string> => {
+  const { data, error } = await supabase.storage
+    .from('chat-attachments')
+    .upload(`${Date.now()}-${file.name}`, file);
+
+  if (error) throw error;
+  
+  const { data: { publicUrl } } = supabase.storage
+    .from('chat-attachments')
+    .getPublicUrl(data.path);
+
+  return publicUrl;
+};
+
 export const sendMessageToAI = async (
   message: string, 
   previousMessages: Message[],
-  modelId: string = 'qwen3'
+  modelId: string = 'qwen3',
+  attachments?: File[]
 ): Promise<string> => {
   try {
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -75,6 +122,26 @@ export const sendMessageToAI = async (
       throw new Error('Invalid model selected');
     }
 
+    // Upload files if present
+    const uploadedAttachments = attachments ? await Promise.all(
+      attachments.map(async (file) => {
+        const url = await uploadFile(file);
+        return {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          url
+        };
+      })
+    ) : [];
+
+    // Prepare message content with file information
+    const messageWithAttachments = attachments?.length 
+      ? `${message}\n\nПрикрепленные файлы:\n${uploadedAttachments
+          .map(att => `- ${att.name} (${att.type})`)
+          .join('\n')}`
+      : message;
+
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
@@ -86,7 +153,7 @@ export const sendMessageToAI = async (
           })),
           {
             role: 'user',
-            content: message
+            content: messageWithAttachments
           }
         ]
       },
@@ -142,7 +209,8 @@ export const saveMessage = async (chatId: string, message: Omit<Message, 'id'>) 
       role: message.role,
       content: message.content,
       timestamp: message.timestamp,
-      is_error: message.isError || false
+      is_error: message.isError || false,
+      attachments: message.attachments || null
     }])
     .select()
     .single();

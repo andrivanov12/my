@@ -3,6 +3,7 @@ import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-reac
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
+import FileUpload from '../components/FileUpload';
 
 const AdBlock = ({ position }: { position: string }) => {
   const adRef = useRef<HTMLDivElement>(null);
@@ -84,6 +85,7 @@ const ModelSelector = () => {
 const ChatPage: React.FC = () => {
   const { messages, loading, sendMessage, clearChat } = useChat();
   const [inputMessage, setInputMessage] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -101,10 +103,12 @@ const ChatPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() && !loading) {
+    if ((inputMessage.trim() || attachments.length > 0) && !loading) {
       const messageToSend = inputMessage;
+      const filesToSend = [...attachments];
       setInputMessage('');
-      await sendMessage(messageToSend);
+      setAttachments([]);
+      await sendMessage(messageToSend, filesToSend);
     }
   };
 
@@ -113,6 +117,14 @@ const ChatPage: React.FC = () => {
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleFilesSelected = (files: File[]) => {
+    setAttachments(prev => [...prev, ...files]);
+  };
+
+  const handleFileRemove = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -181,44 +193,53 @@ const ChatPage: React.FC = () => {
               </div>
               
               <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 bg-gray-50 dark:bg-gray-900">
-                <form onSubmit={handleSubmit} className="flex items-center space-x-2">
-                  <textarea
-                    ref={inputRef}
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Напишите сообщение..."
-                    className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
-                    style={{ minHeight: '40px', maxHeight: '40px' }}
-                    rows={1}
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <FileUpload
+                    onFilesSelected={handleFilesSelected}
+                    onFileRemove={handleFileRemove}
+                    attachments={attachments}
                     disabled={loading}
                   />
                   
-                  {messages.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearChat}
-                      className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
-                      title="Очистить чат"
+                  <div className="flex items-center space-x-2">
+                    <textarea
+                      ref={inputRef}
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Напишите сообщение..."
+                      className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
+                      style={{ minHeight: '40px', maxHeight: '40px' }}
+                      rows={1}
                       disabled={loading}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  )}
-                  
-                  <button
-                    type="submit"
-                    className={`h-10 w-10 flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 ${
-                      loading || !inputMessage.trim() ? 'opacity-70 cursor-not-allowed' : ''
-                    }`}
-                    disabled={loading || !inputMessage.trim()}
-                  >
-                    {loading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <Send className="h-5 w-5" />
+                    />
+                    
+                    {messages.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={clearChat}
+                        className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
+                        title="Очистить чат"
+                        disabled={loading}
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     )}
-                  </button>
+                    
+                    <button
+                      type="submit"
+                      className={`h-10 w-10 flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 ${
+                        loading || (!inputMessage.trim() && attachments.length === 0) ? 'opacity-70 cursor-not-allowed' : ''
+                      }`}
+                      disabled={loading || (!inputMessage.trim() && attachments.length === 0)}
+                    >
+                      {loading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Send className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
