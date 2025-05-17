@@ -177,50 +177,68 @@ export const sendMessageToAI = async (
       }
     );
 
-    // Log the raw response for debugging
-    console.debug('AI service response:', response.data);
+    // Log the complete response data for debugging
+    console.debug('AI service complete response:', response.data);
 
-    // More robust response validation
+    // More robust response validation with detailed error messages
     if (!response.data) {
-      throw new Error('Empty response received from AI service');
+      throw new Error('Empty response received from AI service. Please try again or check OpenRouter status.');
     }
 
-    if (!response.data.choices || !Array.isArray(response.data.choices) || response.data.choices.length === 0) {
-      throw new Error('No choices received in AI service response');
+    if (!response.data.choices || !Array.isArray(response.data.choices)) {
+      throw new Error('Invalid response format from AI service. The response is missing the choices array.');
+    }
+
+    if (response.data.choices.length === 0) {
+      throw new Error('AI service returned an empty response. Please try again or check if the model is currently available.');
     }
 
     const firstChoice = response.data.choices[0];
-    if (!firstChoice || typeof firstChoice !== 'object') {
-      throw new Error('Invalid choice format in AI service response');
+    if (!firstChoice) {
+      throw new Error('AI service response is missing the first choice. Please try again.');
     }
 
-    if (!firstChoice.message || typeof firstChoice.message !== 'object') {
-      throw new Error('Invalid message format in AI service response');
+    if (!firstChoice.message) {
+      throw new Error('AI service response is missing the message object. Please try again.');
     }
 
-    if (typeof firstChoice.message.content !== 'string') {
-      throw new Error('Invalid content format in AI service response');
+    const content = firstChoice.message.content;
+    if (typeof content !== 'string') {
+      throw new Error('AI service response content is invalid. Please try again.');
     }
 
-    return cleanAIResponse(firstChoice.message.content);
+    if (content.trim() === '') {
+      throw new Error('AI service returned an empty message. Please try again.');
+    }
+
+    return cleanAIResponse(content);
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
+    
+    // Enhanced error handling with more specific error messages
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
         throw new Error('Authentication failed. Please check your OpenRouter API key.');
       } else if (error.response?.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
+        throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
       } else if (error.response?.status === 402) {
-        throw new Error('Insufficient credits. Please check your OpenRouter account.');
+        throw new Error('Insufficient credits. Please check your OpenRouter account balance.');
+      } else if (error.response?.status === 503) {
+        throw new Error('AI service is temporarily unavailable. Please try again later.');
+      } else if (error.response?.status === 504) {
+        throw new Error('AI service request timed out. Please try again.');
       } else {
-        // Log the error response for debugging
-        console.error('AI service error response:', error.response?.data);
+        console.error('AI service detailed error response:', error.response?.data);
+        throw new Error(`AI service error (${error.response?.status || 'unknown'}). Please try again later.`);
       }
     }
+    
     if (error instanceof Error) {
+      // Preserve custom error messages
       throw error;
     }
-    throw new Error('Failed to get response from AI service. Please try again.');
+    
+    throw new Error('An unexpected error occurred while communicating with the AI service. Please try again.');
   }
 };
 
