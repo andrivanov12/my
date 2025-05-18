@@ -59,33 +59,11 @@ const BinanceBanner: React.FC = () => (
       rel="noopener noreferrer"
       className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="relative bg-[#0B0E11] p-6 h-full flex flex-col justify-between">
-        <div className="space-y-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
-            Исследуйте криптовалюты вместе со мной на платформе Binance
-          </h2>
-          
-          <p className="text-lg text-gray-300">
-            Присоединяйтесь к ведущей в мире платформе для торговли криптовалютой прямо сейчас!
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between mt-6">
-          <div className="flex items-center gap-2">
-            <img 
-              src="https://public.bnbstatic.com/20190405/eb2349c3-b2f8-4a93-a286-8f86a62ea9d8.png" 
-              alt="Binance Logo" 
-              className="h-8"
-            />
-            <span className="text-[#F3BA2F] font-bold text-xl">BINANCE</span>
-          </div>
-          <img 
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==" 
-            alt="QR Code" 
-            className="h-20 w-20"
-          />
-        </div>
-      </div>
+      <img 
+        src="https://i.ibb.co/VxKMvrq/binance-banner.jpg" 
+        alt="Binance Crypto Trading"
+        className="w-full h-full object-cover rounded-lg"
+      />
     </a>
   </div>
 );
