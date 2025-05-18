@@ -7,8 +7,8 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-white dark:bg-gray-800 shadow-inner py-3 md:py-4">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 text-left">
             &copy; {currentYear} ChatGPT Без Регистрации. Все права защищены.
           </p>
           
@@ -20,12 +20,12 @@ const Footer: React.FC = () => {
             title="Связаться с нами в Telegram"
           >
             <MessageCircle className="h-5 w-5 md:h-6 md:w-6" />
-            <span className="text-sm md:text-base">Telegram</span>
+            <span className="text-sm">Telegram</span>
           </a>
 
-          <div className="flex items-center text-xs md:text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
             <span>Создано с</span>
-            <Heart className="h-3 w-3 md:h-4 md:w-4 mx-1 text-red-500 animate-pulse-light" />
+            <Heart className="h-3 w-3 mx-1 text-red-500 animate-pulse-light" />
             <span>для простых разговоров с ИИ</span>
           </div>
         </div>
