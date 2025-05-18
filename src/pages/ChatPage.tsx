@@ -59,33 +59,52 @@ const BinanceBanner: React.FC = () => (
       rel="noopener noreferrer"
       className="block overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="bg-gradient-to-r from-[#F3BA2F] to-[#FCD435] p-6 relative">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-12"></div>
+      <div className="relative bg-gradient-to-r from-[#F3BA2F] via-[#FCD435] to-[#FFE873] p-6">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-white/20 to-transparent rounded-full -translate-y-24 translate-x-24 animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-white/20 to-transparent rounded-full translate-y-20 -translate-x-16 animate-pulse"></div>
+          <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-white/10 to-transparent rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+        </div>
         
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-black rounded-lg p-2">
-              <div className="text-[#F3BA2F] font-bold text-xl">B</div>
+          <div className="flex items-center gap-4 mb-5">
+            <div className="bg-black rounded-xl p-3 shadow-lg">
+              <div className="text-[#F3BA2F] font-bold text-2xl">B</div>
             </div>
-            <h3 className="text-2xl font-bold text-black">
+            <h3 className="text-3xl font-bold text-black">
               BINANCE
             </h3>
           </div>
           
-          <div className="space-y-3">
-            <p className="text-black/90 text-lg font-semibold">
-              Крупнейшая криптобиржа
-            </p>
-            <div className="space-y-1">
-              <p className="text-black/80">• Низкие комиссии</p>
-              <p className="text-black/80">• Высокая ликвидность</p>
-              <p className="text-black/80">• Надежная безопасность</p>
+          <div className="space-y-4">
+            <div>
+              <p className="text-black/90 text-xl font-bold mb-2">
+                Торгуйте криптовалютой
+              </p>
+              <p className="text-black/80 text-lg">
+                Самая популярная биржа в мире
+              </p>
             </div>
             
-            <div className="mt-4 inline-flex items-center gap-2 bg-black text-[#F3BA2F] hover:bg-black/90 transition-colors duration-200 rounded-lg px-4 py-2 font-medium">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-black/90">
+                <span className="text-2xl">•</span>
+                <p className="font-medium">Комиссия всего 0.1%</p>
+              </div>
+              <div className="flex items-center gap-2 text-black/90">
+                <span className="text-2xl">•</span>
+                <p className="font-medium">Более 350+ криптовалют</p>
+              </div>
+              <div className="flex items-center gap-2 text-black/90">
+                <span className="text-2xl">•</span>
+                <p className="font-medium">Мгновенный вывод средств</p>
+              </div>
+            </div>
+            
+            <div className="mt-6 inline-flex items-center gap-3 bg-black text-[#F3BA2F] hover:bg-black/90 transition-all duration-300 rounded-xl px-6 py-3 font-bold text-lg shadow-lg hover:shadow-xl">
               Начать торговлю
-              <span className="text-xl">→</span>
+              <span className="text-2xl">→</span>
             </div>
           </div>
         </div>
