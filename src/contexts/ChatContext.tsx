@@ -45,7 +45,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const savedModel = localStorage.getItem('selected_model');
-    return savedModel || 'qwen3';
+    // Validate the saved model exists in AI_MODELS, otherwise use default
+    return AI_MODELS.find(model => model.id === savedModel) ? savedModel : 'qwen3';
   });
 
   useEffect(() => {
@@ -62,6 +63,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const sendMessage = async (content: string, attachments?: File[]) => {
     if (!content.trim() && (!attachments || attachments.length === 0)) return;
+
+    // Validate selected model before proceeding
+    if (!AI_MODELS.find(model => model.id === selectedModel)) {
+      const errorResponse: Message = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: `Invalid AI model selected. Please choose a valid model from the dropdown menu.`,
+        timestamp: new Date().toISOString(),
+        isError: true,
+      };
+      setMessages((prevMessages) => [...prevMessages, errorResponse]);
+      return;
+    }
 
     const userMessage: Message = {
       id: uuidv4(),
