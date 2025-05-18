@@ -14,6 +14,26 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
+        {/* Bolt new Banner */}
+        <div className="max-w-4xl mx-auto mb-8 md:mb-12">
+          <a 
+            href="https://bolt.new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-gradient-to-r from-primary-600 to-secondary-500 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+          >
+            <div className="px-6 py-4 md:py-6 text-white">
+              <h2 className="text-xl md:text-2xl font-bold mb-2">
+                Создавайте свои проекты с Bolt new
+              </h2>
+              <p className="text-white/90">
+                Быстрая разработка веб-приложений с использованием современных технологий.
+                Начните бесплатно прямо сейчас!
+              </p>
+            </div>
+          </a>
+        </div>
+
         <section className="max-w-4xl mx-auto text-center mb-12 md:mb-16">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
             Бесплатный ChatGPT без регистрации
