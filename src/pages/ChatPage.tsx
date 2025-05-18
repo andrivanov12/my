@@ -54,57 +54,36 @@ const RegRuBanner: React.FC = () => (
 const BinanceBanner: React.FC = () => (
   <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
     <a 
-      href="https://www.binance.com/referral/earn-together/refertoearn2000usdc/claim?hl=ru&ref=GRO_14352_3FTQF"
+      href="https://accounts.binance.com/register?ref=35897353&utm_medium=web_share_copy"
       target="_blank"
       rel="noopener noreferrer"
       className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="relative bg-[#0B0E11] p-6 h-full">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-[#F3BA2F]/10 rounded-full -translate-y-24 translate-x-24 animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#F3BA2F]/10 rounded-full translate-y-20 -translate-x-16 animate-pulse"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="bg-[#F3BA2F] rounded-xl p-3 shadow-lg">
-              <div className="text-black font-bold text-2xl">B</div>
-            </div>
-            <h3 className="text-3xl font-bold text-[#F3BA2F]">
-              BINANCE
-            </h3>
-          </div>
+      <div className="relative bg-[#0B0E11] p-6 h-full flex flex-col justify-between">
+        <div className="space-y-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
+            Исследуйте криптовалюты вместе со мной на платформе Binance
+          </h2>
           
-          <div className="space-y-4">
-            <div>
-              <p className="text-2xl font-bold text-white mb-2">
-                Выиграйте до 2000 USDC!
-              </p>
-              <p className="text-lg text-gray-300">
-                Участвуйте в реферальной программе
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-200">
-                <span className="text-[#F3BA2F]">•</span>
-                <p>Комиссия всего 0.1%</p>
-              </div>
-              <div className="flex items-center gap-2 text-gray-200">
-                <span className="text-[#F3BA2F]">•</span>
-                <p>350+ криптовалют</p>
-              </div>
-              <div className="flex items-center gap-2 text-gray-200">
-                <span className="text-[#F3BA2F]">•</span>
-                <p>Мгновенный вывод</p>
-              </div>
-            </div>
-            
-            <div className="mt-6 inline-flex items-center gap-3 bg-[#F3BA2F] hover:bg-[#F3BA2F]/90 transition-all duration-300 rounded-xl px-6 py-3 font-bold text-lg shadow-lg hover:shadow-xl">
-              Начать торговлю
-              <span className="text-2xl">→</span>
-            </div>
+          <p className="text-lg text-gray-300">
+            Присоединяйтесь к ведущей в мире платформе для торговли криптовалютой прямо сейчас!
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-2">
+            <img 
+              src="https://public.bnbstatic.com/20190405/eb2349c3-b2f8-4a93-a286-8f86a62ea9d8.png" 
+              alt="Binance Logo" 
+              className="h-8"
+            />
+            <span className="text-[#F3BA2F] font-bold text-xl">BINANCE</span>
           </div>
+          <img 
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==" 
+            alt="QR Code" 
+            className="h-20 w-20"
+          />
         </div>
       </div>
     </a>
