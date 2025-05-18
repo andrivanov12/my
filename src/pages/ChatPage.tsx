@@ -8,49 +8,6 @@ interface AdBlockProps {
   position: string;
 }
 
-const RegRuBanner: React.FC = () => (
-  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
-    <a 
-      href="https://www.reg.ru/?rlink=reflink-29832781"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
-    >
-      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-6 relative h-full">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-8"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 rounded-lg p-2">
-              <div className="text-white font-bold text-xl">.RU</div>
-            </div>
-            <h3 className="text-2xl font-bold text-white">
-              REG.RU
-            </h3>
-          </div>
-          
-          <div className="space-y-3">
-            <p className="text-white/90 text-lg">
-              Домены от 149₽/год
-            </p>
-            <div className="space-y-1">
-              <p className="text-white/80">• SSL-сертификаты</p>
-              <p className="text-white/80">• Быстрый хостинг</p>
-              <p className="text-white/80">• Конструктор сайтов</p>
-            </div>
-            
-            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors duration-200 rounded-lg px-4 py-2 text-white font-medium">
-              Получить скидку 30%
-              <span className="text-xl">→</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
-);
-
 const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
@@ -66,10 +23,6 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
       adRef.current.appendChild(rtbScript);
     }
   }, [position]);
-
-  if (position === "Верхний 1") {
-    return <RegRuBanner />;
-  }
 
   return (
     <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
