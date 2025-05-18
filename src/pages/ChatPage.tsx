@@ -4,7 +4,31 @@ import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 
-const AdBlock = ({ position }: { position: string }) => {
+interface AdBlockProps {
+  position: string;
+}
+
+const RegRuBanner: React.FC = () => (
+  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <a 
+      href="https://www.reg.ru/?ref=aimarkethub"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105"
+    >
+      <div className="px-4 py-3 text-white">
+        <h3 className="text-lg font-bold mb-1">
+          Домены и хостинг от REG.RU
+        </h3>
+        <p className="text-sm text-white/90">
+          Зарегистрируйте домен и получите надежный хостинг. Специальные цены для новых клиентов!
+        </p>
+      </div>
+    </a>
+  </div>
+);
+
+const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,6 +43,10 @@ const AdBlock = ({ position }: { position: string }) => {
       adRef.current.appendChild(rtbScript);
     }
   }, [position]);
+
+  if (position === "Верхний 1") {
+    return <RegRuBanner />;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
