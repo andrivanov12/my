@@ -51,6 +51,49 @@ const RegRuBanner: React.FC = () => (
   </div>
 );
 
+const BinanceBanner: React.FC = () => (
+  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <a 
+      href="https://accounts.binance.com/register?ref=ED1OSPIJ"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
+    >
+      <div className="bg-gradient-to-r from-[#F3BA2F] to-[#FCD435] p-6 relative">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-12"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-black rounded-lg p-2">
+              <div className="text-[#F3BA2F] font-bold text-xl">B</div>
+            </div>
+            <h3 className="text-2xl font-bold text-black">
+              BINANCE
+            </h3>
+          </div>
+          
+          <div className="space-y-3">
+            <p className="text-black/90 text-lg font-semibold">
+              Крупнейшая криптобиржа
+            </p>
+            <div className="space-y-1">
+              <p className="text-black/80">• Низкие комиссии</p>
+              <p className="text-black/80">• Высокая ликвидность</p>
+              <p className="text-black/80">• Надежная безопасность</p>
+            </div>
+            
+            <div className="mt-4 inline-flex items-center gap-2 bg-black text-[#F3BA2F] hover:bg-black/90 transition-colors duration-200 rounded-lg px-4 py-2 font-medium">
+              Начать торговлю
+              <span className="text-xl">→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+);
+
 const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +112,10 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
 
   if (position === "Верхний 1") {
     return <RegRuBanner />;
+  }
+
+  if (position === "Верхний 2") {
+    return <BinanceBanner />;
   }
 
   return (
