@@ -51,23 +51,6 @@ const RegRuBanner: React.FC = () => (
   </div>
 );
 
-const BinanceBanner: React.FC = () => (
-  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
-    <a 
-      href="https://accounts.binance.com/register?ref=35897353&utm_medium=web_share_copy"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
-    >
-      <img 
-        src="https://i.ibb.co/7tNX3Bmq/photo-2025-05-18-10-25-23.jpg" 
-        alt="Binance Crypto Trading"
-        className="w-full h-full object-cover rounded-lg aspect-video"
-      />
-    </a>
-  </div>
-);
-
 const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
@@ -86,10 +69,6 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
 
   if (position === "Верхний 1") {
     return <RegRuBanner />;
-  }
-
-  if (position === "Верхний 2") {
-    return <BinanceBanner />;
   }
 
   return (
