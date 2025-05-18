@@ -68,6 +68,23 @@ const BinanceBanner: React.FC = () => (
   </div>
 );
 
+const CustomBanner: React.FC = () => (
+  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <a 
+      href="#"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
+    >
+      <img 
+        src="https://i.ibb.co/JRwNsjzc/photo-2025-05-18-11-00-47.jpg" 
+        alt="Advertisement"
+        className="w-full h-full object-cover rounded-lg"
+      />
+    </a>
+  </div>
+);
+
 const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +107,10 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
 
   if (position === "Верхний 2") {
     return <BinanceBanner />;
+  }
+
+  if (position === "Верхний 3") {
+    return <CustomBanner />;
   }
 
   return (
