@@ -9,7 +9,7 @@ interface AdBlockProps {
 }
 
 const RegRuBanner: React.FC = () => (
-  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
+  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
     <a 
       href="https://www.reg.ru/?rlink=reflink-29832781"
       target="_blank"
@@ -47,7 +47,7 @@ const RegRuBanner: React.FC = () => (
 );
 
 const BinanceBanner: React.FC = () => (
-  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
+  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
     <a 
       href="https://accounts.binance.com/register?ref=35897353&utm_medium=web_share_copy"
       target="_blank"
@@ -64,7 +64,7 @@ const BinanceBanner: React.FC = () => (
 );
 
 const CustomBanner: React.FC = () => (
-  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
+  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
     <a 
       href="#"
       target="_blank"
@@ -109,7 +109,7 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   }
 
   return (
-    <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
+    <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
       <div 
         ref={adRef}
         className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-3 flex items-center justify-center"
