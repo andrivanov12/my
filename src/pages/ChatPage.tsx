@@ -11,7 +11,7 @@ interface AdBlockProps {
 const RegRuBanner: React.FC = () => (
   <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
     <a 
-      href="https://www.reg.ru/?ref=aimarkethub"
+      href="https://www.reg.ru/?rlink=reflink-29832781"
       target="_blank"
       rel="noopener noreferrer"
       className="block overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
