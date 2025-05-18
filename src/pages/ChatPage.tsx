@@ -55,7 +55,7 @@ const BinanceBanner: React.FC = () => (
       className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
       <img 
-        src="https://i.ibb.co/7tNX3Bmq/photo-2025-05-18-10-25-23.jpg" 
+        src="https://i.ibb.co/chX1WRnj/photo-2025-05-18-10-25-23.jpg" 
         alt="Binance Crypto Trading"
         className="w-full h-full object-cover rounded-lg"
       />
