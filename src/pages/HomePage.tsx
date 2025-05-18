@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
         {/* Bolt new Banner */}
         <div className="max-w-4xl mx-auto mb-8 md:mb-12">
           <a 
-            href="https://bolt.new/?ref=aimarkethub"
+            href="https://bolt.new/?rid=aier2b"
             target="_blank"
             rel="noopener noreferrer"
             className="block bg-gradient-to-r from-primary-600 to-secondary-500 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
