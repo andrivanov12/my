@@ -239,28 +239,28 @@ export const sendMessageToAI = async (
 
     if (response.data.choices.length === 0) {
       console.error('Empty choices array:', response.data);
-      throw new Error('AI service returned an empty response. Please try again or check if the model is currently available.');
+      return 'The AI model is currently experiencing high load. Please try again in a moment.';
     }
 
     const firstChoice = response.data.choices[0];
     if (!firstChoice) {
       console.error('Missing first choice:', response.data.choices);
-      throw new Error('AI service response is missing the first choice. Please try again.');
+      return 'The AI model is currently unavailable. Please try switching to a different model.';
     }
 
     if (!firstChoice.message) {
       console.error('Missing message in first choice:', firstChoice);
-      throw new Error('AI service response is missing the message object. Please try again.');
+      return 'The AI model returned an invalid response. Please try again with a different query.';
     }
 
     const content = firstChoice.message.content;
     if (typeof content !== 'string') {
       console.error('Invalid content type:', typeof content, content);
-      throw new Error(`AI service response content is invalid. Expected string but got ${typeof content}`);
+      return 'The AI model returned an unexpected response format. Please try again.';
     }
 
     if (content.trim() === '') {
-      throw new Error('AI service returned an empty message. Please try again.');
+      return 'The AI model did not provide a response. Please try rephrasing your question or switching to a different model.';
     }
 
     return cleanAIResponse(content);
