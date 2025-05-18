@@ -4,124 +4,6 @@ import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 
-interface AdBlockProps {
-  position: string;
-}
-
-const RegRuBanner: React.FC = () => (
-  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
-    <a 
-      href="https://www.reg.ru/?rlink=reflink-29832781"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
-    >
-      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-4 relative h-full">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12"></div>
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-10 -translate-x-6"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="bg-white/20 rounded-lg p-1.5">
-              <div className="text-white font-bold text-lg">.RU</div>
-            </div>
-            <h3 className="text-xl font-bold text-white">
-              REG.RU
-            </h3>
-          </div>
-          
-          <div className="space-y-2">
-            <p className="text-white/90 text-base">
-              Домены от 149₽/год
-            </p>
-            <div className="space-y-0.5">
-              <p className="text-white/80 text-sm">• SSL-сертификаты</p>
-              <p className="text-white/80 text-sm">• Быстрый хостинг</p>
-              <p className="text-white/80 text-sm">• Конструктор сайтов</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
-);
-
-const BinanceBanner: React.FC = () => (
-  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
-    <a 
-      href="https://accounts.binance.com/register?ref=35897353&utm_medium=web_share_copy"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
-    >
-      <img 
-        src="https://i.ibb.co/WvHnZ5BL/photo-2025-05-18-11-19-47.jpg" 
-        alt="Binance Crypto Trading"
-        className="w-full h-full object-cover rounded-lg"
-      />
-    </a>
-  </div>
-);
-
-const CustomBanner: React.FC = () => (
-  <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
-    <a 
-      href="#"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
-    >
-      <img 
-        src="https://i.ibb.co/JRwNsjzc/photo-2025-05-18-11-00-47.jpg" 
-        alt="Advertisement"
-        className="w-full h-full object-cover rounded-lg"
-      />
-    </a>
-  </div>
-);
-
-const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
-  const adRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (position === "Верхний 2" && adRef.current) {
-      const script = document.createElement('script');
-      script.text = 'window.yaContextCb=window.yaContextCb||[]';
-      adRef.current.appendChild(script);
-
-      const rtbScript = document.createElement('script');
-      rtbScript.src = 'https://yandex.ru/ads/system/context.js';
-      rtbScript.async = true;
-      adRef.current.appendChild(rtbScript);
-    }
-  }, [position]);
-
-  if (position === "Верхний 1") {
-    return <RegRuBanner />;
-  }
-
-  if (position === "Верхний 2") {
-    return <BinanceBanner />;
-  }
-
-  if (position === "Верхний 3") {
-    return <CustomBanner />;
-  }
-
-  return (
-    <div className="w-[284px] h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md mx-auto">
-      <div 
-        ref={adRef}
-        className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-3 flex items-center justify-center"
-      >
-        <span className="text-gray-500 dark:text-gray-400 text-sm">
-          Рекламный блок - {position}
-        </span>
-      </div>
-    </div>
-  );
-};
-
 const ModelSelector = () => {
   const { selectedModel, availableModels, setSelectedModel } = useChat();
   const [isOpen, setIsOpen] = useState(false);
@@ -213,12 +95,6 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-            <AdBlock position="Верхний 1" />
-            <AdBlock position="Верхний 2" />
-            <AdBlock position="Верхний 3" />
-          </div>
-
           <div className="max-w-3xl mx-auto relative">
             {/* Desktop donation button */}
             <a
@@ -310,12 +186,6 @@ const ChatPage: React.FC = () => {
                 </form>
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-6">
-            <AdBlock position="Нижний 1" />
-            <AdBlock position="Нижний 2" />
-            <AdBlock position="Нижний 3" />
           </div>
         </div>
       </div>
