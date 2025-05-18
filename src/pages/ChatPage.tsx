@@ -9,40 +9,35 @@ interface AdBlockProps {
 }
 
 const RegRuBanner: React.FC = () => (
-  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
     <a 
       href="https://www.reg.ru/?rlink=reflink-29832781"
       target="_blank"
       rel="noopener noreferrer"
       className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-6 relative h-full">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-8"></div>
+      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-4 relative h-full">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-10 -translate-x-6"></div>
         
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 rounded-lg p-2">
-              <div className="text-white font-bold text-xl">.RU</div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="bg-white/20 rounded-lg p-1.5">
+              <div className="text-white font-bold text-lg">.RU</div>
             </div>
-            <h3 className="text-2xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white">
               REG.RU
             </h3>
           </div>
           
-          <div className="space-y-3">
-            <p className="text-white/90 text-lg">
+          <div className="space-y-2">
+            <p className="text-white/90 text-base">
               Домены от 149₽/год
             </p>
-            <div className="space-y-1">
-              <p className="text-white/80">• SSL-сертификаты</p>
-              <p className="text-white/80">• Быстрый хостинг</p>
-              <p className="text-white/80">• Конструктор сайтов</p>
-            </div>
-            
-            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors duration-200 rounded-lg px-4 py-2 text-white font-medium">
-              Получить скидку 30%
-              <span className="text-xl">→</span>
+            <div className="space-y-0.5">
+              <p className="text-white/80 text-sm">• SSL-сертификаты</p>
+              <p className="text-white/80 text-sm">• Быстрый хостинг</p>
+              <p className="text-white/80 text-sm">• Конструктор сайтов</p>
             </div>
           </div>
         </div>
@@ -52,7 +47,7 @@ const RegRuBanner: React.FC = () => (
 );
 
 const BinanceBanner: React.FC = () => (
-  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
     <a 
       href="https://accounts.binance.com/register?ref=35897353&utm_medium=web_share_copy"
       target="_blank"
@@ -69,7 +64,7 @@ const BinanceBanner: React.FC = () => (
 );
 
 const CustomBanner: React.FC = () => (
-  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+  <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
     <a 
       href="#"
       target="_blank"
@@ -114,12 +109,12 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   }
 
   return (
-    <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <div className="h-[160px] bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
       <div 
         ref={adRef}
-        className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]"
+        className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-3 flex items-center justify-center"
       >
-        <span className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
           Рекламный блок - {position}
         </span>
       </div>
