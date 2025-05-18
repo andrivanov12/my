@@ -9,14 +9,14 @@ interface AdBlockProps {
 }
 
 const RegRuBanner: React.FC = () => (
-  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
     <a 
       href="https://www.reg.ru/?rlink=reflink-29832781"
       target="_blank"
       rel="noopener noreferrer"
-      className="block overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
+      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-6 relative">
+      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-6 relative h-full">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-8"></div>
         
@@ -52,57 +52,55 @@ const RegRuBanner: React.FC = () => (
 );
 
 const BinanceBanner: React.FC = () => (
-  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+  <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
     <a 
       href="https://accounts.binance.com/register?ref=ED1OSPIJ"
       target="_blank"
       rel="noopener noreferrer"
-      className="block overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
+      className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
     >
-      <div className="relative bg-gradient-to-r from-[#F3BA2F] via-[#FCD435] to-[#FFE873] p-6">
-        {/* Animated background elements */}
+      <div className="relative bg-[#0B0E11] p-6 h-full">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-white/20 to-transparent rounded-full -translate-y-24 translate-x-24 animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-white/20 to-transparent rounded-full translate-y-20 -translate-x-16 animate-pulse"></div>
-          <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-white/10 to-transparent rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#F3BA2F]/10 rounded-full -translate-y-24 translate-x-24 animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#F3BA2F]/10 rounded-full translate-y-20 -translate-x-16 animate-pulse"></div>
         </div>
         
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-5">
-            <div className="bg-black rounded-xl p-3 shadow-lg">
-              <div className="text-[#F3BA2F] font-bold text-2xl">B</div>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-[#F3BA2F] rounded-xl p-3 shadow-lg">
+              <div className="text-black font-bold text-2xl">B</div>
             </div>
-            <h3 className="text-3xl font-bold text-black">
+            <h3 className="text-3xl font-bold text-[#F3BA2F]">
               BINANCE
             </h3>
           </div>
           
           <div className="space-y-4">
             <div>
-              <p className="text-black/90 text-xl font-bold mb-2">
-                Торгуйте криптовалютой
+              <p className="text-2xl font-bold text-white mb-2">
+                Выиграйте до 2000 USDC!
               </p>
-              <p className="text-black/80 text-lg">
-                Самая популярная биржа в мире
+              <p className="text-lg text-gray-300">
+                Участвуйте в реферальной программе
               </p>
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-black/90">
-                <span className="text-2xl">•</span>
-                <p className="font-medium">Комиссия всего 0.1%</p>
+              <div className="flex items-center gap-2 text-gray-200">
+                <span className="text-[#F3BA2F]">•</span>
+                <p>Комиссия всего 0.1%</p>
               </div>
-              <div className="flex items-center gap-2 text-black/90">
-                <span className="text-2xl">•</span>
-                <p className="font-medium">Более 350+ криптовалют</p>
+              <div className="flex items-center gap-2 text-gray-200">
+                <span className="text-[#F3BA2F]">•</span>
+                <p>350+ криптовалют</p>
               </div>
-              <div className="flex items-center gap-2 text-black/90">
-                <span className="text-2xl">•</span>
-                <p className="font-medium">Мгновенный вывод средств</p>
+              <div className="flex items-center gap-2 text-gray-200">
+                <span className="text-[#F3BA2F]">•</span>
+                <p>Мгновенный вывод</p>
               </div>
             </div>
             
-            <div className="mt-6 inline-flex items-center gap-3 bg-black text-[#F3BA2F] hover:bg-black/90 transition-all duration-300 rounded-xl px-6 py-3 font-bold text-lg shadow-lg hover:shadow-xl">
+            <div className="mt-6 inline-flex items-center gap-3 bg-[#F3BA2F] hover:bg-[#F3BA2F]/90 transition-all duration-300 rounded-xl px-6 py-3 font-bold text-lg shadow-lg hover:shadow-xl">
               Начать торговлю
               <span className="text-2xl">→</span>
             </div>
@@ -138,10 +136,10 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
       <div 
         ref={adRef}
-        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]"
+        className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]"
       >
         <span className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
           Рекламный блок - {position}
