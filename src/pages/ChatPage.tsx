@@ -54,7 +54,7 @@ const RegRuBanner: React.FC = () => (
 const BinanceBanner: React.FC = () => (
   <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
     <a 
-      href="https://accounts.binance.com/register?ref=ED1OSPIJ"
+      href="https://www.binance.com/referral/earn-together/refertoearn2000usdc/claim?hl=ru&ref=GRO_14352_3FTQF"
       target="_blank"
       rel="noopener noreferrer"
       className="block h-full overflow-hidden rounded-lg transform transition-all duration-300 hover:scale-105"
