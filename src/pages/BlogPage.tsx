@@ -13,7 +13,7 @@ const BlogPage: React.FC = () => {
       author: "Команда AI Hub",
       category: "Технологии",
       readTime: "8 мин",
-      image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
       content: `
         <p>Искусственный интеллект переживает беспрецедентный период развития. ChatGPT и подобные языковые модели революционизируют способы взаимодействия человека с технологиями.</p>
         
@@ -46,7 +46,7 @@ const BlogPage: React.FC = () => {
       author: "Эксперт AI",
       category: "Обзоры",
       readTime: "12 мин",
-      image: "https://images.pexels.com/photos/8439093/pexels-photo-8439093.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "https://images.pexels.com/photos/8439093/pexels-photo-8439093.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
       content: `
         <p>Выбор подходящей языковой модели может значительно повлиять на качество получаемых результатов. Рассмотрим особенности каждой модели.</p>
         
@@ -89,7 +89,7 @@ const BlogPage: React.FC = () => {
       author: "Этик AI",
       category: "Этика",
       readTime: "10 мин",
-      image: "https://images.pexels.com/photos/8438918/pexels-photo-8438918.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "https://images.pexels.com/photos/8438918/pexels-photo-8438918.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
       content: `
         <p>С ростом популярности AI-технологий становится важным понимание этических аспектов их использования.</p>
         
@@ -121,7 +121,7 @@ const BlogPage: React.FC = () => {
       author: "Педагог-новатор",
       category: "Образование",
       readTime: "9 мин",
-      image: "https://images.pexels.com/photos/8438979/pexels-photo-8438979.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "https://images.pexels.com/photos/8438979/pexels-photo-8438979.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
       content: `
         <p>Искусственный интеллект открывает новые горизонты в образовании, делая обучение более персонализированным и доступным.</p>
         
@@ -175,11 +175,18 @@ const BlogPage: React.FC = () => {
           </button>
 
           <article className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-            <img 
-              src={article.image} 
-              alt={article.title}
-              className="w-full h-64 md:h-80 object-cover"
-            />
+            <div className="relative">
+              <img 
+                src={article.image} 
+                alt={article.title}
+                className="w-full h-64 md:h-80 object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://via.placeholder.com/800x400/6366f1/ffffff?text=AI+Article';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            </div>
             <div className="p-6 md:p-8">
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                 <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-1 rounded">
@@ -252,20 +259,29 @@ const BlogPage: React.FC = () => {
               className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
               onClick={() => setSelectedArticle(article.id)}
             >
-              <img 
-                src={article.image} 
-                alt={article.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                  <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-1 rounded">
+              <div className="relative">
+                <img 
+                  src={article.image} 
+                  alt={article.title}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://via.placeholder.com/600x300/6366f1/ffffff?text=AI+Blog';
+                  }}
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs font-medium">
                     {article.category}
                   </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     {article.date}
                   </span>
+                  <span>{article.readTime}</span>
                 </div>
 
                 <h2 className="text-xl font-bold mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
@@ -277,12 +293,9 @@ const BlogPage: React.FC = () => {
                 </p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      {article.author}
-                    </span>
-                    <span>{article.readTime}</span>
+                  <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                    <User className="h-4 w-4" />
+                    {article.author}
                   </div>
                   
                   <div className="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-medium">
