@@ -13,7 +13,7 @@ const BlogPage: React.FC = () => {
       author: "Команда AI Hub",
       category: "Технологии",
       readTime: "8 мин",
-      image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/400?random=1",
       content: `
         <p>Искусственный интеллект переживает беспрецедентный период развития. ChatGPT и подобные языковые модели революционизируют способы взаимодействия человека с технологиями.</p>
         
@@ -46,7 +46,7 @@ const BlogPage: React.FC = () => {
       author: "Эксперт AI",
       category: "Обзоры",
       readTime: "12 мин",
-      image: "https://images.pexels.com/photos/8439093/pexels-photo-8439093.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/400?random=2",
       content: `
         <p>Выбор подходящей языковой модели может значительно повлиять на качество получаемых результатов. Рассмотрим особенности каждой модели.</p>
         
@@ -89,7 +89,7 @@ const BlogPage: React.FC = () => {
       author: "Этик AI",
       category: "Этика",
       readTime: "10 мин",
-      image: "https://images.pexels.com/photos/8438918/pexels-photo-8438918.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/400?random=3",
       content: `
         <p>С ростом популярности AI-технологий становится важным понимание этических аспектов их использования.</p>
         
@@ -121,7 +121,7 @@ const BlogPage: React.FC = () => {
       author: "Педагог-новатор",
       category: "Образование",
       readTime: "9 мин",
-      image: "https://images.pexels.com/photos/8438979/pexels-photo-8438979.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/400?random=4",
       content: `
         <p>Искусственный интеллект открывает новые горизонты в образовании, делая обучение более персонализированным и доступным.</p>
         
@@ -155,6 +155,19 @@ const BlogPage: React.FC = () => {
     ? articles 
     : articles.filter(article => article.category === selectedCategory);
 
+  // Функция для создания fallback изображения
+  const createFallbackImage = (title: string, category: string) => {
+    const colors = {
+      'Технологии': '6366f1',
+      'Обзоры': '14b8a6', 
+      'Этика': 'f59e0b',
+      'Образование': 'ef4444'
+    };
+    const color = colors[category as keyof typeof colors] || '6366f1';
+    const encodedTitle = encodeURIComponent(title.substring(0, 30) + '...');
+    return `https://via.placeholder.com/800x400/${color}/ffffff?text=${encodedTitle}`;
+  };
+
   if (selectedArticle) {
     const article = articles.find(a => a.id === selectedArticle);
     if (!article) return null;
@@ -182,16 +195,18 @@ const BlogPage: React.FC = () => {
                 className="w-full h-64 md:h-80 object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = 'https://via.placeholder.com/800x400/6366f1/ffffff?text=AI+Article';
+                  target.src = createFallbackImage(article.title, article.category);
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div className="absolute bottom-4 left-4">
+                <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {article.category}
+                </span>
+              </div>
             </div>
             <div className="p-6 md:p-8">
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-1 rounded">
-                  {article.category}
-                </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
                   {article.date}
@@ -200,6 +215,7 @@ const BlogPage: React.FC = () => {
                   <User className="h-4 w-4" />
                   {article.author}
                 </span>
+                <span>{article.readTime}</span>
               </div>
 
               <h1 className="text-2xl md:text-3xl font-bold mb-6">{article.title}</h1>
@@ -266,7 +282,7 @@ const BlogPage: React.FC = () => {
                   className="w-full h-48 object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = 'https://via.placeholder.com/600x300/6366f1/ffffff?text=AI+Blog';
+                    target.src = createFallbackImage(article.title, article.category);
                   }}
                 />
                 <div className="absolute top-4 left-4">
