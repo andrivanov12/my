@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Brain, Lock, Sparkles } from 'lucide-react';
+import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
 
@@ -56,6 +56,28 @@ const HomePage: React.FC = () => {
           </Link>
         </section>
 
+        {/* Статистика */}
+        <section className="max-w-4xl mx-auto mb-12 md:mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">50K+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Пользователей</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-secondary-600 dark:text-secondary-400 mb-2">1M+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Сообщений</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">6</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">AI Моделей</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-secondary-600 dark:text-secondary-400 mb-2">24/7</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Доступность</div>
+            </div>
+          </div>
+        </section>
+
         <section className="max-w-4xl mx-auto mb-12 md:mb-16 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
             Как использовать ChatGPT без регистрации
@@ -63,6 +85,9 @@ const HomePage: React.FC = () => {
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
               Наш сервис предоставляет простой и быстрый способ общения с искусственным интеллектом без необходимости регистрации или оплаты. Просто нажмите кнопку "Начать общение" и задайте свой вопрос.
+            </p>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Мы интегрировали несколько передовых AI-моделей, включая Qwen 3, Gemini 2.5 Flash, Llama 4 Maverick и другие, чтобы предоставить вам лучший опыт общения с искусственным интеллектом.
             </p>
           </div>
         </section>
@@ -101,6 +126,74 @@ const HomePage: React.FC = () => {
               Начните общение с ИИ прямо сейчас, без лишних шагов и ожидания активации аккаунта.
             </p>
           </article>
+        </section>
+
+        {/* Возможности использования */}
+        <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+            Что можно делать с ChatGPT
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <BookOpen className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Обучение и образование</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Объяснение сложных тем, помощь с домашними заданиями, изучение новых предметов
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <Users className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Работа и бизнес</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Написание писем, создание презентаций, анализ данных, генерация идей
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <Award className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Творчество</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Написание стихов, рассказов, сценариев, создание контента для соцсетей
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Последние статьи из блога */}
+        <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">Полезные статьи</h2>
+            <Link 
+              to="/blog"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1"
+            >
+              Все статьи
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+              <h3 className="font-semibold mb-2 text-lg">
+                <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
+                  Революция искусственного интеллекта: как ChatGPT меняет наш мир
+                </Link>
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                Исследуем влияние больших языковых моделей на различные сферы жизни...
+              </p>
+              <div className="text-xs text-gray-500 dark:text-gray-500">15 января 2025</div>
+            </article>
+            <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+              <h3 className="font-semibold mb-2 text-lg">
+                <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
+                  Сравнение языковых моделей: Qwen vs Gemini vs Llama
+                </Link>
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                Подробный анализ возможностей различных AI-моделей и рекомендации...
+              </p>
+              <div className="text-xs text-gray-500 dark:text-gray-500">12 января 2025</div>
+            </article>
+          </div>
         </section>
 
         <FAQ />

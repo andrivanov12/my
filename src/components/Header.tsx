@@ -1,12 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { MessageSquare, Moon, Sun, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MessageSquare, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import Navigation from './Navigation';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
 
   return (
     <header className="sticky top-0 z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm">
@@ -20,15 +19,7 @@ const Header: React.FC = () => {
         </Link>
         
         <div className="flex items-center gap-2 md:gap-4">
-          {!isHomePage && (
-            <Link 
-              to="/" 
-              className="p-1.5 md:p-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
-              aria-label="Home page"
-            >
-              <Home className="h-4 w-4 md:h-5 md:w-5" />
-            </Link>
-          )}
+          <Navigation />
           
           <button
             onClick={toggleTheme}
