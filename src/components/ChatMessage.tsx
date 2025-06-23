@@ -8,6 +8,7 @@ interface ChatMessageProps {
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedMessage, setCopiedMessage] = useState(false);
   const isUser = message.role === 'user';
   const formattedTime = new Date(message.timestamp).toLocaleTimeString([], { 
     hour: '2-digit', 
@@ -22,6 +23,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error('Failed to copy text:', err);
+    }
+  };
+
+  // Function to handle copying entire message
+  const handleCopyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopiedMessage(true);
+      setTimeout(() => setCopiedMessage(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy message:', err);
     }
   };
 
@@ -120,18 +132,41 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             : 'bg-white dark:bg-gray-700 shadow-sm rounded-tl-none'
         } ${message.isError ? 'border border-red-300 dark:border-red-700' : ''}`}
       >
-        <div className="flex items-center gap-1.5 md:gap-2 mb-2">
+        <div className="flex items-center justify-between gap-1.5 md:gap-2 mb-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            {!isUser && (
+              <div className="p-0.5 md:p-1 bg-primary-500 rounded-full">
+                {message.isError 
+                  ? <AlertTriangle className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" /> 
+                  : <MessageSquare className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" />
+                }
+              </div>
+            )}
+            <span className={`text-xs ${isUser ? 'text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}>
+              {isUser ? 'Вы' : 'ChatGPT'} • {formattedTime}
+            </span>
+          </div>
+          
+          {/* Copy button for AI messages */}
           {!isUser && (
-            <div className="p-0.5 md:p-1 bg-primary-500 rounded-full">
-              {message.isError 
-                ? <AlertTriangle className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" /> 
-                : <MessageSquare className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" />
-              }
-            </div>
+            <button
+              onClick={handleCopyMessage}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors duration-200"
+              title="Копировать ответ"
+            >
+              {copiedMessage ? (
+                <>
+                  <Check className="h-3 w-3" />
+                  <span className="hidden sm:inline">Скопировано</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span className="hidden sm:inline">Копировать</span>
+                </>
+              )}
+            </button>
           )}
-          <span className={`text-xs ${isUser ? 'text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}>
-            {isUser ? 'Вы' : 'ChatGPT'} • {formattedTime}
-          </span>
         </div>
         
         <div className="text-sm md:text-base">
