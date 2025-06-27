@@ -38,6 +38,34 @@ const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
   );
 };
 
+const YandexRTBBlock: React.FC = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (adRef.current && window.yaContextCb) {
+      window.yaContextCb.push(() => {
+        if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+          window.Ya.Context.AdvManager.render({
+            "blockId": "R-A-16048264-1",
+            "renderTo": "yandex_rtb_R-A-16048264-1"
+          });
+        }
+      });
+    }
+  }, []);
+
+  return (
+    <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+      <div 
+        ref={adRef}
+        className="h-full rounded min-h-[80px] md:min-h-[120px] flex items-center justify-center"
+      >
+        <div id="yandex_rtb_R-A-16048264-1" className="w-full h-full"></div>
+      </div>
+    </div>
+  );
+};
+
 const ModelSelector = () => {
   const { selectedModel, availableModels, setSelectedModel } = useChat();
   const [isOpen, setIsOpen] = useState(false);
@@ -131,7 +159,7 @@ const ChatPage: React.FC = () => {
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
             <AdBlock position="Верхний 1" />
-            <AdBlock position="Верхний 2" />
+            <YandexRTBBlock />
             <AdBlock position="Верхний 3" />
           </div>
 
