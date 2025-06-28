@@ -17,7 +17,8 @@ import {
   Server,
   Code,
   ExternalLink,
-  Info
+  Info,
+  Download
 } from 'lucide-react';
 
 interface TokenData {
@@ -325,6 +326,154 @@ const TuyaTokenPage: React.FC = () => {
   const currentDomain = typeof window !== 'undefined' ? window.location.origin : 'https://aimarkethub.pro';
   const isDevelopment = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+  // Postman collection for direct API access
+  const postmanCollection = {
+    info: {
+      name: "Tuya Token Generator API",
+      description: "Прямой доступ к API генератора токенов Tuya через aimarkethub.pro",
+      schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    variable: [
+      {
+        key: "base_url",
+        value: currentDomain,
+        type: "string"
+      },
+      {
+        key: "client_id",
+        value: "Введите ваш client_id сюда",
+        type: "string"
+      },
+      {
+        key: "client_secret",
+        value: "Введите ваш client_secret сюда",
+        type: "string"
+      },
+      {
+        key: "data_center",
+        value: "https://openapi.tuyaeu.com",
+        type: "string"
+      }
+    ],
+    item: [
+      {
+        name: "Get Token via aimarkethub.pro",
+        request: {
+          method: "POST",
+          header: [
+            {
+              key: "Content-Type",
+              value: "application/json"
+            }
+          ],
+          body: {
+            mode: "raw",
+            raw: JSON.stringify({
+              clientId: "{{client_id}}",
+              secret: "{{client_secret}}",
+              dataCenter: "{{data_center}}"
+            }, null, 2)
+          },
+          url: {
+            raw: "{{base_url}}/.netlify/functions/tuya-get-token",
+            host: ["{{base_url}}"],
+            path: [".netlify", "functions", "tuya-get-token"]
+          },
+          description: "Получение токенов доступа к API Tuya через aimarkethub.pro"
+        },
+        event: [
+          {
+            listen: "test",
+            script: {
+              exec: [
+                "// Автоматическое сохранение токенов из ответа",
+                "var jsonData = pm.response.json();",
+                "",
+                "if (jsonData && jsonData.success && jsonData.result) {",
+                "    // Сохраняем access_token",
+                "    if (jsonData.result.access_token) {",
+                "        pm.collectionVariables.set('access_token', jsonData.result.access_token);",
+                "        console.log('✅ Сохранен access_token:', jsonData.result.access_token.substring(0, 10) + '...');",
+                "    }",
+                "    ",
+                "    // Сохраняем refresh_token",
+                "    if (jsonData.result.refresh_token) {",
+                "        pm.collectionVariables.set('refresh_token', jsonData.result.refresh_token);",
+                "        console.log('✅ Сохранен refresh_token:', jsonData.result.refresh_token.substring(0, 10) + '...');",
+                "    }",
+                "    ",
+                "    // Вывод информации о сроке действия",
+                "    if (jsonData.result.expire_time) {",
+                "        const expireTime = jsonData.result.expire_time;",
+                "        const expireDate = new Date();",
+                "        expireDate.setSeconds(expireDate.getSeconds() + expireTime);",
+                "        console.log(`✅ Токен действителен ${expireTime} секунд (до ${expireDate.toLocaleString()})`);",
+                "    }",
+                "} else if (jsonData && !jsonData.success) {",
+                "    console.error('❌ Ошибка получения токена:', jsonData.msg);",
+                "}"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "Refresh Token via aimarkethub.pro",
+        request: {
+          method: "POST",
+          header: [
+            {
+              key: "Content-Type",
+              value: "application/json"
+            }
+          ],
+          body: {
+            mode: "raw",
+            raw: JSON.stringify({
+              clientId: "{{client_id}}",
+              secret: "{{client_secret}}",
+              dataCenter: "{{data_center}}",
+              refreshToken: "{{refresh_token}}"
+            }, null, 2)
+          },
+          url: {
+            raw: "{{base_url}}/.netlify/functions/tuya-refresh-token",
+            host: ["{{base_url}}"],
+            path: [".netlify", "functions", "tuya-refresh-token"]
+          },
+          description: "Обновление истекающего токена через aimarkethub.pro"
+        },
+        event: [
+          {
+            listen: "test",
+            script: {
+              exec: [
+                "// Автоматическое сохранение обновленных токенов",
+                "var jsonData = pm.response.json();",
+                "",
+                "if (jsonData && jsonData.success && jsonData.result) {",
+                "    // Сохраняем новый access_token",
+                "    if (jsonData.result.access_token) {",
+                "        pm.collectionVariables.set('access_token', jsonData.result.access_token);",
+                "        console.log('✅ Обновлен access_token:', jsonData.result.access_token.substring(0, 10) + '...');",
+                "    }",
+                "    ",
+                "    // Сохраняем новый refresh_token",
+                "    if (jsonData.result.refresh_token) {",
+                "        pm.collectionVariables.set('refresh_token', jsonData.result.refresh_token);",
+                "        console.log('✅ Обновлен refresh_token:', jsonData.result.refresh_token.substring(0, 10) + '...');",
+                "    }",
+                "} else if (jsonData && !jsonData.success) {",
+                "    console.error('❌ Ошибка обновления токена:', jsonData.msg);",
+                "}"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
@@ -412,6 +561,31 @@ const TuyaTokenPage: React.FC = () => {
   "dataCenter": "https://openapi.tuyaeu.com"
 }`}
                   </pre>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => copyToClipboard(JSON.stringify(postmanCollection, null, 2), 'postman-collection')}
+                    className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                  >
+                    {copiedField === 'postman-collection' ? (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Скопировано!
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4" />
+                        Копировать коллекцию Postman
+                      </>
+                    )}
+                  </button>
+                  <a 
+                    href="/tuya-instructions"
+                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Инструкция Postman
+                  </a>
                 </div>
               </div>
             </div>
