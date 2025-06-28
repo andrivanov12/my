@@ -1,10 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
+import { airtableService, AirtableArticle } from '../services/airtableService';
 
 const HomePage: React.FC = () => {
+  const [latestArticles, setLatestArticles] = useState<AirtableArticle[]>([]);
+
+  useEffect(() => {
+    loadLatestArticles();
+  }, []);
+
+  const loadLatestArticles = async () => {
+    try {
+      const articles = await airtableService.getArticles();
+      // Берем только 2 последние статьи для главной страницы
+      setLatestArticles(articles.slice(0, 2));
+    } catch (error) {
+      console.error('Error loading latest articles:', error);
+      // Fallback статьи если Airtable недоступен
+      setLatestArticles([
+        {
+          id: 'fallback-1',
+          title: "Революция искусственного интеллекта: как ChatGPT меняет наш мир",
+          excerpt: "Исследуем влияние больших языковых моделей на различные сферы жизни...",
+          publishedAt: "2025-01-15",
+          author: "Команда AI Hub",
+          category: "Технологии",
+          imageUrl: "",
+          content: "",
+          slug: "ai-revolution"
+        },
+        {
+          id: 'fallback-2',
+          title: "Сравнение языковых моделей: Qwen vs Gemini vs Llama",
+          excerpt: "Подробный анализ возможностей различных AI-моделей и рекомендации...",
+          publishedAt: "2025-01-12",
+          author: "Эксперт AI",
+          category: "Обзоры",
+          imageUrl: "",
+          content: "",
+          slug: "ai-models-comparison"
+        }
+      ]);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -171,28 +225,21 @@ const HomePage: React.FC = () => {
             </Link>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
-              <h3 className="font-semibold mb-2 text-lg">
-                <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
-                  Революция искусственного интеллекта: как ChatGPT меняет наш мир
-                </Link>
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
-                Исследуем влияние больших языковых моделей на различные сферы жизни...
-              </p>
-              <div className="text-xs text-gray-500 dark:text-gray-500">15 января 2025</div>
-            </article>
-            <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
-              <h3 className="font-semibold mb-2 text-lg">
-                <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
-                  Сравнение языковых моделей: Qwen vs Gemini vs Llama
-                </Link>
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
-                Подробный анализ возможностей различных AI-моделей и рекомендации...
-              </p>
-              <div className="text-xs text-gray-500 dark:text-gray-500">12 января 2025</div>
-            </article>
+            {latestArticles.map((article) => (
+              <article key={article.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+                <h3 className="font-semibold mb-2 text-lg">
+                  <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
+                    {article.title}
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                  {article.excerpt}
+                </p>
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                  {formatDate(article.publishedAt || '')}
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 

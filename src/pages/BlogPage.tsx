@@ -1,19 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield } from 'lucide-react';
+import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, AlertCircle } from 'lucide-react';
+import { airtableService, AirtableArticle } from '../services/airtableService';
 
 const BlogPage: React.FC = () => {
-  const articles = [
+  const [articles, setArticles] = useState<AirtableArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("Все");
+  const [selectedArticle, setSelectedArticle] = useState<AirtableArticle | null>(null);
+
+  // Статические статьи как fallback
+  const staticArticles: AirtableArticle[] = [
     {
-      id: 1,
+      id: 'static-1',
       title: "Революция искусственного интеллекта: как ChatGPT меняет наш мир",
       excerpt: "Исследуем влияние больших языковых моделей на различные сферы жизни и их потенциал для будущего развития человечества.",
-      date: "15 января 2025",
+      publishedAt: "2025-01-15",
       author: "Команда AI Hub",
       category: "Технологии",
-      readTime: "8 мин",
-      image: "https://picsum.photos/800/400?random=1",
+      imageUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
       content: `
         <p>Искусственный интеллект переживает беспрецедентный период развития. ChatGPT и подобные языковые модели революционизируют способы взаимодействия человека с технологиями.</p>
         
@@ -36,17 +43,18 @@ const BlogPage: React.FC = () => {
         
         <h3>Будущее AI-технологий</h3>
         <p>Эксперты прогнозируют дальнейшее развитие в направлении более специализированных и точных моделей, способных решать узкоспециализированные задачи с высокой эффективностью.</p>
-      `
+      `,
+      tags: ['AI', 'ChatGPT', 'Технологии'],
+      slug: 'ai-revolution-chatgpt'
     },
     {
-      id: 2,
+      id: 'static-2',
       title: "Сравнение языковых моделей: Qwen vs Gemini vs Llama",
       excerpt: "Подробный анализ возможностей различных AI-моделей и рекомендации по выбору оптимальной для ваших задач.",
-      date: "12 января 2025",
+      publishedAt: "2025-01-12",
       author: "Эксперт AI",
       category: "Обзоры",
-      readTime: "12 мин",
-      image: "https://picsum.photos/800/400?random=2",
+      imageUrl: "https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
       content: `
         <p>Выбор подходящей языковой модели может значительно повлиять на качество получаемых результатов. Рассмотрим особенности каждой модели.</p>
         
@@ -79,77 +87,40 @@ const BlogPage: React.FC = () => {
         
         <h3>Рекомендации по выбору</h3>
         <p>Для начинающих пользователей рекомендуется Qwen 3 30B как наиболее универсальное решение. Gemini подойдет для быстрых консультаций, а Llama - для работы с изображениями.</p>
-      `
-    },
-    {
-      id: 3,
-      title: "Этика использования ИИ: принципы ответственного взаимодействия",
-      excerpt: "Важные аспекты этичного использования искусственного интеллекта и рекомендации для пользователей.",
-      date: "10 января 2025",
-      author: "Этик AI",
-      category: "Этика",
-      readTime: "10 мин",
-      image: "https://picsum.photos/800/400?random=3",
-      content: `
-        <p>С ростом популярности AI-технологий становится важным понимание этических аспектов их использования.</p>
-        
-        <h3>Основные принципы</h3>
-        <ul>
-          <li>Честность - не выдавайте AI-контент за собственный</li>
-          <li>Проверка фактов - всегда верифицируйте полученную информацию</li>
-          <li>Уважение к авторским правам</li>
-          <li>Ответственное использование возможностей AI</li>
-        </ul>
-        
-        <h3>Что следует избегать</h3>
-        <ul>
-          <li>Создание вредоносного или оскорбительного контента</li>
-          <li>Попытки обойти системы безопасности</li>
-          <li>Использование AI для мошенничества</li>
-          <li>Распространение дезинформации</li>
-        </ul>
-        
-        <h3>Лучшие практики</h3>
-        <p>Используйте AI как инструмент для обучения, творчества и решения проблем. Всегда критически оценивайте полученные результаты и дополняйте их собственными знаниями и опытом.</p>
-      `
-    },
-    {
-      id: 4,
-      title: "Будущее образования с искусственным интеллектом",
-      excerpt: "Как AI-технологии трансформируют процесс обучения и какие возможности открываются для студентов и преподавателей.",
-      date: "8 января 2025",
-      author: "Педагог-новатор",
-      category: "Образование",
-      readTime: "9 мин",
-      image: "https://picsum.photos/800/400?random=4",
-      content: `
-        <p>Искусственный интеллект открывает новые горизонты в образовании, делая обучение более персонализированным и доступным.</p>
-        
-        <h3>Персонализированное обучение</h3>
-        <p>AI может адаптироваться к индивидуальному стилю обучения каждого студента:</p>
-        <ul>
-          <li>Анализ скорости усвоения материала</li>
-          <li>Подбор оптимальных методов объяснения</li>
-          <li>Создание индивидуальных учебных планов</li>
-        </ul>
-        
-        <h3>Помощь преподавателям</h3>
-        <ul>
-          <li>Автоматизация проверки заданий</li>
-          <li>Генерация учебных материалов</li>
-          <li>Анализ успеваемости студентов</li>
-          <li>Создание интерактивных упражнений</li>
-        </ul>
-        
-        <h3>Доступность образования</h3>
-        <p>AI делает качественное образование доступным для всех, независимо от географического положения или финансовых возможностей.</p>
-      `
+      `,
+      tags: ['Сравнение', 'AI модели', 'Обзор'],
+      slug: 'ai-models-comparison'
     }
   ];
 
-  const categories = ["Все", "Технологии", "Обзоры", "Этика", "Образование"];
-  const [selectedCategory, setSelectedCategory] = React.useState("Все");
-  const [selectedArticle, setSelectedArticle] = React.useState<number | null>(null);
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const airtableArticles = await airtableService.getArticles();
+      
+      // Объединяем статьи из Airtable со статическими
+      const allArticles = [...airtableArticles, ...staticArticles];
+      
+      // Сортируем по дате публикации
+      allArticles.sort((a, b) => new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime());
+      
+      setArticles(allArticles);
+    } catch (err) {
+      console.error('Error loading articles:', err);
+      setError('Не удалось загрузить статьи из Airtable. Показываем статические статьи.');
+      setArticles(staticArticles);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Получаем уникальные категории
+  const categories = ["Все", ...Array.from(new Set(articles.map(article => article.category)))];
 
   const filteredArticles = selectedCategory === "Все" 
     ? articles 
@@ -161,22 +132,32 @@ const BlogPage: React.FC = () => {
       'Технологии': '6366f1',
       'Обзоры': '14b8a6', 
       'Этика': 'f59e0b',
-      'Образование': 'ef4444'
+      'Образование': 'ef4444',
+      'Общее': '8b5cf6'
     };
     const color = colors[category as keyof typeof colors] || '6366f1';
     const encodedTitle = encodeURIComponent(title.substring(0, 30) + '...');
     return `https://via.placeholder.com/800x400/${color}/ffffff?text=${encodedTitle}`;
   };
 
-  if (selectedArticle) {
-    const article = articles.find(a => a.id === selectedArticle);
-    if (!article) return null;
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
+  if (selectedArticle) {
     return (
       <>
         <Helmet>
-          <title>{article.title} | Блог о ChatGPT и ИИ</title>
-          <meta name="description" content={article.excerpt} />
+          <title>{selectedArticle.title} | Блог о ChatGPT и ИИ</title>
+          <meta name="description" content={selectedArticle.excerpt} />
         </Helmet>
 
         <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -190,18 +171,18 @@ const BlogPage: React.FC = () => {
           <article className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
             <div className="relative">
               <img 
-                src={article.image} 
-                alt={article.title}
+                src={selectedArticle.imageUrl} 
+                alt={selectedArticle.title}
                 className="w-full h-64 md:h-80 object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = createFallbackImage(article.title, article.category);
+                  target.src = createFallbackImage(selectedArticle.title, selectedArticle.category || 'Общее');
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               <div className="absolute bottom-4 left-4">
                 <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {article.category}
+                  {selectedArticle.category}
                 </span>
               </div>
             </div>
@@ -209,20 +190,32 @@ const BlogPage: React.FC = () => {
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {article.date}
+                  {formatDate(selectedArticle.publishedAt || '')}
                 </span>
                 <span className="flex items-center gap-1">
                   <User className="h-4 w-4" />
-                  {article.author}
+                  {selectedArticle.author}
                 </span>
-                <span>{article.readTime}</span>
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-bold mb-6">{article.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold mb-6">{selectedArticle.title}</h1>
+              
+              {selectedArticle.tags && selectedArticle.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {selectedArticle.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-sm"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               
               <div 
                 className="prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
               />
             </div>
           </article>
@@ -250,79 +243,107 @@ const BlogPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Категории */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                selectedCategory === category
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        {/* Статус загрузки и ошибки */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+            <span className="ml-2 text-gray-600 dark:text-gray-400">Загружаем статьи...</span>
+          </div>
+        )}
 
-        {/* Статьи */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {filteredArticles.map(article => (
-            <article 
-              key={article.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-              onClick={() => setSelectedArticle(article.id)}
-            >
-              <div className="relative">
-                <img 
-                  src={article.image} 
-                  alt={article.title}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = createFallbackImage(article.title, article.category);
-                  }}
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs font-medium">
-                    {article.category}
-                  </span>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {article.date}
-                  </span>
-                  <span>{article.readTime}</span>
-                </div>
+        {error && (
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-8">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2" />
+              <span className="text-yellow-800 dark:text-yellow-200">{error}</span>
+            </div>
+          </div>
+        )}
 
-                <h2 className="text-xl font-bold mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
-                  {article.title}
-                </h2>
-                
-                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                  {article.excerpt}
+        {!loading && (
+          <>
+            {/* Категории */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+                    selectedCategory === category
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+
+            {/* Статьи */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {filteredArticles.map(article => (
+                <article 
+                  key={article.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                  onClick={() => setSelectedArticle(article)}
+                >
+                  <div className="relative">
+                    <img 
+                      src={article.imageUrl} 
+                      alt={article.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = createFallbackImage(article.title, article.category || 'Общее');
+                      }}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs font-medium">
+                        {article.category}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(article.publishedAt || '')}
+                      </span>
+                    </div>
+
+                    <h2 className="text-xl font-bold mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                      {article.title}
+                    </h2>
+                    
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        <User className="h-4 w-4" />
+                        {article.author}
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-medium">
+                        Читать далее
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {filteredArticles.length === 0 && !loading && (
+              <div className="text-center py-12">
+                <p className="text-gray-600 dark:text-gray-400">
+                  В категории "{selectedCategory}" пока нет статей.
                 </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                    <User className="h-4 w-4" />
-                    {article.author}
-                  </div>
-                  
-                  <div className="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-medium">
-                    Читать далее
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </div>
               </div>
-            </article>
-          ))}
-        </div>
+            )}
+          </>
+        )}
 
         {/* Популярные темы */}
         <div className="mt-16 bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 p-8 rounded-xl">
