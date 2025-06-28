@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuya Token Generator - Простой способ получить токены Tuya</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        .step {
+            background-color: #ffffff;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2980b9;
+            display: flex;
+            align-items: center;
+        }
+        .step-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .button.download {
+            background-color: #27ae60;
+        }
+        .button.download:hover {
+            background-color: #219955;
+        }
+        .note {
+            background-color: #fef9e7;
+            border-left: 5px solid #f1c40f;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background-color: #fdf2f2;
+            border-left: 5px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .success {
+            background-color: #f0f9ff;
+            border-left: 5px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .image-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background-color: #f4f6f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            color: #e74c3c;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .input-section {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            margin-bottom: 15px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        .token-display {
+            display: none;
+            margin-top: 20px;
+            background-color: #e8f6ff;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        .token-row {
+            margin-bottom: 15px;
+        }
+        .token-value {
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            word-break: break-all;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .copy-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        .copy-btn:hover {
+            background-color: #219955;
+        }
+        .region-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .region-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .region-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .postman-preview {
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .postman-preview h4 {
+            color: #ff6c37;
+            margin-top: 0;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            border: none;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔑 Tuya Token Generator</h1>
+        <p style="font-size: 18px; margin: 0;">Простой способ получить токены доступа к API Tuya без программирования</p>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">📱</div>
+            <h3>Без программирования</h3>
+            <p>Используйте готовую коллекцию Postman для получения токенов</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔒</div>
+            <h3>Безопасно</h3>
+            <p>Все запросы идут напрямую к API Tuya с вашего компьютера</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Быстро</h3>
+            <p>Получите токены за несколько минут следуя инструкции</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">1</span>Подготовьте ваши учетные данные Tuya</h3>
+        <p>Для начала вам нужно иметь проект в <a href="https://iot.tuya.com/" target="_blank">платформе разработки Tuya</a> и получить <code>Client ID</code> и <code>Client Secret</code>.</p>
+        <ol>
+            <li>Войдите в <a href="https://iot.tuya.com/" target="_blank">Tuya IoT Platform</a></li>
+            <li>Перейдите в раздел <strong>Cloud</strong> → <strong>Development</strong></li>
+            <li>Создайте проект или используйте существующий</li>
+            <li>Найдите и скопируйте <code>Client ID</code> и <code>Client Secret</code></li>
+        </ol>
+        <div class="image-container">
+            <img src="https://i.ibb.co/9yKQqJH/tuya-credentials.png" alt="Получение учетных данных Tuya" style="max-height: 400px;">
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">2</span>Скачайте и установите Postman</h3>
+        <p>Postman — это приложение, которое позволяет легко работать с API.</p>
+        <a href="https://www.postman.com/downloads/" target="_blank" class="button">📥 Скачать Postman</a>
+        <p>После установки создайте аккаунт или войдите как гость.</p>
+        <div class="postman-preview">
+            <h4>🚀 Что такое Postman?</h4>
+            <p>Postman - это популярный инструмент для тестирования API. Он позволяет отправлять HTTP-запросы и получать ответы в удобном интерфейсе. Мы подготовили готовую коллекцию, которая автоматически создает правильные запросы к API Tuya.</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">3</span>Скачайте готовую коллекцию Tuya Token Generator</h3>
+        <p>Мы подготовили специальную коллекцию Postman, которая автоматически создает правильные запросы к API Tuya с корректной криптографической подписью.</p>
+        <a href="tuya-token-generator.postman_collection.json" download class="button download">📦 Скачать коллекцию Postman</a>
+        <div class="success">
+            <p><strong>✅ Что включено в коллекцию:</strong></p>
+            <ul>
+                <li>Автоматическая генерация HMAC-SHA256 подписи</li>
+                <li>Правильное формирование заголовков запроса</li>
+                <li>Автоматическое сохранение полученных токенов</li>
+                <li>Поддержка всех регионов Tuya API</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">4</span>Импортируйте коллекцию в Postman</h3>
+        <ol>
+            <li>Откройте Postman</li>
+            <li>Нажмите кнопку <strong>Import</strong> в верхнем левом углу</li>
+            <li>Перетащите скачанный файл коллекции или выберите его через файловый диалог</li>
+            <li>Нажмите <strong>Import</strong></li>
+        </ol>
+        <div class="image-container">
+            <img src="https://i.ibb.co/jWSn5RF/postman-import.png" alt="Импорт в Postman" style="max-height: 300px;">
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">5</span>Настройте переменные коллекции</h3>
+        <ol>
+            <li>В Postman найдите импортированную коллекцию <strong>Tuya Token Generator</strong></li>
+            <li>Нажмите на три точки рядом с названием коллекции и выберите <strong>Edit</strong></li>
+            <li>Перейдите на вкладку <strong>Variables</strong></li>
+            <li>Заполните переменные:
+                <ul>
+                    <li><code>client_id</code> - ваш Client ID из платформы Tuya</li>
+                    <li><code>client_secret</code> - ваш Client Secret из платформы Tuya</li>
+                    <li><code>region_url</code> - URL для вашего региона (см. ниже)</li>
+                </ul>
+            </li>
+            <li>Нажмите <strong>Save</strong></li>
+        </ol>
+        <div class="image-container">
+            <img src="https://i.ibb.co/qgmDQnM/postman-variables.png" alt="Настройка переменных" style="max-height: 400px;">
+        </div>
+    </div>
+
+    <div class="note">
+        <p><strong>🌍 Выбор региона:</strong> Используйте правильный URL вашего региона:</p>
+        <div class="region-grid">
+            <div class="region-card">
+                <h4>🇺🇸 Америка</h4>
+                <code>https://openapi.tuyaus.com</code>
+            </div>
+            <div class="region-card">
+                <h4>🇪🇺 Европа</h4>
+                <code>https://openapi.tuyaeu.com</code>
+            </div>
+            <div class="region-card">
+                <h4>🇨🇳 Китай</h4>
+                <code>https://openapi.tuyacn.com</code>
+            </div>
+            <div class="region-card">
+                <h4>🇮🇳 Индия</h4>
+                <code>https://openapi.tuyain.com</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">6</span>Получите токены</h3>
+        <ol>
+            <li>В коллекции найдите запрос <strong>Get Token</strong></li>
+            <li>Нажмите кнопку <strong>Send</strong></li>
+            <li>В нижней части окна появится ответ с вашими токенами</li>
+            <li>Токены автоматически сохранятся в переменных коллекции</li>
+        </ol>
+        <div class="image-container">
+            <img src="https://i.ibb.co/FgKHdwk/postman-response.png" alt="Получение токенов" style="max-height: 400px;">
+        </div>
+        <div class="success">
+            <p><strong>🎉 Успех!</strong> Если все настроено правильно, вы получите ответ вида:</p>
+            <div class="code-block">
+{
+  "result": {
+    "access_token": "1234567890abcdef...",
+    "refresh_token": "abcdef1234567890...",
+    "expire_time": 7200
+  },
+  "success": true,
+  "t": 1234567890
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h3>🔧 Обработка полученных токенов</h3>
+        <p>Скопируйте и вставьте полный ответ API (в формате JSON) ниже, чтобы извлечь токены:</p>
+        <textarea id="json-input" placeholder='Вставьте JSON-ответ от Postman, например:
+{
+    "result": {
+        "access_token": "1234567890abcdef...",
+        "refresh_token": "abcdef1234567890...",
+        "expire_time": 7200
+    },
+    "success": true,
+    "t": 1234567890
+}'></textarea>
+        <button class="button" id="parse-button">🔍 Извлечь токены</button>
+        
+        <div id="token-display" class="token-display">
+            <h4>✅ Ваши токены готовы к использованию:</h4>
+            <div class="token-row">
+                <strong>🔑 Access Token:</strong>
+                <div id="access-token" class="token-value"></div>
+                <button class="copy-btn" data-target="access-token">📋 Копировать</button>
+            </div>
+            
+            <div class="token-row">
+                <strong>🔄 Refresh Token:</strong>
+                <div id="refresh-token" class="token-value"></div>
+                <button class="copy-btn" data-target="refresh-token">📋 Копировать</button>
+            </div>
+            
+            <div class="token-row">
+                <strong>⏰ Срок действия:</strong>
+                <div id="expire-time" class="token-value"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">7</span>Обновление токена (когда срок действия истечет)</h3>
+        <ol>
+            <li>Когда срок действия токена истечет (обычно через 2 часа), вы можете обновить его</li>
+            <li>В коллекции найдите запрос <strong>Refresh Token</strong></li>
+            <li>Убедитесь, что в переменных коллекции сохранен <code>refresh_token</code></li>
+            <li>Нажмите кнопку <strong>Send</strong></li>
+            <li>Вы получите новый <code>access_token</code> и <code>refresh_token</code></li>
+        </ol>
+        <div class="note">
+            <p><strong>💡 Совет:</strong> Refresh Token действует около 30 дней. Если он истек, просто получите новые токены с помощью запроса "Get Token".</p>
+        </div>
+    </div>
+
+    <div class="warning">
+        <p><strong>⚠️ Важно:</strong> Никогда не передавайте Client Secret третьим лицам и не публикуйте его в открытом доступе. Храните его в безопасном месте.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">8</span>Использование токенов в ваших проектах</h3>
+        <p>Полученные токены можно использовать для работы с другими API Tuya. Просто добавьте к запросам заголовок:</p>
+        <div class="code-block">
+Authorization: Bearer YOUR_ACCESS_TOKEN
+        </div>
+        <p>Пример запроса к API устройств:</p>
+        <div class="code-block">
+GET https://openapi.tuyaeu.com/v1.0/devices
+Headers:
+  Authorization: Bearer 1234567890abcdef...
+  client_id: your_client_id
+  sign: calculated_signature
+  t: timestamp
+  sign_method: HMAC-SHA256
+        </div>
+    </div>
+
+    <h2>📚 Дополнительная информация</h2>
+    
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">📖</div>
+            <h3>Документация Tuya</h3>
+            <p><a href="https://developer.tuya.com/en/docs/cloud/" target="_blank">Официальная документация API</a></p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💬</div>
+            <h3>Поддержка</h3>
+            <p>Если возникли вопросы, обратитесь к <a href="https://t.me/solvillage" target="_blank">нашей поддержке</a></p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔧</div>
+            <h3>Инструменты</h3>
+            <p>Используйте <a href="https://www.postman.com/" target="_blank">Postman</a> для тестирования API</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('parse-button').addEventListener('click', function() {
+            const jsonText = document.getElementById('json-input').value;
+            try {
+                const data = JSON.parse(jsonText);
+                
+                if (data.result && data.success) {
+                    // Отображение токенов
+                    document.getElementById('access-token').textContent = data.result.access_token || 'Не найден';
+                    document.getElementById('refresh-token').textContent = data.result.refresh_token || 'Не найден';
+                    
+                    // Отображение времени истечения
+                    const expireTime = data.result.expire_time || 7200;
+                    const date = new Date();
+                    date.setSeconds(date.getSeconds() + expireTime);
+                    document.getElementById('expire-time').textContent = 
+                        `${expireTime} секунд (до ${date.toLocaleString()})`;
+                    
+                    // Показываем блок с токенами
+                    document.getElementById('token-display').style.display = 'block';
+                    
+                    // Прокручиваем к результатам
+                    document.getElementById('token-display').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('❌ Не удалось найти токены в JSON. Убедитесь, что вы вставили правильный ответ API Tuya.');
+                }
+            } catch (e) {
+                alert('❌ Ошибка при обработке JSON: ' + e.message + '\n\nУбедитесь, что вы вставили корректный JSON.');
+            }
+        });
+        
+        // Функция копирования в буфер обмена
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const text = document.getElementById(targetId).textContent;
+                
+                // Используем современный API Clipboard
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        // Изменяем текст кнопки для обратной связи
+                        const originalText = this.textContent;
+                        this.textContent = '✅ Скопировано!';
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Ошибка копирования:', err);
+                        fallbackCopy(text, this);
+                    });
+                } else {
+                    // Fallback для старых браузеров
+                    fallbackCopy(text, this);
+                }
+            });
+        });
+        
+        function fallbackCopy(text, button) {
+            // Создаем временный textarea для копирования
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                const originalText = button.textContent;
+                button.textContent = '✅ Скопировано!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать автоматически. Пожалуйста, выделите и скопируйте текст вручную.');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // Автоматическое форматирование JSON при вводе
+        document.getElementById('json-input').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                try {
+                    const text = this.value;
+                    const parsed = JSON.parse(text);
+                    this.value = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    // Игнорируем ошибки форматирования
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
