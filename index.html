@@ -5,6 +5,45 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="CRVri1AnPeQNJrym_Z_8BDjhyXHM5m_eZhoTK3W0rbQ" />
+    
+    <!-- Оптимизация загрузки -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://mc.yandex.ru">
+    <link rel="dns-prefetch" href="https://yandex.ru">
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+    
+    <!-- Критические стили встроены -->
+    <style>
+      /* Критические стили для первой отрисовки */
+      body { margin: 0; font-family: Inter, system-ui, sans-serif; }
+      .loading-screen { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: #f9fafb; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 9999;
+      }
+      .loading-spinner { 
+        width: 40px; 
+        height: 40px; 
+        border: 3px solid #e5e7eb; 
+        border-top: 3px solid #7c3aed; 
+        border-radius: 50%; 
+        animation: spin 1s linear infinite; 
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-color-scheme: dark) {
+        .loading-screen { background: #111827; }
+        .loading-spinner { border-color: #374151; border-top-color: #a78bfa; }
+      }
+    </style>
+    
     <title>Бесплатный ChatGPT без регистрации — Онлайн AI чат</title>
     <meta name="description" content="Используйте ChatGPT бесплатно и без регистрации. Общайтесь с AI онлайн прямо сейчас! Быстро, удобно, без входа." />
     <meta name="keywords" content="чат gpt без регистрации, бесплатный chatgpt онлайн, использовать chatgpt бесплатно, чатбот gpt без регистрации, онлайн gpt чат бесплатно, chatgpt без входа, бесплатный ai чат, gpt чат без регистрации, ai чат бесплатно, чат с gpt онлайн" />
@@ -14,15 +53,33 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://aimarkethub.pro" />
     <link rel="canonical" href="https://aimarkethub.pro" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Yandex.RTB -->
-    <script>window.yaContextCb=window.yaContextCb||[]</script>
-    <script src="https://yandex.ru/ads/system/context.js" async></script>
+    <!-- Отложенная загрузка шрифтов -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2451745015940423" crossorigin="anonymous"></script>
+    <!-- Отложенная загрузка рекламных скриптов -->
+    <script>
+      // Загружаем рекламные скрипты после загрузки страницы
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          // Yandex.RTB
+          window.yaContextCb = window.yaContextCb || [];
+          var script1 = document.createElement('script');
+          script1.src = 'https://yandex.ru/ads/system/context.js';
+          script1.async = true;
+          document.head.appendChild(script1);
+          
+          // Google AdSense
+          var script2 = document.createElement('script');
+          script2.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2451745015940423';
+          script2.async = true;
+          script2.crossOrigin = 'anonymous';
+          document.head.appendChild(script2);
+        }, 2000);
+      });
+    </script>
+    
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -37,25 +94,53 @@
       }
     }
     </script>
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    
+    <!-- Отложенная загрузка Yandex.Metrika -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+          (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-      ym(101727577, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true
+          ym(101727577, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true
+          });
+        }, 1000);
       });
     </script>
-    <!-- /Yandex.Metrika counter -->
   </head>
   <body>
+    <!-- Экран загрузки -->
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-spinner"></div>
+    </div>
+    
     <div id="root"></div>
+    
+    <!-- Скрипт для скрытия экрана загрузки -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.3s ease';
+            setTimeout(function() {
+              loadingScreen.remove();
+            }, 300);
+          }
+        }, 500);
+      });
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/101727577" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <noscript>
+      <div><img src="https://mc.yandex.ru/watch/101727577" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
   </body>
 </html>
