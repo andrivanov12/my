@@ -28,6 +28,13 @@ interface ApiResponse {
   error?: any;
 }
 
+// Добавляем CryptoJS типы
+declare global {
+  interface Window {
+    CryptoJS: any;
+  }
+}
+
 const TuyaTokenPage: React.FC = () => {
   const [formData, setFormData] = useState({
     clientId: '',
@@ -39,6 +46,7 @@ const TuyaTokenPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number[]>([0]);
+  const [cryptoJSLoaded, setCryptoJSLoaded] = useState(false);
 
   const dataCenters = [
     { value: 'https://openapi.tuyaeu.com', label: 'Центральная Европа (openapi.tuyaeu.com)' },
@@ -63,8 +71,27 @@ const TuyaTokenPage: React.FC = () => {
     {
       question: 'Что делать, если токен не работает?',
       answer: 'Убедитесь, что вы выбрали правильный регион центра данных, соответствующий вашему аккаунту Tuya. Также проверьте правильность введенных Client ID и Secret. Если проблема сохраняется, попробуйте обновить токен.'
+    },
+    {
+      question: 'Почему возникают ошибки CORS?',
+      answer: 'API Tuya имеет ограничения CORS для прямых запросов из браузера. Для решения этой проблемы используйте прокси-сервер или серверную интеграцию. В данной реализации мы используем публичный CORS прокси.'
     }
   ];
+
+  // Load CryptoJS library
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js';
+    script.integrity = 'sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==';
+    script.crossOrigin = 'anonymous';
+    script.onload = () => setCryptoJSLoaded(true);
+    script.onerror = () => setError('Не удалось загрузить библиотеку шифрования');
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -100,23 +127,78 @@ const TuyaTokenPage: React.FC = () => {
     }
   };
 
+  const generateSignature = (clientId: string, secret: string, timestamp: string, path: string) => {
+    if (!window.CryptoJS) {
+      throw new Error('CryptoJS library not loaded');
+    }
+    
+    const signString = `${clientId}${timestamp}GET\n\n\n${path}`;
+    return window.CryptoJS.HmacSHA256(signString, secret).toString().toUpperCase();
+  };
+
+  const makeProxyRequest = async (url: string, headers: Record<string, string>) => {
+    // Используем публичный CORS прокси
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    
+    try {
+      const response = await fetch(proxyUrl, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          ...headers
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      // Fallback to another CORS proxy
+      const fallbackProxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+      const fallbackResponse = await fetch(fallbackProxyUrl, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          ...headers
+        }
+      });
+      
+      if (!fallbackResponse.ok) {
+        throw new Error(`HTTP error! status: ${fallbackResponse.status}`);
+      }
+      
+      return await fallbackResponse.json();
+    }
+  };
+
   const getToken = async () => {
+    if (!cryptoJSLoaded) {
+      setError('Библиотека шифрования еще не загружена. Попробуйте еще раз.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setTokenData(null);
 
     try {
-      const response = await fetch('/api/get-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const timestamp = Date.now().toString();
+      const path = '/v1.0/token?grant_type=1';
+      const signature = generateSignature(formData.clientId, formData.secret, timestamp, path);
+      
+      const headers = {
+        'client_id': formData.clientId,
+        'sign': signature,
+        't': timestamp,
+        'sign_method': 'HMAC-SHA256'
+      };
 
-      const data: ApiResponse = await response.json();
+      const url = `${formData.dataCenter}${path}`;
+      const data = await makeProxyRequest(url, headers);
 
-      if (data.success && data.result) {
+      if (data.success) {
         setTokenData(data.result);
         // Save to localStorage
         localStorage.setItem('tuya_client_id', formData.clientId);
@@ -128,13 +210,18 @@ const TuyaTokenPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error getting token:', err);
-      setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова.');
+      setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова. Возможно, потребуется использовать VPN для обхода CORS ограничений.');
     } finally {
       setLoading(false);
     }
   };
 
   const refreshToken = async () => {
+    if (!cryptoJSLoaded) {
+      setError('Библиотека шифрования еще не загружена. Попробуйте еще раз.');
+      return;
+    }
+
     const savedRefreshToken = localStorage.getItem('tuya_refresh_token');
     if (!savedRefreshToken) {
       setError('Refresh token не найден. Пожалуйста, получите новый токен.');
@@ -145,20 +232,21 @@ const TuyaTokenPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/refresh-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData,
-          refreshToken: savedRefreshToken
-        })
-      });
+      const timestamp = Date.now().toString();
+      const path = `/v1.0/token/${savedRefreshToken}`;
+      const signature = generateSignature(formData.clientId, formData.secret, timestamp, path);
+      
+      const headers = {
+        'client_id': formData.clientId,
+        'sign': signature,
+        't': timestamp,
+        'sign_method': 'HMAC-SHA256'
+      };
 
-      const data: ApiResponse = await response.json();
+      const url = `${formData.dataCenter}${path}`;
+      const data = await makeProxyRequest(url, headers);
 
-      if (data.success && data.result) {
+      if (data.success) {
         setTokenData(data.result);
         localStorage.setItem('tuya_refresh_token', data.result.refresh_token);
       } else {
@@ -238,6 +326,22 @@ const TuyaTokenPage: React.FC = () => {
           </div>
         </div>
 
+        {/* CORS Warning */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-xl mb-8 border border-yellow-200 dark:border-yellow-800">
+          <div className="flex items-start">
+            <AlertCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-3 mt-1 flex-shrink-0" />
+            <div>
+              <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Важная информация о CORS</h3>
+              <p className="text-yellow-800 dark:text-yellow-200 mb-2">
+                API Tuya имеет ограничения CORS для прямых запросов из браузера. Мы используем публичный прокси-сервер для обхода этих ограничений.
+              </p>
+              <p className="text-yellow-800 dark:text-yellow-200">
+                Если возникают ошибки, попробуйте использовать VPN или обратитесь к администратору для настройки серверного прокси.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Main Form */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="bg-primary-600 text-white p-6">
@@ -313,13 +417,18 @@ const TuyaTokenPage: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !cryptoJSLoaded}
                 className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
               >
                 {loading ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                     Получение токена...
+                  </>
+                ) : !cryptoJSLoaded ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Загрузка библиотеки...
                   </>
                 ) : (
                   <>
@@ -431,6 +540,28 @@ const TuyaTokenPage: React.FC = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Documentation */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className="bg-gray-50 dark:bg-gray-700 p-6 border-b border-gray-200 dark:border-gray-600">
+            <h2 className="text-xl font-semibold">Инструкция по использованию</h2>
+          </div>
+          
+          <div className="p-6">
+            <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+              <li>Введите свой <strong>Client ID</strong> и <strong>Client Secret</strong> от приложения Tuya IoT</li>
+              <li>Выберите регион API, соответствующий вашему проекту Tuya</li>
+              <li>Нажмите кнопку "Получить токен"</li>
+              <li>После успешной генерации скопируйте полученные токены для использования в ваших запросах к API</li>
+              <li>Когда токен истечет, вы можете использовать кнопку "Обновить токен"</li>
+            </ol>
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-blue-800 dark:text-blue-200">
+                <strong>Примечание:</strong> Access Token действителен в течение 2 часов. После этого используйте Refresh Token для получения нового.
+              </p>
+            </div>
           </div>
         </div>
 
