@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
-// Ленивая загрузка страниц для уменьшения начального бандла
+// Ленивая загрузка страниц
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));

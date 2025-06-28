@@ -7,7 +7,6 @@ import './index.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ChatProvider } from './contexts/ChatContext';
 
-// Оптимизация рендеринга
 const root = createRoot(document.getElementById('root')!);
 
 root.render(

@@ -5,38 +5,31 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
-    // Оптимизация сборки
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Удаляем console.log в продакшене
+        drop_console: true,
         drop_debugger: true,
       },
     },
-    // Разделение кода для лучшего кэширования
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          icons: ['lucide-react'],
-          utils: ['axios', 'js-cookie', 'uuid']
+          icons: ['lucide-react']
         }
       }
     },
-    // Сжатие ресурсов
     cssCodeSplit: true,
-    sourcemap: false, // Отключаем sourcemap в продакшене
-    // Оптимизация размера чанков
+    sourcemap: false,
     chunkSizeWarningLimit: 1000,
   },
-  // Оптимизация для разработки
   server: {
     hmr: {
       overlay: false
     }
   },
-  // Предварительная загрузка зависимостей
   optimizeDeps: {
     include: [
       'react',
