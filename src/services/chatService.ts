@@ -117,8 +117,9 @@ export const sendMessageToAI = async (
   attachments?: File[]
 ): Promise<string> => {
   try {
-    // Check for API key with better error handling
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+    // Use the provided API key directly, fallback to environment variable
+    const apiKey = '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' || 
+                   import.meta.env.VITE_OPENROUTER_API_KEY;
     
     if (!apiKey || apiKey.trim() === '') {
       throw new Error(
