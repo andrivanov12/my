@@ -1,10 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Упрощенная версия без Supabase для лучшей производительности
+export const supabase = {
+  storage: {
+    from: () => ({
+      upload: async () => ({ data: null, error: new Error('Supabase not configured') }),
+      getPublicUrl: () => ({ data: { publicUrl: '' } })
+    })
+  }
+};

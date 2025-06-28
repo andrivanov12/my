@@ -17,13 +17,15 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          icons: ['lucide-react']
+          icons: ['lucide-react'],
+          utils: ['axios', 'js-cookie', 'uuid']
         }
       }
     },
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
+    target: 'es2015', // Лучшая совместимость с браузерами
   },
   server: {
     hmr: {
@@ -38,7 +40,12 @@ export default defineConfig({
       'lucide-react',
       'axios',
       'js-cookie',
-      'uuid'
+      'uuid',
+      'react-helmet-async'
     ]
+  },
+  define: {
+    // Убираем глобальные переменные, которые могут вызывать проблемы
+    global: 'globalThis',
   }
 });

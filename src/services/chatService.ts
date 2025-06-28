@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { supabase } from '../lib/supabase';
 
 export interface Message {
   id: string;
@@ -105,18 +104,10 @@ const cleanAIResponse = (text: string): string => {
   }
 };
 
+// Упрощенная функция загрузки файлов без Supabase
 export const uploadFile = async (file: File): Promise<string> => {
-  const { data, error } = await supabase.storage
-    .from('chat-attachments')
-    .upload(`${Date.now()}-${file.name}`, file);
-
-  if (error) throw error;
-  
-  const { data: { publicUrl } } = supabase.storage
-    .from('chat-attachments')
-    .getPublicUrl(data.path);
-
-  return publicUrl;
+  // Создаем локальный URL для файла
+  return URL.createObjectURL(file);
 };
 
 export const sendMessageToAI = async (
@@ -173,102 +164,119 @@ export const sendMessageToAI = async (
       ];
     }
 
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: selectedModel.value,
-        messages: [
-          ...previousMessages.slice(-10).map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          {
-            role: 'user',
-            content: messageContent
-          }
-        ]
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'ChatGPT'
+    // Создаем контроллер для отмены запроса
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 секунд таймаут
+
+    try {
+      const response = await axios.post(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model: selectedModel.value,
+          messages: [
+            ...previousMessages.slice(-10).map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })),
+            {
+              role: 'user',
+              content: messageContent
+            }
+          ]
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'ChatGPT'
+          },
+          signal: controller.signal,
+          timeout: 30000
         }
-      }
-    );
+      );
 
-    // Log the complete response data for debugging
-    console.debug('AI service complete response:', JSON.stringify(response.data, null, 2));
+      clearTimeout(timeoutId);
 
-    // Check for error response first
-    if (response.data.error) {
-      const error = response.data.error;
-      
-      // Check for region restriction error
-      if (error.metadata?.raw) {
-        try {
-          const rawError = JSON.parse(error.metadata.raw);
-          if (rawError.error?.code === 'unsupported_country_region_territory') {
-            throw new Error(
-              'Your region is currently not supported by this AI model. ' +
-              'Please try using a VPN service or switch to a different AI model. ' +
-              'Available models can be selected from the dropdown menu above.'
-            );
+      // Log the complete response data for debugging
+      console.debug('AI service complete response:', JSON.stringify(response.data, null, 2));
+
+      // Check for error response first
+      if (response.data.error) {
+        const error = response.data.error;
+        
+        // Check for region restriction error
+        if (error.metadata?.raw) {
+          try {
+            const rawError = JSON.parse(error.metadata.raw);
+            if (rawError.error?.code === 'unsupported_country_region_territory') {
+              throw new Error(
+                'Your region is currently not supported by this AI model. ' +
+                'Please try using a VPN service or switch to a different AI model. ' +
+                'Available models can be selected from the dropdown menu above.'
+              );
+            }
+          } catch (parseError) {
+            // If JSON parsing fails, throw the original error message
+            throw new Error(error.message || 'Unknown error occurred');
           }
-        } catch (parseError) {
-          // If JSON parsing fails, throw the original error message
-          throw new Error(error.message || 'Unknown error occurred');
         }
+        
+        // For other errors, throw the error message
+        throw new Error(error.message || 'Unknown error occurred');
       }
-      
-      // For other errors, throw the error message
-      throw new Error(error.message || 'Unknown error occurred');
-    }
 
-    // Enhanced response validation with more detailed error messages
-    if (!response.data) {
-      console.error('Empty response received:', response);
-      throw new Error('Empty response received from AI service. Please try again or check OpenRouter status.');
-    }
+      // Enhanced response validation with more detailed error messages
+      if (!response.data) {
+        console.error('Empty response received:', response);
+        throw new Error('Empty response received from AI service. Please try again or check OpenRouter status.');
+      }
 
-    if (!response.data.choices || !Array.isArray(response.data.choices)) {
-      console.error('Invalid response format:', response.data);
-      throw new Error(`Invalid response format from AI service. Expected 'choices' array but received: ${JSON.stringify(response.data)}`);
-    }
+      if (!response.data.choices || !Array.isArray(response.data.choices)) {
+        console.error('Invalid response format:', response.data);
+        throw new Error(`Invalid response format from AI service. Expected 'choices' array but received: ${JSON.stringify(response.data)}`);
+      }
 
-    if (response.data.choices.length === 0) {
-      console.error('Empty choices array:', response.data);
-      return 'The AI model is currently experiencing high load. Please try again in a moment.';
-    }
+      if (response.data.choices.length === 0) {
+        console.error('Empty choices array:', response.data);
+        return 'The AI model is currently experiencing high load. Please try again in a moment.';
+      }
 
-    const firstChoice = response.data.choices[0];
-    if (!firstChoice) {
-      console.error('Missing first choice:', response.data.choices);
-      return 'The AI model is currently unavailable. Please try switching to a different model.';
-    }
+      const firstChoice = response.data.choices[0];
+      if (!firstChoice) {
+        console.error('Missing first choice:', response.data.choices);
+        return 'The AI model is currently unavailable. Please try switching to a different model.';
+      }
 
-    if (!firstChoice.message) {
-      console.error('Missing message in first choice:', firstChoice);
-      return 'The AI model returned an invalid response. Please try again with a different query.';
-    }
+      if (!firstChoice.message) {
+        console.error('Missing message in first choice:', firstChoice);
+        return 'The AI model returned an invalid response. Please try again with a different query.';
+      }
 
-    const content = firstChoice.message.content;
-    if (typeof content !== 'string') {
-      console.error('Invalid content type:', typeof content, content);
-      return 'The AI model returned an unexpected response format. Please try again.';
-    }
+      const content = firstChoice.message.content;
+      if (typeof content !== 'string') {
+        console.error('Invalid content type:', typeof content, content);
+        return 'The AI model returned an unexpected response format. Please try again.';
+      }
 
-    if (content.trim() === '') {
-      return 'The AI model did not provide a response. Please try rephrasing your question or switching to a different model.';
-    }
+      if (content.trim() === '') {
+        return 'The AI model did not provide a response. Please try rephrasing your question or switching to a different model.';
+      }
 
-    return cleanAIResponse(content);
+      return cleanAIResponse(content);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
   } catch (error) {
     console.error('Error in sendMessageToAI:', error);
     
     // Enhanced error handling with more specific error messages
     if (axios.isAxiosError(error)) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('Request timeout. The AI service is taking too long to respond. Please try again.');
+      }
+
       if (!error.response) {
         throw new Error('Network error: Unable to reach the AI service. Please check your internet connection.');
       }
@@ -313,53 +321,4 @@ export const sendMessageToAI = async (
     
     throw new Error('An unexpected error occurred while communicating with the AI service. Please try again.');
   }
-};
-
-export const createChat = async (userId: string, model: string = 'qwen3') => {
-  const { data: chat, error } = await supabase
-    .from('chats')
-    .insert([{ user_id: userId, model }])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return chat;
-};
-
-export const saveMessage = async (chatId: string, message: Omit<Message, 'id'>) => {
-  const { data, error } = await supabase
-    .from('messages')
-    .insert([{
-      chat_id: chatId,
-      role: message.role,
-      content: message.content,
-      timestamp: message.timestamp,
-      is_error: message.isError || false,
-      attachments: message.attachments || null
-    }])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
-export const getChatMessages = async (chatId: string) => {
-  const { data: messages, error } = await supabase
-    .from('messages')
-    .select('*')
-    .eq('chat_id', chatId)
-    .order('timestamp', { ascending: true });
-
-  if (error) throw error;
-  return messages;
-};
-
-export const deleteChat = async (chatId: string) => {
-  const { error } = await supabase
-    .from('chats')
-    .delete()
-    .eq('id', chatId);
-
-  if (error) throw error;
 };

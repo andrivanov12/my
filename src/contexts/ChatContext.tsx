@@ -33,32 +33,59 @@ interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [sessionId, setSessionId] = useState<string>(() => {
-    const savedSessionId = Cookies.get('chat_session_id');
-    return savedSessionId || uuidv4();
+    try {
+      const savedSessionId = Cookies.get('chat_session_id');
+      return savedSessionId || uuidv4();
+    } catch (error) {
+      console.warn('Error reading session ID from cookies:', error);
+      return uuidv4();
+    }
   });
 
   const [messages, setMessages] = useState<Message[]>(() => {
-    const savedMessages = localStorage.getItem(`chat_messages_${sessionId}`);
-    return savedMessages ? JSON.parse(savedMessages) : [];
+    try {
+      const savedMessages = localStorage.getItem(`chat_messages_${sessionId}`);
+      return savedMessages ? JSON.parse(savedMessages) : [];
+    } catch (error) {
+      console.warn('Error reading messages from localStorage:', error);
+      return [];
+    }
   });
   
   const [loading, setLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>(() => {
-    const savedModel = localStorage.getItem('selected_model');
-    // Validate the saved model exists in AI_MODELS, otherwise use default
-    return AI_MODELS.find(model => model.id === savedModel) ? savedModel : 'qwen3';
+    try {
+      const savedModel = localStorage.getItem('selected_model');
+      // Validate the saved model exists in AI_MODELS, otherwise use default
+      return AI_MODELS.find(model => model.id === savedModel) ? savedModel : 'qwen3';
+    } catch (error) {
+      console.warn('Error reading selected model from localStorage:', error);
+      return 'qwen3';
+    }
   });
 
   useEffect(() => {
-    Cookies.set('chat_session_id', sessionId, { expires: 7 });
+    try {
+      Cookies.set('chat_session_id', sessionId, { expires: 7 });
+    } catch (error) {
+      console.warn('Error saving session ID to cookies:', error);
+    }
   }, [sessionId]);
 
   useEffect(() => {
-    localStorage.setItem(`chat_messages_${sessionId}`, JSON.stringify(messages));
+    try {
+      localStorage.setItem(`chat_messages_${sessionId}`, JSON.stringify(messages));
+    } catch (error) {
+      console.warn('Error saving messages to localStorage:', error);
+    }
   }, [messages, sessionId]);
 
   useEffect(() => {
-    localStorage.setItem('selected_model', selectedModel);
+    try {
+      localStorage.setItem('selected_model', selectedModel);
+    } catch (error) {
+      console.warn('Error saving selected model to localStorage:', error);
+    }
   }, [selectedModel]);
 
   const sendMessage = async (content: string, attachments?: File[]) => {
@@ -118,6 +145,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           errorMessage = 'Insufficient credits. Please try selecting a different AI model or try again later.';
         } else if (error.message.includes('Provider returned error')) {
           errorMessage = 'The AI service is currently unavailable. Please try selecting a different model or try again later.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again with a shorter message or check your internet connection.';
         } else {
           // Include the actual error message for other cases
           errorMessage = `Error: ${error.message}`;
@@ -142,8 +171,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setMessages([]);
     const newSessionId = uuidv4();
     setSessionId(newSessionId);
-    Cookies.set('chat_session_id', newSessionId, { expires: 7 });
-    localStorage.removeItem(`chat_messages_${sessionId}`);
+    try {
+      Cookies.set('chat_session_id', newSessionId, { expires: 7 });
+      localStorage.removeItem(`chat_messages_${sessionId}`);
+    } catch (error) {
+      console.warn('Error clearing chat data:', error);
+    }
   };
 
   return (
