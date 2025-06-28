@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, AlertCircle } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
+import { blogScheduler } from '../services/blogScheduler';
 
 const BlogPage: React.FC = () => {
   const [articles, setArticles] = useState<AirtableArticle[]>([]);
@@ -43,6 +44,8 @@ const BlogPage: React.FC = () => {
         
         <h3>Будущее AI-технологий</h3>
         <p>Эксперты прогнозируют дальнейшее развитие в направлении более специализированных и точных моделей, способных решать узкоспециализированные задачи с высокой эффективностью.</p>
+        
+        <p><strong>#AI #ChatGPT #Технологии #ИскусственныйИнтеллект #Будущее #Инновации #МашинноеОбучение #НейронныеСети</strong></p>
       `,
       tags: ['AI', 'ChatGPT', 'Технологии'],
       slug: 'ai-revolution-chatgpt'
@@ -87,6 +90,8 @@ const BlogPage: React.FC = () => {
         
         <h3>Рекомендации по выбору</h3>
         <p>Для начинающих пользователей рекомендуется Qwen 3 30B как наиболее универсальное решение. Gemini подойдет для быстрых консультаций, а Llama - для работы с изображениями.</p>
+        
+        <p><strong>#Сравнение #AIМодели #Обзор #Qwen #Gemini #Llama #ИИ #Технологии #Выбор #Рекомендации</strong></p>
       `,
       tags: ['Сравнение', 'AI модели', 'Обзор'],
       slug: 'ai-models-comparison'
@@ -101,18 +106,38 @@ const BlogPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const airtableArticles = await airtableService.getArticles();
       
-      // Объединяем статьи из Airtable со статическими
-      const allArticles = [...airtableArticles, ...staticArticles];
+      // Загружаем статьи из разных источников
+      const [airtableArticles, localArticles] = await Promise.all([
+        airtableService.getArticles().catch(() => []),
+        Promise.resolve(blogScheduler.getBlogArticles())
+      ]);
+      
+      // Объединяем все статьи
+      const allArticles = [
+        ...localArticles, // Сгенерированные статьи (приоритет)
+        ...airtableArticles, // Статьи из Airtable
+        ...staticArticles // Статические статьи (fallback)
+      ];
+      
+      // Удаляем дубликаты по заголовку
+      const uniqueArticles = allArticles.filter((article, index, self) => 
+        index === self.findIndex(a => a.title === article.title)
+      );
       
       // Сортируем по дате публикации
-      allArticles.sort((a, b) => new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime());
+      uniqueArticles.sort((a, b) => 
+        new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime()
+      );
       
-      setArticles(allArticles);
+      setArticles(uniqueArticles);
+      
+      if (airtableArticles.length === 0 && localArticles.length === 0) {
+        setError('Показываем статические статьи. Автоматические статьи будут добавляться каждый день в 9:00.');
+      }
     } catch (err) {
       console.error('Error loading articles:', err);
-      setError('Не удалось загрузить статьи из Airtable. Показываем статические статьи.');
+      setError('Не удалось загрузить статьи. Показываем статические статьи.');
       setArticles(staticArticles);
     } finally {
       setLoading(false);
@@ -133,6 +158,10 @@ const BlogPage: React.FC = () => {
       'Обзоры': '14b8a6', 
       'Этика': 'f59e0b',
       'Образование': 'ef4444',
+      'Автоматизация': '8b5cf6',
+      'No-Code': '06b6d4',
+      'Продуктивность': 'f97316',
+      'Маркетинг': 'ec4899',
       'Общее': '8b5cf6'
     };
     const color = colors[category as keyof typeof colors] || '6366f1';
@@ -239,7 +268,7 @@ const BlogPage: React.FC = () => {
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
             Последние новости, обзоры и экспертные мнения о развитии искусственного интеллекта 
-            и его влиянии на нашу жизнь.
+            и его влиянии на нашу жизнь. Новые статьи публикуются автоматически каждый день в 9:00!
           </p>
         </div>
 
@@ -252,10 +281,10 @@ const BlogPage: React.FC = () => {
         )}
 
         {error && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-8">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8">
             <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2" />
-              <span className="text-yellow-800 dark:text-yellow-200">{error}</span>
+              <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+              <span className="text-blue-800 dark:text-blue-200">{error}</span>
             </div>
           </div>
         )}
