@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import OptimizedLayout from './components/OptimizedLayout';
+import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Ленивая загрузка страниц для уменьшения начального бандла
@@ -15,7 +15,7 @@ const TuyaInstructionsPage = lazy(() => import('./pages/TuyaInstructionsPage'));
 
 function App() {
   return (
-    <OptimizedLayout>
+    <Layout>
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
           <LoadingSpinner size="lg" />
@@ -32,7 +32,7 @@ function App() {
           <Route path="/tuya-instructions" element={<TuyaInstructionsPage />} />
         </Routes>
       </Suspense>
-    </OptimizedLayout>
+    </Layout>
   );
 }
 

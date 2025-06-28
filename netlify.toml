@@ -54,10 +54,6 @@
   to = "/index.html"
   status = 200
 
-# Функции
-[functions]
-  directory = "netlify/functions"
-
 # Оптимизация сборки
 [build.processing]
   skip_processing = false
