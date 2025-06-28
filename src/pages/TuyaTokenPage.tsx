@@ -181,22 +181,18 @@ const TuyaTokenPage: React.FC = () => {
         body: JSON.stringify(formData)
       });
 
+      // Read response as text first
+      const responseText = await response.text();
+      
       let data: ApiResponse;
       
       try {
-        data = await response.json();
+        // Try to parse as JSON
+        data = JSON.parse(responseText);
       } catch (jsonError) {
-        // If JSON parsing fails, try to get the response as text for better error reporting
-        try {
-          const textResponse = await response.text();
-          console.error('Failed to parse JSON response:', textResponse);
-          setError(`Сервер вернул некорректный ответ. Статус: ${response.status}. Попробуйте позже или обратитесь в поддержку.`);
-          return;
-        } catch (textError) {
-          console.error('Failed to read response as text:', textError);
-          setError(`Не удалось получить ответ от сервера. Статус: ${response.status}. Проверьте подключение к интернету.`);
-          return;
-        }
+        console.error('Failed to parse JSON response:', responseText);
+        setError(`Сервер вернул некорректный ответ. Статус: ${response.status}. Попробуйте позже или обратитесь в поддержку.`);
+        return;
       }
 
       if (data.success && data.result) {
@@ -243,22 +239,18 @@ const TuyaTokenPage: React.FC = () => {
         })
       });
 
+      // Read response as text first
+      const responseText = await response.text();
+      
       let data: ApiResponse;
       
       try {
-        data = await response.json();
+        // Try to parse as JSON
+        data = JSON.parse(responseText);
       } catch (jsonError) {
-        // If JSON parsing fails, try to get the response as text for better error reporting
-        try {
-          const textResponse = await response.text();
-          console.error('Failed to parse JSON response:', textResponse);
-          setError(`Сервер вернул некорректный ответ при обновлении токена. Статус: ${response.status}. Попробуйте позже.`);
-          return;
-        } catch (textError) {
-          console.error('Failed to read response as text:', textError);
-          setError(`Не удалось получить ответ от сервера при обновлении токена. Статус: ${response.status}.`);
-          return;
-        }
+        console.error('Failed to parse JSON response:', responseText);
+        setError(`Сервер вернул некорректный ответ при обновлении токена. Статус: ${response.status}. Попробуйте позже.`);
+        return;
       }
 
       if (data.success && data.result) {
