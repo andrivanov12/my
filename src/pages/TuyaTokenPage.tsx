@@ -16,7 +16,8 @@ import {
   Wifi,
   Server,
   Code,
-  ExternalLink
+  ExternalLink,
+  Info
 } from 'lucide-react';
 
 interface TokenData {
@@ -77,6 +78,10 @@ const TuyaTokenPage: React.FC = () => {
     {
       question: 'Можно ли использовать API через Postman?',
       answer: 'Да! Наши Netlify Functions поддерживают запросы из Postman и других API клиентов. Используйте POST запросы к эндпойнтам /.netlify/functions/tuya-get-token и /.netlify/functions/tuya-refresh-token с JSON телом запроса.'
+    },
+    {
+      question: 'Почему показывает "Проблемы с соединением"?',
+      answer: 'Это означает, что Netlify Functions еще не развернуты на сервере. В режиме локальной разработки функции недоступны. После развертывания на Netlify все будет работать корректно.'
     }
   ];
 
@@ -117,6 +122,16 @@ const TuyaTokenPage: React.FC = () => {
   const testConnection = async () => {
     setConnectionStatus('testing');
     try {
+      // Проверяем, работаем ли мы в режиме разработки
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isDevelopment) {
+        // В режиме разработки показываем предупреждение
+        setConnectionStatus('failed');
+        setError('В режиме локальной разработки Netlify Functions недоступны. После развертывания на Netlify все будет работать корректно.');
+        return;
+      }
+
       const response = await fetch('/.netlify/functions/tuya-get-token', {
         method: 'POST',
         headers: {
@@ -130,13 +145,25 @@ const TuyaTokenPage: React.FC = () => {
       });
 
       if (response.status === 400) {
-        // Ожидаемая ошибка для тестовых данных
+        // Ожидаемая ошибка для тестовых данных означает, что функция работает
         setConnectionStatus('success');
+        setError(null);
+      } else if (response.status === 404) {
+        setConnectionStatus('failed');
+        setError('Netlify Functions не найдены. Убедитесь, что проект развернут на Netlify.');
       } else {
         setConnectionStatus('failed');
+        setError(`Неожиданный ответ сервера: ${response.status}`);
       }
     } catch (error) {
       setConnectionStatus('failed');
+      console.error('Connection test error:', error);
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('Не удалось подключиться к серверу. Проверьте подключение к интернету или убедитесь, что сайт развернут на Netlify.');
+      } else {
+        setError('Ошибка при тестировании соединения. Попробуйте позже.');
+      }
     }
   };
 
@@ -184,7 +211,11 @@ const TuyaTokenPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error getting token:', err);
-      setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Не удалось подключиться к серверу. Убедитесь, что сайт развернут на Netlify и функции доступны.');
+      } else {
+        setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова.');
+      }
     } finally {
       setLoading(false);
     }
@@ -238,7 +269,11 @@ const TuyaTokenPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error refreshing token:', err);
-      setError('Произошла ошибка при обновлении токена.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Не удалось подключиться к серверу при обновлении токена. Убедитесь, что сайт развернут на Netlify.');
+      } else {
+        setError('Произошла ошибка при обновлении токена.');
+      }
     } finally {
       setLoading(false);
     }
@@ -278,6 +313,7 @@ const TuyaTokenPage: React.FC = () => {
   };
 
   const currentDomain = typeof window !== 'undefined' ? window.location.origin : 'https://aimarkethub.pro';
+  const isDevelopment = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   return (
     <>
@@ -302,6 +338,24 @@ const TuyaTokenPage: React.FC = () => {
             Получите токен для управления вашими устройствами умного дома через API Tuya
           </p>
         </div>
+
+        {/* Development Mode Warning */}
+        {isDevelopment && (
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-xl mb-8 border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start">
+              <Info className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-3 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Режим разработки</h3>
+                <p className="text-yellow-800 dark:text-yellow-200 mb-2">
+                  Вы находитесь в режиме локальной разработки. Netlify Functions недоступны в этом режиме.
+                </p>
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  Для полного тестирования функциональности разверните проект на Netlify или используйте Netlify CLI для локальной разработки.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Postman Integration Info */}
         <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-6 rounded-xl mb-8 border border-purple-200 dark:border-purple-800">
@@ -359,7 +413,7 @@ const TuyaTokenPage: React.FC = () => {
           <div className="flex items-start">
             <Server className="h-6 w-6 text-green-600 dark:text-green-400 mr-3 mt-1 flex-shrink-0" />
             <div className="flex-1">
-              <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Серверная интеграция активна</h3>
+              <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Серверная интеграция</h3>
               <p className="text-green-800 dark:text-green-200 mb-3">
                 Мы используем Netlify Functions для безопасной обработки запросов к API Tuya. 
                 Это решает проблемы с CORS и обеспечивает стабильную работу.
@@ -380,6 +434,11 @@ const TuyaTokenPage: React.FC = () => {
                   <span className="text-red-700 dark:text-red-300 text-sm">✗ Проблемы с соединением</span>
                 )}
               </div>
+              {isDevelopment && (
+                <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                  💡 В режиме разработки функции недоступны. После развертывания на Netlify все будет работать.
+                </div>
+              )}
             </div>
           </div>
         </div>
