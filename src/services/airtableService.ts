@@ -28,19 +28,23 @@ export interface AirtableRecord {
 }
 
 const AIRTABLE_API_KEY = 'patEo1SDRR2SG5Zy9.c802fcede50de3f933e1ae976fcaaf218f8688fdc51b02de16b9212442db67f8';
-const AIRTABLE_BASE_ID = 'appYourBaseId'; // Замените на ваш Base ID
-const AIRTABLE_TABLE_NAME = 'Articles'; // Замените на название вашей таблицы
+const AIRTABLE_BASE_ID = 'appyP9QGbW0Tw3xJH';
+const AIRTABLE_TABLE_ID = 'tblj5JESrocaYbZwO';
+const AIRTABLE_VIEW_ID = 'viwrWdFSXL3eX3G5g';
 
 class AirtableService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
+    this.baseUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
   }
 
   async getArticles(): Promise<AirtableArticle[]> {
     try {
-      const response = await fetch(`${this.baseUrl}?sort[0][field]=Published At&sort[0][direction]=desc`, {
+      // Используем View ID для получения данных в нужном порядке
+      const url = `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&sort[0][field]=Published At&sort[0][direction]=desc`;
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
@@ -48,11 +52,19 @@ class AirtableService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Airtable API error response:', errorText);
         throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Airtable response:', data);
       
+      if (!data.records || !Array.isArray(data.records)) {
+        console.warn('No records found in Airtable response');
+        return [];
+      }
+
       return data.records
         .filter((record: AirtableRecord) => this.isValidRecord(record))
         .map((record: AirtableRecord) => this.transformRecord(record));
@@ -64,7 +76,9 @@ class AirtableService {
 
   async getArticleBySlug(slug: string): Promise<AirtableArticle | null> {
     try {
-      const response = await fetch(`${this.baseUrl}?filterByFormula={Slug}="${slug}"`, {
+      const url = `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&filterByFormula={Slug}="${slug}"`;
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
@@ -77,7 +91,7 @@ class AirtableService {
 
       const data = await response.json();
       
-      if (data.records.length === 0) {
+      if (!data.records || data.records.length === 0) {
         return null;
       }
 
@@ -91,7 +105,21 @@ class AirtableService {
 
   private isValidRecord(record: AirtableRecord): boolean {
     const fields = record.fields;
-    return !!(fields.Title && fields.Content && fields['Image URL']);
+    // Проверяем наличие обязательных полей
+    const hasTitle = fields.Title && fields.Title.trim().length > 0;
+    const hasContent = fields.Content && fields.Content.trim().length > 0;
+    
+    if (!hasTitle || !hasContent) {
+      console.warn('Record missing required fields:', {
+        id: record.id,
+        hasTitle,
+        hasContent,
+        fields: Object.keys(fields)
+      });
+      return false;
+    }
+    
+    return true;
   }
 
   private transformRecord(record: AirtableRecord): AirtableArticle {
@@ -104,13 +132,17 @@ class AirtableService {
     const excerpt = fields.Excerpt || this.generateExcerpt(fields.Content || '');
     
     // Парсим теги из строки
-    const tags = fields.Tags ? fields.Tags.split(',').map(tag => tag.trim()) : [];
+    const tags = fields.Tags ? fields.Tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [];
+
+    // Используем дефолтное изображение, если не указано
+    const defaultImage = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+    const imageUrl = fields['Image URL'] && fields['Image URL'].trim() ? fields['Image URL'] : defaultImage;
 
     return {
       id: record.id,
       title: fields.Title || '',
       content: fields.Content || '',
-      imageUrl: fields['Image URL'] || '',
+      imageUrl,
       author: fields.Author || 'Команда AI Hub',
       category: fields.Category || 'Общее',
       publishedAt: fields['Published At'] || record.createdTime,
@@ -134,13 +166,39 @@ class AirtableService {
     const cleanContent = content
       .replace(/<[^>]*>/g, '')
       .replace(/[#*`]/g, '')
+      .replace(/\n+/g, ' ')
       .trim();
     
     if (cleanContent.length <= maxLength) {
       return cleanContent;
     }
     
-    return cleanContent.substring(0, maxLength).trim() + '...';
+    // Ищем последний пробел перед лимитом, чтобы не обрезать слова
+    const truncated = cleanContent.substring(0, maxLength);
+    const lastSpaceIndex = truncated.lastIndexOf(' ');
+    
+    if (lastSpaceIndex > maxLength * 0.8) {
+      return truncated.substring(0, lastSpaceIndex).trim() + '...';
+    }
+    
+    return truncated.trim() + '...';
+  }
+
+  // Метод для тестирования подключения
+  async testConnection(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}?maxRecords=1`, {
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('Airtable connection test failed:', error);
+      return false;
+    }
   }
 }
 
