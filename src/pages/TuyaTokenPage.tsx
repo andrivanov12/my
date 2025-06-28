@@ -14,7 +14,9 @@ import {
   ChevronUp,
   HelpCircle,
   Wifi,
-  Server
+  Server,
+  Code,
+  ExternalLink
 } from 'lucide-react';
 
 interface TokenData {
@@ -28,6 +30,7 @@ interface ApiResponse {
   result?: TokenData;
   msg?: string;
   error?: any;
+  postman_info?: any;
 }
 
 const TuyaTokenPage: React.FC = () => {
@@ -70,6 +73,10 @@ const TuyaTokenPage: React.FC = () => {
     {
       question: 'Как работает новая серверная интеграция?',
       answer: 'Мы используем Netlify Functions для безопасной обработки запросов к API Tuya. Это решает проблемы с CORS и обеспечивает стабильную работу без необходимости использования внешних прокси-серверов.'
+    },
+    {
+      question: 'Можно ли использовать API через Postman?',
+      answer: 'Да! Наши Netlify Functions поддерживают запросы из Postman и других API клиентов. Используйте POST запросы к эндпойнтам /.netlify/functions/tuya-get-token и /.netlify/functions/tuya-refresh-token с JSON телом запроса.'
     }
   ];
 
@@ -270,6 +277,8 @@ const TuyaTokenPage: React.FC = () => {
     }
   };
 
+  const currentDomain = typeof window !== 'undefined' ? window.location.origin : 'https://aimarkethub.pro';
+
   return (
     <>
       <Helmet>
@@ -292,6 +301,57 @@ const TuyaTokenPage: React.FC = () => {
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
             Получите токен для управления вашими устройствами умного дома через API Tuya
           </p>
+        </div>
+
+        {/* Postman Integration Info */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-6 rounded-xl mb-8 border border-purple-200 dark:border-purple-800">
+          <div className="flex items-start">
+            <Code className="h-6 w-6 text-purple-600 dark:text-purple-400 mr-3 mt-1 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2 flex items-center">
+                Поддержка Postman и API клиентов
+                <ExternalLink className="h-4 w-4 ml-2" />
+              </h3>
+              <p className="text-purple-800 dark:text-purple-200 mb-3">
+                Теперь вы можете использовать наши эндпойнты напрямую из Postman или других API клиентов!
+              </p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <h4 className="font-medium mb-2">Эндпойнты для API:</h4>
+                <div className="space-y-2 text-sm font-mono">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">POST</span>
+                    <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{currentDomain}/.netlify/functions/tuya-get-token</code>
+                    <button
+                      onClick={() => copyToClipboard(`${currentDomain}/.netlify/functions/tuya-get-token`, 'endpoint1')}
+                      className="text-purple-600 hover:text-purple-700 dark:text-purple-400"
+                    >
+                      {copiedField === 'endpoint1' ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs">POST</span>
+                    <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{currentDomain}/.netlify/functions/tuya-refresh-token</code>
+                    <button
+                      onClick={() => copyToClipboard(`${currentDomain}/.netlify/functions/tuya-refresh-token`, 'endpoint2')}
+                      className="text-purple-600 hover:text-purple-700 dark:text-purple-400"
+                    >
+                      {copiedField === 'endpoint2' ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">Пример JSON для получения токена:</p>
+                  <pre className="text-xs bg-gray-800 text-green-400 p-2 rounded overflow-x-auto">
+{`{
+  "clientId": "your_client_id",
+  "secret": "your_client_secret", 
+  "dataCenter": "https://openapi.tuyaeu.com"
+}`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Server Status */}

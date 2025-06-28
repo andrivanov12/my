@@ -10,12 +10,14 @@
   to = "/index.html"
   status = 200
 
+# Настройки CORS для поддержки Postman и других API клиентов
 [[headers]]
-  for = "/netlify/functions/*"
+  for = "/.netlify/functions/*"
   [headers.values]
-    Access-Control-Allow-Origin = "https://aimarkethub.pro"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Max-Age = "86400"
 
 [[headers]]
   for = "/*"

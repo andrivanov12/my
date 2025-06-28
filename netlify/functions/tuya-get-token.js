@@ -1,11 +1,11 @@
 const crypto = require('crypto');
 
 exports.handler = async (event, context) => {
-  // Настройка CORS заголовков
+  // Настройка CORS заголовков для поддержки Postman и других клиентов
   const headers = {
-    'Access-Control-Allow-Origin': 'https://aimarkethub.pro',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*', // Разрешаем запросы из любых источников для Postman
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
     'Content-Type': 'application/json'
   };
 
@@ -25,7 +25,8 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({
         success: false,
-        msg: 'Method not allowed. Use POST.'
+        msg: 'Method not allowed. Use POST.',
+        documentation: 'Send POST request with JSON body containing: clientId, secret, dataCenter'
       })
     };
   }
@@ -41,7 +42,17 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           success: false,
-          msg: 'Missing required parameters: clientId, secret, or dataCenter'
+          msg: 'Missing required parameters',
+          required_parameters: {
+            clientId: 'Your Tuya IoT Client ID',
+            secret: 'Your Tuya IoT Client Secret', 
+            dataCenter: 'Tuya API endpoint (e.g., https://openapi.tuyaeu.com)'
+          },
+          example: {
+            clientId: 'your_client_id_here',
+            secret: 'your_client_secret_here',
+            dataCenter: 'https://openapi.tuyaeu.com'
+          }
         })
       };
     }
@@ -84,10 +95,17 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           success: false,
-          msg: `Tuya API error: ${response.status} - ${errorText}`,
+          msg: `Tuya API error: ${response.status}`,
           error: {
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
+            details: errorText
+          },
+          troubleshooting: {
+            401: 'Check your Client ID and Secret',
+            403: 'Verify your API permissions and data center region',
+            404: 'Check the data center URL',
+            500: 'Tuya API server error, try again later'
           }
         })
       };
@@ -98,6 +116,15 @@ exports.handler = async (event, context) => {
 
     // Логирование для отладки (без чувствительных данных)
     console.log('Tuya API response status:', data.success ? 'success' : 'failed');
+
+    // Добавляем дополнительную информацию для пользователей Postman
+    if (data.success && data.result) {
+      data.postman_info = {
+        access_token_expires_in: `${data.result.expire_time} seconds`,
+        refresh_token_usage: 'Use the refresh token with /tuya-refresh-token endpoint',
+        next_steps: 'Save both tokens for API requests to Tuya services'
+      };
+    }
 
     return {
       statusCode: 200,
@@ -131,6 +158,15 @@ exports.handler = async (event, context) => {
         error: {
           type: error.name,
           code: error.code
+        },
+        postman_help: {
+          endpoint: 'POST /.netlify/functions/tuya-get-token',
+          content_type: 'application/json',
+          body_example: {
+            clientId: 'your_client_id',
+            secret: 'your_client_secret',
+            dataCenter: 'https://openapi.tuyaeu.com'
+          }
         }
       })
     };
