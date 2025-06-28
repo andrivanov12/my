@@ -12,7 +12,9 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  HelpCircle
+  HelpCircle,
+  Wifi,
+  Server
 } from 'lucide-react';
 
 interface TokenData {
@@ -28,13 +30,6 @@ interface ApiResponse {
   error?: any;
 }
 
-// Добавляем CryptoJS типы
-declare global {
-  interface Window {
-    CryptoJS: any;
-  }
-}
-
 const TuyaTokenPage: React.FC = () => {
   const [formData, setFormData] = useState({
     clientId: '',
@@ -46,13 +41,13 @@ const TuyaTokenPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number[]>([0]);
-  const [cryptoJSLoaded, setCryptoJSLoaded] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
 
   const dataCenters = [
-    { value: 'https://openapi.tuyaeu.com', label: 'Центральная Европа (openapi.tuyaeu.com)' },
-    { value: 'https://openapi.tuyaus.com', label: 'Америка (openapi.tuyaus.com)' },
-    { value: 'https://openapi.tuyacn.com', label: 'Китай (openapi.tuyacn.com)' },
-    { value: 'https://openapi.tuyain.com', label: 'Индия (openapi.tuyain.com)' }
+    { value: 'https://openapi.tuyaeu.com', label: 'Центральная Европа (openapi.tuyaeu.com)', region: 'EU' },
+    { value: 'https://openapi.tuyaus.com', label: 'Америка (openapi.tuyaus.com)', region: 'US' },
+    { value: 'https://openapi.tuyacn.com', label: 'Китай (openapi.tuyacn.com)', region: 'CN' },
+    { value: 'https://openapi.tuyain.com', label: 'Индия (openapi.tuyain.com)', region: 'IN' }
   ];
 
   const faqItems = [
@@ -73,25 +68,10 @@ const TuyaTokenPage: React.FC = () => {
       answer: 'Убедитесь, что вы выбрали правильный регион центра данных, соответствующий вашему аккаунту Tuya. Также проверьте правильность введенных Client ID и Secret. Если проблема сохраняется, попробуйте обновить токен.'
     },
     {
-      question: 'Почему возникают ошибки CORS?',
-      answer: 'API Tuya имеет ограничения CORS для прямых запросов из браузера. Для решения этой проблемы используйте прокси-сервер или серверную интеграцию. В данной реализации мы используем публичный CORS прокси.'
+      question: 'Как работает новая серверная интеграция?',
+      answer: 'Мы используем Netlify Functions для безопасной обработки запросов к API Tuya. Это решает проблемы с CORS и обеспечивает стабильную работу без необходимости использования внешних прокси-серверов.'
     }
   ];
-
-  // Load CryptoJS library
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js';
-    script.integrity = 'sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==';
-    script.crossOrigin = 'anonymous';
-    script.onload = () => setCryptoJSLoaded(true);
-    script.onerror = () => setError('Не удалось загрузить библиотеку шифрования');
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -127,78 +107,49 @@ const TuyaTokenPage: React.FC = () => {
     }
   };
 
-  const generateSignature = (clientId: string, secret: string, timestamp: string, path: string) => {
-    if (!window.CryptoJS) {
-      throw new Error('CryptoJS library not loaded');
-    }
-    
-    const signString = `${clientId}${timestamp}GET\n\n\n${path}`;
-    return window.CryptoJS.HmacSHA256(signString, secret).toString().toUpperCase();
-  };
-
-  const makeProxyRequest = async (url: string, headers: Record<string, string>) => {
-    // Используем публичный CORS прокси
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    
+  const testConnection = async () => {
+    setConnectionStatus('testing');
     try {
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
+      const response = await fetch('/.netlify/functions/tuya-get-token', {
+        method: 'POST',
         headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          ...headers
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          clientId: 'test',
+          secret: 'test',
+          dataCenter: formData.dataCenter
+        })
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+
+      if (response.status === 400) {
+        // Ожидаемая ошибка для тестовых данных
+        setConnectionStatus('success');
+      } else {
+        setConnectionStatus('failed');
       }
-      
-      return await response.json();
     } catch (error) {
-      // Fallback to another CORS proxy
-      const fallbackProxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
-      const fallbackResponse = await fetch(fallbackProxyUrl, {
-        method: 'GET',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          ...headers
-        }
-      });
-      
-      if (!fallbackResponse.ok) {
-        throw new Error(`HTTP error! status: ${fallbackResponse.status}`);
-      }
-      
-      return await fallbackResponse.json();
+      setConnectionStatus('failed');
     }
   };
 
   const getToken = async () => {
-    if (!cryptoJSLoaded) {
-      setError('Библиотека шифрования еще не загружена. Попробуйте еще раз.');
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setTokenData(null);
 
     try {
-      const timestamp = Date.now().toString();
-      const path = '/v1.0/token?grant_type=1';
-      const signature = generateSignature(formData.clientId, formData.secret, timestamp, path);
-      
-      const headers = {
-        'client_id': formData.clientId,
-        'sign': signature,
-        't': timestamp,
-        'sign_method': 'HMAC-SHA256'
-      };
+      const response = await fetch('/.netlify/functions/tuya-get-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-      const url = `${formData.dataCenter}${path}`;
-      const data = await makeProxyRequest(url, headers);
+      const data: ApiResponse = await response.json();
 
-      if (data.success) {
+      if (data.success && data.result) {
         setTokenData(data.result);
         // Save to localStorage
         localStorage.setItem('tuya_client_id', formData.clientId);
@@ -210,18 +161,13 @@ const TuyaTokenPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error getting token:', err);
-      setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова. Возможно, потребуется использовать VPN для обхода CORS ограничений.');
+      setError('Произошла ошибка при запросе. Проверьте подключение к интернету и попробуйте снова.');
     } finally {
       setLoading(false);
     }
   };
 
   const refreshToken = async () => {
-    if (!cryptoJSLoaded) {
-      setError('Библиотека шифрования еще не загружена. Попробуйте еще раз.');
-      return;
-    }
-
     const savedRefreshToken = localStorage.getItem('tuya_refresh_token');
     if (!savedRefreshToken) {
       setError('Refresh token не найден. Пожалуйста, получите новый токен.');
@@ -232,21 +178,20 @@ const TuyaTokenPage: React.FC = () => {
     setError(null);
 
     try {
-      const timestamp = Date.now().toString();
-      const path = `/v1.0/token/${savedRefreshToken}`;
-      const signature = generateSignature(formData.clientId, formData.secret, timestamp, path);
-      
-      const headers = {
-        'client_id': formData.clientId,
-        'sign': signature,
-        't': timestamp,
-        'sign_method': 'HMAC-SHA256'
-      };
+      const response = await fetch('/.netlify/functions/tuya-refresh-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          refreshToken: savedRefreshToken
+        })
+      });
 
-      const url = `${formData.dataCenter}${path}`;
-      const data = await makeProxyRequest(url, headers);
+      const data: ApiResponse = await response.json();
 
-      if (data.success) {
+      if (data.success && data.result) {
         setTokenData(data.result);
         localStorage.setItem('tuya_refresh_token', data.result.refresh_token);
       } else {
@@ -280,6 +225,19 @@ const TuyaTokenPage: React.FC = () => {
     return `${hours}ч ${minutes}м (до ${expireDate.toLocaleString()})`;
   };
 
+  const getConnectionStatusIcon = () => {
+    switch (connectionStatus) {
+      case 'testing':
+        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Wifi className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -304,6 +262,36 @@ const TuyaTokenPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Server Status */}
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-xl mb-8 border border-green-200 dark:border-green-800">
+          <div className="flex items-start">
+            <Server className="h-6 w-6 text-green-600 dark:text-green-400 mr-3 mt-1 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Серверная интеграция активна</h3>
+              <p className="text-green-800 dark:text-green-200 mb-3">
+                Мы используем Netlify Functions для безопасной обработки запросов к API Tuya. 
+                Это решает проблемы с CORS и обеспечивает стабильную работу.
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={testConnection}
+                  disabled={connectionStatus === 'testing'}
+                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  {getConnectionStatusIcon()}
+                  {connectionStatus === 'testing' ? 'Тестирование...' : 'Тест соединения'}
+                </button>
+                {connectionStatus === 'success' && (
+                  <span className="text-green-700 dark:text-green-300 text-sm">✓ Сервер доступен</span>
+                )}
+                {connectionStatus === 'failed' && (
+                  <span className="text-red-700 dark:text-red-300 text-sm">✗ Проблемы с соединением</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Info Block */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl mb-8 border border-blue-200 dark:border-blue-800">
           <div className="flex items-start">
@@ -322,22 +310,6 @@ const TuyaTokenPage: React.FC = () => {
                   Ваши учетные данные не сохраняются на нашем сервере, они обрабатываются только для получения токена.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CORS Warning */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-xl mb-8 border border-yellow-200 dark:border-yellow-800">
-          <div className="flex items-start">
-            <AlertCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-3 mt-1 flex-shrink-0" />
-            <div>
-              <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Важная информация о CORS</h3>
-              <p className="text-yellow-800 dark:text-yellow-200 mb-2">
-                API Tuya имеет ограничения CORS для прямых запросов из браузера. Мы используем публичный прокси-сервер для обхода этих ограничений.
-              </p>
-              <p className="text-yellow-800 dark:text-yellow-200">
-                Если возникают ошибки, попробуйте использовать VPN или обратитесь к администратору для настройки серверного прокси.
-              </p>
             </div>
           </div>
         </div>
@@ -417,18 +389,13 @@ const TuyaTokenPage: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={loading || !cryptoJSLoaded}
+                disabled={loading}
                 className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
               >
                 {loading ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                     Получение токена...
-                  </>
-                ) : !cryptoJSLoaded ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Загрузка библиотеки...
                   </>
                 ) : (
                   <>
