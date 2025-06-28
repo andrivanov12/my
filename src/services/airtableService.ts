@@ -95,13 +95,16 @@ class AirtableService {
       
       // Сортируем по дате создания (новые сначала)
       params.append('sort[0][field]', 'Title');
-      params.append('sort[0][direction]', 'asc');
+      params.append('sort[0][direction]', 'desc');
+      
+      // Ограничиваем количество записей для оптимизации
+      params.append('maxRecords', '50');
       
       if (params.toString()) {
         url += '?' + params.toString();
       }
       
-      console.log('🔄 Загружаем статьи из Airtable:', url);
+      console.log('🔄 Загружаем статьи из Airtable...');
       
       const response = await fetch(url, {
         headers: {
@@ -233,25 +236,82 @@ class AirtableService {
     // Генерируем excerpt из контента
     const excerpt = this.generateExcerpt(fields.Content || '');
     
-    // Используем дефолтное изображение, если не указано
-    const defaultImage = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
-    const imageUrl = fields['Image URL'] && fields['Image URL'].trim() ? fields['Image URL'] : defaultImage;
+    // Обрабатываем URL изображения
+    let imageUrl = fields['Image URL'] || '';
+    
+    // Если URL изображения пустой, используем дефолтное
+    if (!imageUrl || !imageUrl.trim()) {
+      imageUrl = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+    } else {
+      // Очищаем URL от лишних пробелов
+      imageUrl = imageUrl.trim();
+      
+      // Проверяем, является ли это валидным URL
+      try {
+        new URL(imageUrl);
+      } catch {
+        console.warn('⚠️ Неверный URL изображения, используется дефолтное:', imageUrl);
+        imageUrl = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+      }
+    }
 
     // Определяем категорию на основе контента или заголовка
     const category = this.detectCategory(fields.Title || '', fields.Content || '');
 
+    // Обрабатываем контент для корректного отображения
+    const processedContent = this.processContent(fields.Content || '');
+
     return {
       id: record.id,
       title: fields.Title || '',
-      content: fields.Content || '',
+      content: processedContent,
       imageUrl,
-      author: 'Автор', // Можете изменить на ваше имя
+      author: 'AI Hub Team', // Можете изменить на ваше имя
       category,
       publishedAt: record.createdTime, // Используем дату создания записи
       excerpt,
       tags: this.extractTags(fields.Title || '', fields.Content || ''),
       slug,
     };
+  }
+
+  private processContent(content: string): string {
+    // Обрабатываем контент для корректного отображения в HTML
+    let processed = content;
+    
+    // Заменяем переносы строк на HTML теги
+    processed = processed.replace(/\n\n/g, '</p><p>');
+    processed = processed.replace(/\n/g, '<br>');
+    
+    // Обрабатываем заголовки (## -> h3, ### -> h4)
+    processed = processed.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+    processed = processed.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+    processed = processed.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+    
+    // Обрабатываем жирный текст (**text** -> <strong>text</strong>)
+    processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Обрабатываем курсив (*text* -> <em>text</em>)
+    processed = processed.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Обрабатываем списки
+    processed = processed.replace(/^- (.+)$/gm, '<li>$1</li>');
+    processed = processed.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Обрабатываем ссылки [text](url)
+    processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Оборачиваем в параграфы, если еще не обернуто
+    if (!processed.startsWith('<')) {
+      processed = '<p>' + processed + '</p>';
+    }
+    
+    // Очищаем лишние теги
+    processed = processed.replace(/<p><\/p>/g, '');
+    processed = processed.replace(/<p><h/g, '<h');
+    processed = processed.replace(/<\/h([1-6])><\/p>/g, '</h$1>');
+    
+    return processed;
   }
 
   private generateSlug(title: string): string {
@@ -269,7 +329,9 @@ class AirtableService {
     const cleanContent = content
       .replace(/<[^>]*>/g, '') // Удаляем HTML теги
       .replace(/[#*`]/g, '') // Удаляем markdown символы
+      .replace(/\*\*(.+?)\*\*/g, '$1') // Убираем жирный текст
       .replace(/\n+/g, ' ') // Заменяем переносы строк на пробелы
+      .replace(/\s+/g, ' ') // Убираем множественные пробелы
       .trim();
     
     if (cleanContent.length <= maxLength) {
@@ -291,17 +353,20 @@ class AirtableService {
     const text = (title + ' ' + content).toLowerCase();
     
     // Простая категоризация на основе ключевых слов
-    if (text.includes('ai') || text.includes('ии') || text.includes('искусственный интеллект') || text.includes('chatgpt')) {
+    if (text.includes('ai') || text.includes('ии') || text.includes('искусственный интеллект') || text.includes('chatgpt') || text.includes('робот')) {
       return 'Технологии';
     }
     if (text.includes('обзор') || text.includes('сравнение') || text.includes('тест')) {
       return 'Обзоры';
     }
-    if (text.includes('обучение') || text.includes('образование') || text.includes('курс')) {
+    if (text.includes('обучение') || text.includes('образование') || text.includes('курс') || text.includes('инструкция')) {
       return 'Образование';
     }
     if (text.includes('этика') || text.includes('безопасность') || text.includes('приватность')) {
       return 'Этика';
+    }
+    if (text.includes('no-code') || text.includes('без кода') || text.includes('автоматизация')) {
+      return 'No-Code';
     }
     
     return 'Общее';
@@ -314,10 +379,15 @@ class AirtableService {
     // Извлекаем теги на основе ключевых слов
     if (text.includes('chatgpt')) tags.push('ChatGPT');
     if (text.includes('ai') || text.includes('ии')) tags.push('AI');
+    if (text.includes('робот')) tags.push('Роботы');
+    if (text.includes('no-code') || text.includes('без кода')) tags.push('NoCode');
+    if (text.includes('автоматизация')) tags.push('Автоматизация');
     if (text.includes('машинное обучение')) tags.push('Машинное обучение');
     if (text.includes('нейронные сети')) tags.push('Нейронные сети');
     if (text.includes('программирование')) tags.push('Программирование');
     if (text.includes('веб-разработка')) tags.push('Веб-разработка');
+    if (text.includes('telegram')) tags.push('Telegram');
+    if (text.includes('openai')) tags.push('OpenAI');
     
     return tags.slice(0, 5); // Ограничиваем количество тегов
   }
