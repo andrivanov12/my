@@ -27,22 +27,69 @@ export interface AirtableRecord {
   createdTime: string;
 }
 
-const AIRTABLE_API_KEY = 'patEo1SDRR2SG5Zy9.c802fcede50de3f933e1ae976fcaaf218f8688fdc51b02de16b9212442db67f8';
-const AIRTABLE_BASE_ID = 'appyP9QGbW0Tw3xJH';
-const AIRTABLE_TABLE_ID = 'tblj5JESrocaYbZwO';
-const AIRTABLE_VIEW_ID = 'viwrWdFSXL3eX3G5g';
+// Get configuration from environment variables
+const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
+const AIRTABLE_TABLE_ID = import.meta.env.VITE_AIRTABLE_TABLE_ID;
+const AIRTABLE_VIEW_ID = import.meta.env.VITE_AIRTABLE_VIEW_ID;
+
+// Fallback mock data for when Airtable is not available
+const MOCK_ARTICLES: AirtableArticle[] = [
+  {
+    id: 'mock-1',
+    title: 'Добро пожаловать в AI Hub',
+    content: 'Это демонстрационная статья. Настройте подключение к Airtable для загрузки реальных статей.',
+    imageUrl: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400',
+    author: 'Команда AI Hub',
+    category: 'Общее',
+    publishedAt: new Date().toISOString(),
+    excerpt: 'Демонстрационная статья для показа функциональности блога.',
+    tags: ['demo', 'welcome'],
+    slug: 'welcome-to-ai-hub',
+  },
+  {
+    id: 'mock-2',
+    title: 'Настройка Airtable',
+    content: 'Для подключения к Airtable необходимо настроить API ключ и идентификаторы базы данных.',
+    imageUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=800&h=400',
+    author: 'Команда AI Hub',
+    category: 'Настройка',
+    publishedAt: new Date(Date.now() - 86400000).toISOString(),
+    excerpt: 'Пошаговое руководство по настройке подключения к Airtable.',
+    tags: ['airtable', 'setup', 'configuration'],
+    slug: 'airtable-setup',
+  },
+];
 
 class AirtableService {
   private baseUrl: string;
+  private isConfigured: boolean;
 
   constructor() {
     this.baseUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
+    this.isConfigured = !!(AIRTABLE_API_KEY && AIRTABLE_BASE_ID && AIRTABLE_TABLE_ID);
+    
+    if (!this.isConfigured) {
+      console.warn('Airtable not configured. Using mock data. Please set environment variables:');
+      console.warn('- VITE_AIRTABLE_API_KEY');
+      console.warn('- VITE_AIRTABLE_BASE_ID');
+      console.warn('- VITE_AIRTABLE_TABLE_ID');
+      console.warn('- VITE_AIRTABLE_VIEW_ID');
+    }
   }
 
   async getArticles(): Promise<AirtableArticle[]> {
+    // Return mock data if Airtable is not configured
+    if (!this.isConfigured) {
+      console.info('Using mock articles data');
+      return MOCK_ARTICLES;
+    }
+
     try {
       // Используем View ID для получения данных в нужном порядке
-      const url = `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&sort[0][field]=Published At&sort[0][direction]=desc`;
+      const url = AIRTABLE_VIEW_ID 
+        ? `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&sort[0][field]=Published At&sort[0][direction]=desc`
+        : `${this.baseUrl}?sort[0][field]=Published At&sort[0][direction]=desc`;
       
       const response = await fetch(url, {
         headers: {
@@ -54,29 +101,53 @@ class AirtableService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Airtable API error response:', errorText);
-        throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
+        
+        // Return mock data on API error
+        console.warn('Falling back to mock data due to Airtable API error');
+        return MOCK_ARTICLES;
       }
 
       const data = await response.json();
       console.log('Airtable response:', data);
       
       if (!data.records || !Array.isArray(data.records)) {
-        console.warn('No records found in Airtable response');
-        return [];
+        console.warn('No records found in Airtable response, using mock data');
+        return MOCK_ARTICLES;
       }
 
-      return data.records
+      const articles = data.records
         .filter((record: AirtableRecord) => this.isValidRecord(record))
         .map((record: AirtableRecord) => this.transformRecord(record));
+
+      // If no valid articles found, return mock data
+      if (articles.length === 0) {
+        console.warn('No valid articles found in Airtable, using mock data');
+        return MOCK_ARTICLES;
+      }
+
+      return articles;
     } catch (error) {
       console.error('Error fetching articles from Airtable:', error);
-      throw new Error('Не удалось загрузить статьи из Airtable. Проверьте настройки API.');
+      console.warn('Falling back to mock data due to error');
+      return MOCK_ARTICLES;
     }
   }
 
   async getArticleBySlug(slug: string): Promise<AirtableArticle | null> {
+    // Check mock data first
+    const mockArticle = MOCK_ARTICLES.find(article => article.slug === slug);
+    if (mockArticle) {
+      return mockArticle;
+    }
+
+    if (!this.isConfigured) {
+      return null;
+    }
+
     try {
-      const url = `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&filterByFormula={Slug}="${slug}"`;
+      const url = AIRTABLE_VIEW_ID
+        ? `${this.baseUrl}?view=${AIRTABLE_VIEW_ID}&filterByFormula={Slug}="${slug}"`
+        : `${this.baseUrl}?filterByFormula={Slug}="${slug}"`;
       
       const response = await fetch(url, {
         headers: {
@@ -86,7 +157,8 @@ class AirtableService {
       });
 
       if (!response.ok) {
-        throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
+        console.error(`Airtable API error: ${response.status} ${response.statusText}`);
+        return null;
       }
 
       const data = await response.json();
@@ -186,6 +258,10 @@ class AirtableService {
 
   // Метод для тестирования подключения
   async testConnection(): Promise<boolean> {
+    if (!this.isConfigured) {
+      return false;
+    }
+
     try {
       const response = await fetch(`${this.baseUrl}?maxRecords=1`, {
         headers: {
@@ -199,6 +275,11 @@ class AirtableService {
       console.error('Airtable connection test failed:', error);
       return false;
     }
+  }
+
+  // Getter to check if service is properly configured
+  get configured(): boolean {
+    return this.isConfigured;
   }
 }
 
