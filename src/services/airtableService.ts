@@ -37,9 +37,13 @@ class AirtableService {
     
     console.log('🔧 Конфигурация Airtable:', {
       hasApiKey: !!AIRTABLE_API_KEY,
+      apiKeyPrefix: AIRTABLE_API_KEY ? AIRTABLE_API_KEY.substring(0, 10) + '...' : 'отсутствует',
       hasBaseId: !!AIRTABLE_BASE_ID,
+      baseId: AIRTABLE_BASE_ID || 'отсутствует',
       hasTableId: !!AIRTABLE_TABLE_ID,
+      tableId: AIRTABLE_TABLE_ID || 'отсутствует',
       hasViewId: !!AIRTABLE_VIEW_ID,
+      viewId: AIRTABLE_VIEW_ID || 'отсутствует',
       isConfigured: this.isConfigured,
       baseUrl: this.baseUrl
     });
@@ -48,7 +52,7 @@ class AirtableService {
   async getArticles(): Promise<AirtableArticle[]> {
     if (!this.isConfigured) {
       console.error('❌ Airtable не настроен. Проверьте переменные окружения.');
-      return [];
+      throw new Error('Airtable не настроен. Проверьте настройки API.');
     }
 
     try {
@@ -75,10 +79,18 @@ class AirtableService {
       console.log('🔄 Загружаем статьи из Airtable:', url);
       
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
+      });
+
+      console.log('📡 Ответ сервера:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
       });
 
       if (!response.ok) {
@@ -90,19 +102,32 @@ class AirtableService {
           url: url
         });
         
-        throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
+        if (response.status === 401) {
+          throw new Error('Неверный API ключ Airtable. Проверьте настройки.');
+        } else if (response.status === 403) {
+          throw new Error('Нет доступа к таблице Airtable. Проверьте права доступа.');
+        } else if (response.status === 404) {
+          throw new Error('Таблица Airtable не найдена. Проверьте Base ID и Table ID.');
+        }
+        
+        throw new Error(`Airtable API error response:\n\n${JSON.stringify({
+          error: {
+            type: "INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND",
+            message: "Invalid permissions, or the requested model was not found. Check that both your user and your token have the required permissions, and that the model names and/or ids are correct."
+          }
+        }, null, 2)}`);
       }
 
       const data = await response.json();
       console.log('📊 Ответ от Airtable:', {
         recordsCount: data.records?.length || 0,
         hasRecords: !!data.records,
-        records: data.records?.map((r: any) => ({
-          id: r.id,
-          title: r.fields?.Title,
-          hasContent: !!r.fields?.Content,
-          hasImage: !!r.fields?.['Image URL']
-        }))
+        offset: data.offset,
+        firstRecord: data.records?.[0] ? {
+          id: data.records[0].id,
+          fields: Object.keys(data.records[0].fields || {}),
+          title: data.records[0].fields?.Title
+        } : null
       });
       
       if (!data.records || !Array.isArray(data.records)) {
@@ -118,6 +143,12 @@ class AirtableService {
       return articles;
     } catch (error) {
       console.error('❌ Ошибка при загрузке статей из Airtable:', error);
+      
+      // Более детальная обработка ошибок
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Ошибка сети при подключении к Airtable. Проверьте интернет-соединение.');
+      }
+      
       throw error;
     }
   }
@@ -375,10 +406,13 @@ class AirtableService {
   // Метод для тестирования подключения
   async testConnection(): Promise<boolean> {
     if (!this.isConfigured) {
+      console.log('❌ Airtable не настроен для тестирования');
       return false;
     }
 
     try {
+      console.log('🔍 Тестируем подключение к Airtable...');
+      
       const response = await fetch(`${this.baseUrl}?maxRecords=1`, {
         headers: {
           'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
@@ -387,7 +421,21 @@ class AirtableService {
       });
 
       const success = response.ok;
-      console.log(success ? '✅ Подключение к Airtable успешно' : '❌ Ошибка подключения к Airtable');
+      
+      if (success) {
+        console.log('✅ Подключение к Airtable успешно');
+        const data = await response.json();
+        console.log('📊 Тестовые данные:', {
+          recordsCount: data.records?.length || 0,
+          hasRecords: !!data.records
+        });
+      } else {
+        console.log('❌ Ошибка подключения к Airtable:', {
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+      
       return success;
     } catch (error) {
       console.error('❌ Тест подключения к Airtable не удался:', error);
