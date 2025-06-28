@@ -7,6 +7,7 @@ import AboutPage from './pages/AboutPage';
 import GuidePage from './pages/GuidePage';
 import BlogPage from './pages/BlogPage';
 import ContactPage from './pages/ContactPage';
+import TuyaTokenPage from './pages/TuyaTokenPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/guide" element={<GuidePage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/tuya-token-generator" element={<TuyaTokenPage />} />
       </Routes>
     </Layout>
   );

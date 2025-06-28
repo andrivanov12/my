@@ -11,6 +11,7 @@ const Navigation: React.FC = () => {
     { path: '/chat', label: 'Чат' },
     { path: '/guide', label: 'Руководство' },
     { path: '/blog', label: 'Блог' },
+    { path: '/tuya-token-generator', label: 'Tuya API' },
     { path: '/about', label: 'О нас' },
     { path: '/contact', label: 'Контакты' }
   ];
