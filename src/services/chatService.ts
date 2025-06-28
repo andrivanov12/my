@@ -117,10 +117,21 @@ export const sendMessageToAI = async (
   attachments?: File[]
 ): Promise<string> => {
   try {
+    // Check for API key with better error handling
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
     
-    if (!apiKey) {
-      throw new Error('OpenRouter API key not found. Please add VITE_OPENROUTER_API_KEY to your .env file.');
+    if (!apiKey || apiKey.trim() === '') {
+      throw new Error(
+        'Сервис временно недоступен. API ключ не настроен. ' +
+        'Пожалуйста, обратитесь к администратору сайта для настройки доступа к AI сервису.'
+      );
+    }
+
+    // Validate API key format
+    if (!apiKey.startsWith('sk-or-v1-')) {
+      throw new Error(
+        'Неверный формат API ключа. Пожалуйста, проверьте настройки сервиса.'
+      );
     }
 
     const selectedModel = AI_MODELS.find(model => model.id === modelId);
@@ -211,56 +222,56 @@ export const sendMessageToAI = async (
             const rawError = JSON.parse(error.metadata.raw);
             if (rawError.error?.code === 'unsupported_country_region_territory') {
               throw new Error(
-                'Your region is currently not supported by this AI model. ' +
-                'Please try using a VPN service or switch to a different AI model. ' +
-                'Available models can be selected from the dropdown menu above.'
+                'Ваш регион в настоящее время не поддерживается этой AI моделью. ' +
+                'Попробуйте использовать VPN или переключитесь на другую AI модель. ' +
+                'Доступные модели можно выбрать в выпадающем меню выше.'
               );
             }
           } catch (parseError) {
             // If JSON parsing fails, throw the original error message
-            throw new Error(error.message || 'Unknown error occurred');
+            throw new Error(error.message || 'Произошла неизвестная ошибка');
           }
         }
         
         // For other errors, throw the error message
-        throw new Error(error.message || 'Unknown error occurred');
+        throw new Error(error.message || 'Произошла неизвестная ошибка');
       }
 
       // Enhanced response validation with more detailed error messages
       if (!response.data) {
         console.error('Empty response received:', response);
-        throw new Error('Empty response received from AI service. Please try again or check OpenRouter status.');
+        throw new Error('Получен пустой ответ от AI сервиса. Попробуйте еще раз или проверьте статус OpenRouter.');
       }
 
       if (!response.data.choices || !Array.isArray(response.data.choices)) {
         console.error('Invalid response format:', response.data);
-        throw new Error(`Invalid response format from AI service. Expected 'choices' array but received: ${JSON.stringify(response.data)}`);
+        throw new Error(`Неверный формат ответа от AI сервиса. Ожидался массив 'choices', но получен: ${JSON.stringify(response.data)}`);
       }
 
       if (response.data.choices.length === 0) {
         console.error('Empty choices array:', response.data);
-        return 'The AI model is currently experiencing high load. Please try again in a moment.';
+        return 'AI модель в настоящее время испытывает высокую нагрузку. Попробуйте еще раз через некоторое время.';
       }
 
       const firstChoice = response.data.choices[0];
       if (!firstChoice) {
         console.error('Missing first choice:', response.data.choices);
-        return 'The AI model is currently unavailable. Please try switching to a different model.';
+        return 'AI модель в настоящее время недоступна. Попробуйте переключиться на другую модель.';
       }
 
       if (!firstChoice.message) {
         console.error('Missing message in first choice:', firstChoice);
-        return 'The AI model returned an invalid response. Please try again with a different query.';
+        return 'AI модель вернула неверный ответ. Попробуйте еще раз с другим запросом.';
       }
 
       const content = firstChoice.message.content;
       if (typeof content !== 'string') {
         console.error('Invalid content type:', typeof content, content);
-        return 'The AI model returned an unexpected response format. Please try again.';
+        return 'AI модель вернула неожиданный формат ответа. Попробуйте еще раз.';
       }
 
       if (content.trim() === '') {
-        return 'The AI model did not provide a response. Please try rephrasing your question or switching to a different model.';
+        return 'AI модель не предоставила ответ. Попробуйте переформулировать вопрос или переключиться на другую модель.';
       }
 
       return cleanAIResponse(content);
@@ -274,11 +285,11 @@ export const sendMessageToAI = async (
     // Enhanced error handling with more specific error messages
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        throw new Error('Request timeout. The AI service is taking too long to respond. Please try again.');
+        throw new Error('Время ожидания запроса истекло. AI сервис слишком долго отвечает. Попробуйте еще раз.');
       }
 
       if (!error.response) {
-        throw new Error('Network error: Unable to reach the AI service. Please check your internet connection.');
+        throw new Error('Ошибка сети: Невозможно подключиться к AI сервису. Проверьте подключение к интернету.');
       }
 
       console.error('AI service error response:', error.response.data);
@@ -289,9 +300,9 @@ export const sendMessageToAI = async (
           const rawError = JSON.parse(error.response.data.error.metadata.raw);
           if (rawError.error?.code === 'unsupported_country_region_territory') {
             throw new Error(
-              'Your region is currently not supported by this AI model. ' +
-              'Please try using a VPN service or switch to a different AI model. ' +
-              'Available models can be selected from the dropdown menu above.'
+              'Ваш регион в настоящее время не поддерживается этой AI моделью. ' +
+              'Попробуйте использовать VPN или переключитесь на другую AI модель. ' +
+              'Доступные модели можно выбрать в выпадающем меню выше.'
             );
           }
         } catch (parseError) {
@@ -300,25 +311,25 @@ export const sendMessageToAI = async (
       }
 
       if (error.response.status === 401) {
-        throw new Error('Authentication failed. Please check your OpenRouter API key.');
+        throw new Error('Ошибка аутентификации. Проверьте настройки API ключа OpenRouter.');
       } else if (error.response.status === 429) {
-        throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
+        throw new Error('Превышен лимит запросов. Подождите немного перед повторной попыткой.');
       } else if (error.response.status === 402) {
-        throw new Error('Insufficient credits. Please check your OpenRouter account balance.');
+        throw new Error('Недостаточно кредитов. Проверьте баланс вашего аккаунта OpenRouter.');
       } else if (error.response.status === 503) {
-        throw new Error('AI service is temporarily unavailable. Please try again later.');
+        throw new Error('AI сервис временно недоступен. Попробуйте позже.');
       } else if (error.response.status === 504) {
-        throw new Error('AI service request timed out. Please try again.');
+        throw new Error('Время ожидания запроса к AI сервису истекло. Попробуйте еще раз.');
       } else {
-        throw new Error(`AI service error (${error.response.status}): ${error.response.data.error || 'Unknown error'}. Please try again later.`);
+        throw new Error(`Ошибка AI сервиса (${error.response.status}): ${error.response.data.error || 'Неизвестная ошибка'}. Попробуйте позже.`);
       }
     }
     
     if (error instanceof Error) {
       // Preserve custom error messages but add debugging context
-      throw new Error(`${error.message} (Debug info: Check console for detailed error logs)`);
+      throw new Error(`${error.message}`);
     }
     
-    throw new Error('An unexpected error occurred while communicating with the AI service. Please try again.');
+    throw new Error('Произошла неожиданная ошибка при обращении к AI сервису. Попробуйте еще раз.');
   }
 };
