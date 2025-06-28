@@ -2,7 +2,6 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
-import BlogSchedulerPanel from './components/BlogSchedulerPanel';
 
 // Ленивая загрузка страниц с обработкой ошибок
 const HomePage = lazy(() => 
@@ -115,9 +114,6 @@ function App() {
           } />
         </Routes>
       </Suspense>
-      
-      {/* Панель управления блогом - показываем только на странице блога */}
-      <BlogSchedulerPanel />
     </Layout>
   );
 }

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, AlertCircle } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
-import { blogScheduler } from '../services/blogScheduler';
 
 const BlogPage: React.FC = () => {
   const [articles, setArticles] = useState<AirtableArticle[]>([]);
@@ -107,15 +106,11 @@ const BlogPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Загружаем статьи из разных источников
-      const [airtableArticles, localArticles] = await Promise.all([
-        airtableService.getArticles().catch(() => []),
-        Promise.resolve(blogScheduler.getBlogArticles())
-      ]);
+      // Загружаем статьи из Airtable
+      const airtableArticles = await airtableService.getArticles().catch(() => []);
       
-      // Объединяем все статьи
+      // Объединяем статьи
       const allArticles = [
-        ...localArticles, // Сгенерированные статьи (приоритет)
         ...airtableArticles, // Статьи из Airtable
         ...staticArticles // Статические статьи (fallback)
       ];
@@ -132,8 +127,8 @@ const BlogPage: React.FC = () => {
       
       setArticles(uniqueArticles);
       
-      if (airtableArticles.length === 0 && localArticles.length === 0) {
-        setError('Показываем статические статьи. Автоматические статьи будут добавляться каждый день в 9:00.');
+      if (airtableArticles.length === 0) {
+        setError('Показываем статические статьи. Статьи из Airtable недоступны.');
       }
     } catch (err) {
       console.error('Error loading articles:', err);
@@ -268,7 +263,7 @@ const BlogPage: React.FC = () => {
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
             Последние новости, обзоры и экспертные мнения о развитии искусственного интеллекта 
-            и его влиянии на нашу жизнь. Новые статьи публикуются автоматически каждый день в 9:00!
+            и его влиянии на нашу жизнь.
           </p>
         </div>
 
