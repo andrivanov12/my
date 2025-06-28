@@ -173,6 +173,15 @@ const TuyaTokenPage: React.FC = () => {
     setTokenData(null);
 
     try {
+      // Проверяем, работаем ли мы в режиме разработки
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isDevelopment) {
+        // В режиме разработки показываем предупреждение
+        setError('В режиме локальной разработки Netlify Functions недоступны. После развертывания на Netlify все будет работать корректно.');
+        return;
+      }
+
       const response = await fetch('/.netlify/functions/tuya-get-token', {
         method: 'POST',
         headers: {
@@ -228,6 +237,15 @@ const TuyaTokenPage: React.FC = () => {
     setError(null);
 
     try {
+      // Проверяем, работаем ли мы в режиме разработки
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isDevelopment) {
+        // В режиме разработки показываем предупреждение
+        setError('В режиме локальной разработки Netlify Functions недоступны. После развертывания на Netlify все будет работать корректно.');
+        return;
+      }
+
       const response = await fetch('/.netlify/functions/tuya-refresh-token', {
         method: 'POST',
         headers: {
