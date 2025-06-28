@@ -154,7 +154,7 @@ const TuyaInstructionsPage: React.FC = () => {
             >
               <ExternalLink className="h-4 w-4" />
               Открыть инструкцию
-            </Link>
+            </a>
           </div>
         </div>
 
