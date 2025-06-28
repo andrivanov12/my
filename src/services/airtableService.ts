@@ -27,35 +27,6 @@ const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_ID = import.meta.env.VITE_AIRTABLE_TABLE_ID;
 const AIRTABLE_VIEW_ID = import.meta.env.VITE_AIRTABLE_VIEW_ID;
 
-// Fallback mock data for when Airtable is not available
-const MOCK_ARTICLES: AirtableArticle[] = [
-  {
-    id: 'mock-1',
-    title: 'Добро пожаловать в AI Hub',
-    content: `
-      <p>Это демонстрационная статья. Настройте подключение к Airtable для загрузки реальных статей.</p>
-      
-      <h3>Как настроить Airtable</h3>
-      <p>Для подключения к вашей базе Airtable выполните следующие шаги:</p>
-      <ul>
-        <li>Получите API ключ в настройках Airtable</li>
-        <li>Скопируйте ID базы данных</li>
-        <li>Укажите ID таблицы и представления</li>
-        <li>Добавьте эти данные в файл .env</li>
-      </ul>
-      
-      <p>После настройки здесь будут отображаться ваши статьи из Airtable.</p>
-    `,
-    imageUrl: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400',
-    author: 'Команда AI Hub',
-    category: 'Настройка',
-    publishedAt: new Date().toISOString(),
-    excerpt: 'Демонстрационная статья для показа функциональности блога. Настройте Airtable для загрузки ваших статей.',
-    tags: ['demo', 'welcome', 'setup'],
-    slug: 'welcome-to-ai-hub',
-  }
-];
-
 class AirtableService {
   private baseUrl: string;
   private isConfigured: boolean;
@@ -64,23 +35,20 @@ class AirtableService {
     this.baseUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
     this.isConfigured = !!(AIRTABLE_API_KEY && AIRTABLE_BASE_ID && AIRTABLE_TABLE_ID);
     
-    if (!this.isConfigured) {
-      console.warn('🔧 Airtable не настроен. Используются демонстрационные статьи.');
-      console.warn('📝 Для подключения к Airtable установите переменные окружения:');
-      console.warn('   - VITE_AIRTABLE_API_KEY');
-      console.warn('   - VITE_AIRTABLE_BASE_ID');
-      console.warn('   - VITE_AIRTABLE_TABLE_ID');
-      console.warn('   - VITE_AIRTABLE_VIEW_ID (опционально)');
-    } else {
-      console.info('✅ Airtable настроен и готов к использованию');
-    }
+    console.log('🔧 Конфигурация Airtable:', {
+      hasApiKey: !!AIRTABLE_API_KEY,
+      hasBaseId: !!AIRTABLE_BASE_ID,
+      hasTableId: !!AIRTABLE_TABLE_ID,
+      hasViewId: !!AIRTABLE_VIEW_ID,
+      isConfigured: this.isConfigured,
+      baseUrl: this.baseUrl
+    });
   }
 
   async getArticles(): Promise<AirtableArticle[]> {
-    // Return mock data if Airtable is not configured
     if (!this.isConfigured) {
-      console.info('📄 Используются демонстрационные статьи');
-      return MOCK_ARTICLES;
+      console.error('❌ Airtable не настроен. Проверьте переменные окружения.');
+      return [];
     }
 
     try {
@@ -104,7 +72,7 @@ class AirtableService {
         url += '?' + params.toString();
       }
       
-      console.log('🔄 Загружаем статьи из Airtable...');
+      console.log('🔄 Загружаем статьи из Airtable:', url);
       
       const response = await fetch(url, {
         headers: {
@@ -118,23 +86,28 @@ class AirtableService {
         console.error('❌ Ошибка Airtable API:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorText
+          error: errorText,
+          url: url
         });
         
-        // Return mock data on API error
-        console.warn('⚠️ Используются демонстрационные статьи из-за ошибки API');
-        return MOCK_ARTICLES;
+        throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       console.log('📊 Ответ от Airtable:', {
         recordsCount: data.records?.length || 0,
-        hasRecords: !!data.records
+        hasRecords: !!data.records,
+        records: data.records?.map((r: any) => ({
+          id: r.id,
+          title: r.fields?.Title,
+          hasContent: !!r.fields?.Content,
+          hasImage: !!r.fields?.['Image URL']
+        }))
       });
       
       if (!data.records || !Array.isArray(data.records)) {
-        console.warn('⚠️ Записи не найдены в ответе Airtable, используются демонстрационные статьи');
-        return MOCK_ARTICLES;
+        console.warn('⚠️ Записи не найдены в ответе Airtable');
+        return [];
       }
 
       const articles = data.records
@@ -142,28 +115,14 @@ class AirtableService {
         .map((record: AirtableRecord) => this.transformRecord(record));
 
       console.log(`✅ Загружено ${articles.length} статей из Airtable`);
-
-      // If no valid articles found, return mock data
-      if (articles.length === 0) {
-        console.warn('⚠️ Валидные статьи не найдены в Airtable, используются демонстрационные статьи');
-        return MOCK_ARTICLES;
-      }
-
       return articles;
     } catch (error) {
       console.error('❌ Ошибка при загрузке статей из Airtable:', error);
-      console.warn('⚠️ Используются демонстрационные статьи из-за ошибки');
-      return MOCK_ARTICLES;
+      throw error;
     }
   }
 
   async getArticleBySlug(slug: string): Promise<AirtableArticle | null> {
-    // Check mock data first
-    const mockArticle = MOCK_ARTICLES.find(article => article.slug === slug);
-    if (mockArticle) {
-      return mockArticle;
-    }
-
     if (!this.isConfigured) {
       return null;
     }
@@ -175,9 +134,6 @@ class AirtableService {
       if (AIRTABLE_VIEW_ID) {
         params.append('view', AIRTABLE_VIEW_ID);
       }
-      
-      // Фильтруем по slug (генерируется из Title)
-      params.append('filterByFormula', `LOWER(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE({Title}, " ", "-"), ".", ""), ",", "")) = "${slug}"`);
       
       url += '?' + params.toString();
       
@@ -199,8 +155,13 @@ class AirtableService {
         return null;
       }
 
-      const record = data.records[0];
-      return this.isValidRecord(record) ? this.transformRecord(record) : null;
+      // Ищем статью по slug
+      const record = data.records.find((r: AirtableRecord) => {
+        const recordSlug = this.generateSlug(r.fields.Title || '');
+        return recordSlug === slug;
+      });
+
+      return record && this.isValidRecord(record) ? this.transformRecord(record) : null;
     } catch (error) {
       console.error('❌ Ошибка при загрузке статьи по slug из Airtable:', error);
       return null;
@@ -261,14 +222,24 @@ class AirtableService {
     // Обрабатываем контент для корректного отображения
     const processedContent = this.processContent(fields.Content || '');
 
+    console.log('🔄 Обрабатываем статью:', {
+      id: record.id,
+      title: fields.Title,
+      category,
+      slug,
+      excerptLength: excerpt.length,
+      contentLength: processedContent.length,
+      imageUrl: imageUrl.substring(0, 50) + '...'
+    });
+
     return {
       id: record.id,
       title: fields.Title || '',
       content: processedContent,
       imageUrl,
-      author: 'AI Hub Team', // Можете изменить на ваше имя
+      author: 'AI Hub Team',
       category,
-      publishedAt: record.createdTime, // Используем дату создания записи
+      publishedAt: record.createdTime,
       excerpt,
       tags: this.extractTags(fields.Title || '', fields.Content || ''),
       slug,
@@ -279,10 +250,6 @@ class AirtableService {
     // Обрабатываем контент для корректного отображения в HTML
     let processed = content;
     
-    // Заменяем переносы строк на HTML теги
-    processed = processed.replace(/\n\n/g, '</p><p>');
-    processed = processed.replace(/\n/g, '<br>');
-    
     // Обрабатываем заголовки (## -> h3, ### -> h4)
     processed = processed.replace(/^### (.+)$/gm, '<h4>$1</h4>');
     processed = processed.replace(/^## (.+)$/gm, '<h3>$1</h3>');
@@ -292,14 +259,22 @@ class AirtableService {
     processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     
     // Обрабатываем курсив (*text* -> <em>text</em>)
-    processed = processed.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Обрабатываем списки
-    processed = processed.replace(/^- (.+)$/gm, '<li>$1</li>');
-    processed = processed.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    processed = processed.replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
     
     // Обрабатываем ссылки [text](url)
     processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Обрабатываем списки
+    processed = processed.replace(/^- (.+)$/gm, '<li>$1</li>');
+    
+    // Группируем списки
+    processed = processed.replace(/(<li>.*?<\/li>\s*)+/gs, (match) => {
+      return '<ul>' + match + '</ul>';
+    });
+    
+    // Обрабатываем переносы строк
+    processed = processed.replace(/\n\n/g, '</p><p>');
+    processed = processed.replace(/\n/g, '<br>');
     
     // Оборачиваем в параграфы, если еще не обернуто
     if (!processed.startsWith('<')) {
@@ -308,8 +283,10 @@ class AirtableService {
     
     // Очищаем лишние теги
     processed = processed.replace(/<p><\/p>/g, '');
-    processed = processed.replace(/<p><h/g, '<h');
-    processed = processed.replace(/<\/h([1-6])><\/p>/g, '</h$1>');
+    processed = processed.replace(/<p>(<h[1-6]>)/g, '$1');
+    processed = processed.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+    processed = processed.replace(/<p>(<ul>)/g, '$1');
+    processed = processed.replace(/(<\/ul>)<\/p>/g, '$1');
     
     return processed;
   }
@@ -388,6 +365,9 @@ class AirtableService {
     if (text.includes('веб-разработка')) tags.push('Веб-разработка');
     if (text.includes('telegram')) tags.push('Telegram');
     if (text.includes('openai')) tags.push('OpenAI');
+    if (text.includes('n8n')) tags.push('n8n');
+    if (text.includes('make')) tags.push('Make');
+    if (text.includes('zapier')) tags.push('Zapier');
     
     return tags.slice(0, 5); // Ограничиваем количество тегов
   }
