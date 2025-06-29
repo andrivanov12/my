@@ -1,9 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
 import { airtableService, AirtableArticle } from '../services/airtableService';
+
+// Компонент для рекламного блока Яндекс.РТБ
+const YandexRTBBottomBlock: React.FC = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Проверяем, что мы находимся на продакшн домене
+    const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                              window.location.hostname === 'www.aimarkethub.pro';
+    
+    if (!isProductionDomain) {
+      return; // Не загружаем рекламу на localhost или других доменах
+    }
+
+    // Инициализируем Яндекс.РТБ
+    if (!window.yaContextCb) {
+      window.yaContextCb = [];
+    }
+
+    // Добавляем скрипт Яндекс.РТБ если его еще нет
+    if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://yandex.ru/ads/system/context.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Рендерим рекламный блок
+    window.yaContextCb.push(() => {
+      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+        window.Ya.Context.AdvManager.render({
+          "blockId": "R-A-16048264-2",
+          "renderTo": "yandex_rtb_R-A-16048264-2"
+        });
+      }
+    });
+  }, []);
+
+  // Не показываем блок рекламы на localhost
+  const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                            window.location.hostname === 'www.aimarkethub.pro';
+  
+  if (!isProductionDomain) {
+    return null;
+  }
+
+  return (
+    <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mt-8">
+      <div 
+        id="yandex_rtb_R-A-16048264-2"
+        className="w-full flex items-center justify-center"
+        style={{ 
+          maxWidth: '1000px', 
+          height: '200px',
+          margin: '0 auto' 
+        }}
+      >
+        {/* Fallback контент пока загружается реклама */}
+        <div className="text-gray-400 dark:text-gray-500 text-sm">
+          Загрузка рекламы...
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const HomePage: React.FC = () => {
   const [latestArticles, setLatestArticles] = useState<AirtableArticle[]>([]);
@@ -287,6 +352,9 @@ const HomePage: React.FC = () => {
             <span>Начать общение</span>
           </Link>
         </section>
+
+        {/* Рекламный блок в самом конце */}
+        <YandexRTBBottomBlock />
       </div>
     </>
   );
