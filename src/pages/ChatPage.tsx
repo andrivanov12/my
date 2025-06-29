@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 
-const YandexRTBBlock: React.FC = () => {
+const YandexRTBBlock: React.FC<{ blockId: string; containerId: string }> = ({ blockId, containerId }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,12 +33,12 @@ const YandexRTBBlock: React.FC = () => {
     window.yaContextCb.push(() => {
       if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
         window.Ya.Context.AdvManager.render({
-          "blockId": "R-A-16048264-1",
-          "renderTo": "yandex_rtb_R-A-16048264-1"
+          "blockId": blockId,
+          "renderTo": containerId
         });
       }
     });
-  }, []);
+  }, [blockId, containerId]);
 
   // Не показываем блок рекламы на localhost
   const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
@@ -51,7 +51,7 @@ const YandexRTBBlock: React.FC = () => {
   return (
     <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
       <div 
-        id="yandex_rtb_R-A-16048264-1"
+        id={containerId}
         className="w-full min-h-[120px] flex items-center justify-center"
         style={{ maxWidth: '1000px', margin: '0 auto' }}
       >
@@ -157,7 +157,7 @@ const ChatPage: React.FC = () => {
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
           {/* Верхний рекламный блок Яндекс.РТБ */}
           <div className="mb-4 md:mb-6">
-            <YandexRTBBlock />
+            <YandexRTBBlock blockId="R-A-16048264-1" containerId="yandex_rtb_R-A-16048264-1" />
           </div>
 
           <div className="max-w-3xl mx-auto relative">
@@ -255,7 +255,7 @@ const ChatPage: React.FC = () => {
 
           {/* Нижний рекламный блок Яндекс.РТБ */}
           <div className="mt-4 md:mt-6">
-            <YandexRTBBlock />
+            <YandexRTBBlock blockId="R-A-16048264-2" containerId="yandex_rtb_R-A-16048264-2" />
           </div>
         </div>
       </div>
