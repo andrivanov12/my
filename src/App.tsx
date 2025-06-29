@@ -52,6 +52,25 @@ const TuyaInstructionsPage = lazy(() =>
   }))
 );
 
+// Новые SEO страницы
+const ChatGptBezRegistraciiPage = lazy(() => 
+  import('./pages/ChatGptBezRegistraciiPage').catch(() => ({
+    default: () => <div>Ошибка загрузки страницы</div>
+  }))
+);
+
+const ChatGptBesplatnoPage = lazy(() => 
+  import('./pages/ChatGptBesplatnoPage').catch(() => ({
+    default: () => <div>Ошибка загрузки страницы</div>
+  }))
+);
+
+const AiChatOnlinePage = lazy(() => 
+  import('./pages/AiChatOnlinePage').catch(() => ({
+    default: () => <div>Ошибка загрузки страницы</div>
+  }))
+);
+
 // Компонент загрузки с таймаутом
 const LoadingFallback = () => {
   const [showError, setShowError] = React.useState(false);
@@ -101,6 +120,12 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/tuya-token-generator" element={<TuyaTokenPage />} />
           <Route path="/tuya-instructions" element={<TuyaInstructionsPage />} />
+          
+          {/* SEO страницы */}
+          <Route path="/chatgpt-bez-registracii" element={<ChatGptBezRegistraciiPage />} />
+          <Route path="/chat-gpt-besplatno" element={<ChatGptBesplatnoPage />} />
+          <Route path="/ai-chat-online" element={<AiChatOnlinePage />} />
+          
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center">
               <div className="text-center">
