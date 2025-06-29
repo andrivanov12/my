@@ -608,6 +608,14 @@ const AiPromptOptimizerPage: React.FC = () => {
             Попробовать с ChatGPT
           </Link>
         </section>
+
+        {/* Рекламный баннер R-A-16048264-6 размером 1000x120 под кнопкой "Попробовать с ChatGPT" */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-6" 
+          containerId="yandex_rtb_R-A-16048264-6_prompt_optimizer_bottom" 
+          position="prompt-optimizer-bottom"
+          className="mt-8 md:mt-12"
+        />
       </div>
     </>
   );

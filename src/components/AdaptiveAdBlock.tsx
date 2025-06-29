@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 interface AdaptiveAdBlockProps {
   blockId: string;
   containerId: string;
-  position: 'top' | 'bottom' | 'sidebar' | 'main-banner' | 'bottom-banner' | 'chat-top' | 'chat-bottom' | 'prompt-optimizer-top';
+  position: 'top' | 'bottom' | 'sidebar' | 'main-banner' | 'bottom-banner' | 'chat-top' | 'chat-bottom' | 'prompt-optimizer-top' | 'prompt-optimizer-bottom';
   className?: string;
 }
 
@@ -38,8 +38,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
       return;
     }
 
-    // Инициализируем Яндекс.РТБ для блоков R-A-16048264-1, R-A-16048264-2, R-A-16048264-3, R-A-16048264-4 и R-A-16048264-5
-    if (blockId === 'R-A-16048264-1' || blockId === 'R-A-16048264-2' || blockId === 'R-A-16048264-3' || blockId === 'R-A-16048264-4' || blockId === 'R-A-16048264-5') {
+    // Инициализируем Яндекс.РТБ для блоков R-A-16048264-1, R-A-16048264-2, R-A-16048264-3, R-A-16048264-4, R-A-16048264-5 и R-A-16048264-6
+    if (blockId === 'R-A-16048264-1' || blockId === 'R-A-16048264-2' || blockId === 'R-A-16048264-3' || blockId === 'R-A-16048264-4' || blockId === 'R-A-16048264-5' || blockId === 'R-A-16048264-6') {
       if (!window.yaContextCb) {
         window.yaContextCb = [];
       }
@@ -102,8 +102,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
     );
   }
 
-  // Показываем только блоки R-A-16048264-1, R-A-16048264-2, R-A-16048264-3, R-A-16048264-4 и R-A-16048264-5
-  if (blockId !== 'R-A-16048264-1' && blockId !== 'R-A-16048264-2' && blockId !== 'R-A-16048264-3' && blockId !== 'R-A-16048264-4' && blockId !== 'R-A-16048264-5') {
+  // Показываем только блоки R-A-16048264-1, R-A-16048264-2, R-A-16048264-3, R-A-16048264-4, R-A-16048264-5 и R-A-16048264-6
+  if (blockId !== 'R-A-16048264-1' && blockId !== 'R-A-16048264-2' && blockId !== 'R-A-16048264-3' && blockId !== 'R-A-16048264-4' && blockId !== 'R-A-16048264-5' && blockId !== 'R-A-16048264-6') {
     return null;
   }
 
@@ -157,6 +157,9 @@ const getAdDimensions = (position: string, isMobile: boolean) => {
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     'prompt-optimizer-top': isMobile 
+      ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
+      : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
+    'prompt-optimizer-bottom': isMobile 
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     top: isMobile 
