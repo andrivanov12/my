@@ -1,1281 +1,599 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { 
-  Upload, 
-  Download, 
-  AlertTriangle, 
-  CheckCircle, 
-  Info, 
-  Zap, 
   Settings, 
-  Eye,
-  FileText,
-  BarChart3,
+  CheckCircle, 
+  AlertTriangle, 
+  Clock, 
+  TrendingUp, 
+  Copy, 
+  RotateCcw, 
   Lightbulb,
-  Shield,
-  Clock,
-  Activity,
-  ArrowRight,
-  Circle
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  MessageSquare,
+  Code,
+  Zap,
+  Bug
 } from 'lucide-react';
+import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 
-interface WorkflowNode {
-  id: string;
-  name?: string;
-  type: string;
-  position?: [number, number];
-  parameters?: any;
-}
-
-interface WorkflowConnections {
-  [nodeId: string]: {
-    [outputName: string]: Array<{
-      node: string;
-      type: string;
-      index: number;
-    }>;
-  };
-}
-
-interface Workflow {
-  nodes: WorkflowNode[];
-  connections: WorkflowConnections;
-  meta?: any;
-}
-
-interface Issue {
-  severity: 'critical' | 'warning' | 'info';
-  title: string;
-  description: string;
-  solution: string;
+interface WorkflowIssue {
+  type: 'error' | 'warning' | 'optimization';
+  severity: 'high' | 'medium' | 'low';
+  message: string;
+  suggestion: string;
   nodeId?: string;
 }
 
-interface Recommendation {
-  title: string;
-  description: string;
-  importance: 'high' | 'medium' | 'low';
-}
+const N8nWorkflowOptimizerPage: React.FC = () => {
+  const [workflowData, setWorkflowData] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<WorkflowIssue[]>([]);
+  const [showResult, setShowResult] = useState(false);
+  const [activeTab, setActiveTab] = useState<'analyzer' | 'tips' | 'faq'>('analyzer');
+  const [openFaqItems, setOpenFaqItems] = useState<number[]>([]);
+  const [copySuccess, setCopySuccess] = useState(false);
 
-interface Optimization {
-  title: string;
-  description: string;
-  benefit: string;
-  implementation: string;
-}
-
-interface Analysis {
-  nodeCount: number;
-  nodeTypes: Record<string, number>;
-  hasErrorHandling: boolean;
-  complexityScore: number;
-  overallScore: number;
-  issues: Issue[];
-  recommendations: Recommendation[];
-  optimizations: Optimization[];
-}
-
-// Улучшенный компонент для визуализации workflow
-const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) => {
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const nodes = workflow.nodes || [];
-  const connections = workflow.connections || {};
-
-  const getNodeColor = (nodeType: string) => {
-    const colors = {
-      'Webhook': '#3b82f6', // blue-500
-      'HTTP Request': '#10b981', // green-500
-      'IF': '#f59e0b', // yellow-500
-      'Function': '#8b5cf6', // purple-500
-      'Set': '#6b7280', // gray-500
-      'Error': '#ef4444', // red-500
-      'Telegram': '#06b6d4', // cyan-500
-      'Email': '#6366f1', // indigo-500
-      'NoOperation': '#9ca3af', // gray-400
-      'Wait': '#f97316', // orange-500
-      'Switch': '#ec4899' // pink-500
-    };
-    return colors[nodeType as keyof typeof colors] || '#6b7280';
-  };
-
-  const getNodeIcon = (nodeType: string) => {
-    switch (nodeType) {
-      case 'Webhook': return '🔗';
-      case 'HTTP Request': return '🌐';
-      case 'IF': return '❓';
-      case 'Function': return '⚙️';
-      case 'Set': return '📝';
-      case 'Error': return '❌';
-      case 'Telegram': return '📱';
-      case 'Email': return '📧';
-      case 'Wait': return '⏰';
-      case 'Switch': return '🔀';
-      case 'NoOperation': return '⭕';
-      default: return '⚡';
+  const tips = [
+    {
+      title: 'Используйте правильные типы данных',
+      description: 'Убедитесь, что данные передаются в правильном формате между узлами.',
+      example: 'Используйте Set node для преобразования строк в числа перед математическими операциями.'
+    },
+    {
+      title: 'Добавляйте обработку ошибок',
+      description: 'Всегда предусматривайте обработку ошибок для критически важных операций.',
+      example: 'Используйте Error Trigger или IF node для проверки успешности выполнения операций.'
+    },
+    {
+      title: 'Оптимизируйте количество запросов',
+      description: 'Группируйте операции для уменьшения количества API вызовов.',
+      example: 'Используйте Merge node для объединения данных вместо множественных HTTP запросов.'
+    },
+    {
+      title: 'Используйте переменные окружения',
+      description: 'Храните чувствительные данные в переменных окружения, а не в самом workflow.',
+      example: 'API ключи, пароли и токены должны быть в Environment Variables.'
+    },
+    {
+      title: 'Добавляйте логирование',
+      description: 'Используйте узлы для логирования важных этапов выполнения workflow.',
+      example: 'Добавьте HTTP Request узлы для отправки логов в внешние системы мониторинга.'
+    },
+    {
+      title: 'Тестируйте с разными данными',
+      description: 'Проверяйте workflow с различными наборами входных данных.',
+      example: 'Используйте Manual Trigger с разными JSON объектами для тестирования.'
     }
-  };
+  ];
 
-  // Улучшенное автоматическое расположение узлов
-  const arrangeNodes = () => {
-    if (nodes.length === 0) return [];
+  const faqItems = [
+    {
+      question: 'Что такое n8n Workflow Debugger & Optimizer?',
+      answer: 'Это инструмент для анализа и оптимизации рабочих процессов n8n. Он помогает выявить потенциальные проблемы, ошибки конфигурации и предлагает улучшения для повышения производительности и надежности ваших автоматизаций.'
+    },
+    {
+      question: 'Как использовать анализатор workflow?',
+      answer: 'Скопируйте JSON код вашего workflow из n8n (через экспорт) и вставьте его в поле анализатора. Инструмент проанализирует структуру, соединения между узлами, конфигурацию и выдаст рекомендации по улучшению.'
+    },
+    {
+      question: 'Какие типы проблем может выявить анализатор?',
+      answer: 'Анализатор выявляет ошибки конфигурации, проблемы с типами данных, отсутствующие обработчики ошибок, неоптимальные соединения между узлами, проблемы безопасности (хранение секретов в открытом виде), и возможности для оптимизации производительности.'
+    },
+    {
+      question: 'Безопасно ли загружать мой workflow для анализа?',
+      answer: 'Анализ происходит полностью в вашем браузере, данные не отправляются на сервер. Однако рекомендуется удалить или заменить реальные API ключи, пароли и другие чувствительные данные перед анализом.'
+    },
+    {
+      question: 'Можно ли использовать этот инструмент для коммерческих проектов?',
+      answer: 'Да, инструмент можно использовать для анализа и оптимизации коммерческих n8n workflow. Рекомендации помогут улучшить надежность и производительность ваших бизнес-процессов.'
+    },
+    {
+      question: 'Как часто нужно анализировать workflow?',
+      answer: 'Рекомендуется анализировать workflow после каждого значительного изменения, перед развертыванием в продакшн, и периодически (например, раз в месяц) для выявления возможностей оптимизации.'
+    }
+  ];
 
-    // Пытаемся найти стартовый узел (Webhook, Trigger и т.д.)
-    const startNodes = nodes.filter(node => 
-      node.type === 'Webhook' || 
-      node.type.includes('Trigger') ||
-      !Object.values(connections).some(outputs => 
-        Object.values(outputs).some(targets => 
-          targets.some(target => target.node === node.id)
-        )
-      )
-    );
-
-    const arranged: Array<WorkflowNode & { x: number; y: number; level: number }> = [];
-    const visited = new Set<string>();
-    const levels: Record<number, number> = {};
-
-    // Функция для размещения узла и его потомков
-    const placeNode = (nodeId: string, level: number = 0, parentX: number = 0) => {
-      if (visited.has(nodeId)) return;
+  const analyzeWorkflow = (workflowJson: string): WorkflowIssue[] => {
+    const issues: WorkflowIssue[] = [];
+    
+    try {
+      const workflow = JSON.parse(workflowJson);
       
-      const node = nodes.find(n => n.id === nodeId);
-      if (!node) return;
+      // Проверяем наличие основных полей
+      if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+        issues.push({
+          type: 'error',
+          severity: 'high',
+          message: 'Отсутствует массив узлов (nodes)',
+          suggestion: 'Убедитесь, что экспортированный workflow содержит корректную структуру с узлами.'
+        });
+        return issues;
+      }
 
-      visited.add(nodeId);
-      
-      // Подсчитываем количество узлов на этом уровне
-      levels[level] = (levels[level] || 0) + 1;
-      const positionInLevel = levels[level] - 1;
-      
-      // Вычисляем позицию
-      const x = level * 250 + 150;
-      const y = positionInLevel * 120 + 100;
-      
-      arranged.push({
-        ...node,
-        x,
-        y,
-        level
-      });
-
-      // Размещаем дочерние узлы
-      const nodeConnections = connections[nodeId];
-      if (nodeConnections) {
-        Object.values(nodeConnections).forEach(outputs => {
-          outputs.forEach(target => {
-            placeNode(target.node, level + 1, x);
-          });
+      if (!workflow.connections) {
+        issues.push({
+          type: 'warning',
+          severity: 'medium',
+          message: 'Отсутствуют соединения между узлами',
+          suggestion: 'Проверьте, что узлы правильно соединены между собой.'
         });
       }
-    };
 
-    // Начинаем с стартовых узлов
-    if (startNodes.length > 0) {
-      startNodes.forEach((startNode, index) => {
-        levels[0] = index;
-        placeNode(startNode.id, 0);
-      });
-    } else {
-      // Если стартовые узлы не найдены, размещаем все узлы
-      nodes.forEach((node, index) => {
-        if (!visited.has(node.id)) {
-          const row = Math.floor(index / 3);
-          const col = index % 3;
-          arranged.push({
-            ...node,
-            x: col * 200 + 150,
-            y: row * 120 + 100,
-            level: 0
+      // Анализируем узлы
+      workflow.nodes.forEach((node: any, index: number) => {
+        // Проверяем обязательные поля узла
+        if (!node.type) {
+          issues.push({
+            type: 'error',
+            severity: 'high',
+            message: `Узел ${index + 1}: отсутствует тип узла`,
+            suggestion: 'Каждый узел должен иметь указанный тип.',
+            nodeId: node.id || `node-${index}`
           });
         }
+
+        // Проверяем наличие credentials в открытом виде
+        if (node.credentials) {
+          Object.keys(node.credentials).forEach(credKey => {
+            if (typeof node.credentials[credKey] === 'string' && 
+                (node.credentials[credKey].includes('password') || 
+                 node.credentials[credKey].includes('token') ||
+                 node.credentials[credKey].includes('key'))) {
+              issues.push({
+                type: 'warning',
+                severity: 'high',
+                message: `Узел "${node.name || node.type}": возможно содержит чувствительные данные`,
+                suggestion: 'Используйте переменные окружения для хранения паролей, токенов и API ключей.',
+                nodeId: node.id
+              });
+            }
+          });
+        }
+
+        // Проверяем HTTP узлы
+        if (node.type === 'n8n-nodes-base.httpRequest') {
+          if (!node.parameters?.url) {
+            issues.push({
+              type: 'error',
+              severity: 'medium',
+              message: `HTTP узел "${node.name || 'HTTP Request'}": не указан URL`,
+              suggestion: 'Укажите URL для HTTP запроса.',
+              nodeId: node.id
+            });
+          }
+
+          if (node.parameters?.authentication === 'genericCredentialType' && !node.credentials) {
+            issues.push({
+              type: 'warning',
+              severity: 'medium',
+              message: `HTTP узел "${node.name || 'HTTP Request'}": настроена аутентификация, но не указаны credentials`,
+              suggestion: 'Добавьте соответствующие credentials для аутентификации.',
+              nodeId: node.id
+            });
+          }
+        }
+
+        // Проверяем IF узлы
+        if (node.type === 'n8n-nodes-base.if') {
+          if (!node.parameters?.conditions?.values || node.parameters.conditions.values.length === 0) {
+            issues.push({
+              type: 'warning',
+              severity: 'medium',
+              message: `IF узел "${node.name || 'IF'}": не настроены условия`,
+              suggestion: 'Настройте условия для корректной работы логики ветвления.',
+              nodeId: node.id
+            });
+          }
+        }
+
+        // Проверяем Set узлы
+        if (node.type === 'n8n-nodes-base.set') {
+          if (!node.parameters?.values?.values || node.parameters.values.values.length === 0) {
+            issues.push({
+              type: 'optimization',
+              severity: 'low',
+              message: `Set узел "${node.name || 'Set'}": не настроены значения`,
+              suggestion: 'Убедитесь, что Set узел настроен для установки нужных значений.',
+              nodeId: node.id
+            });
+          }
+        }
       });
-    }
 
-    return arranged;
-  };
-
-  const arrangedNodes = arrangeNodes();
-
-  // Получаем соединения для отрисовки линий
-  const getConnections = () => {
-    const lines: Array<{ 
-      from: { x: number; y: number }; 
-      to: { x: number; y: number };
-      type: string;
-    }> = [];
-    
-    Object.entries(connections).forEach(([sourceId, outputs]) => {
-      const sourceNode = arrangedNodes.find(n => n.id === sourceId);
-      if (!sourceNode) return;
-
-      Object.entries(outputs).forEach(([outputType, targets]) => {
-        targets.forEach(target => {
-          const targetNode = arrangedNodes.find(n => n.id === target.node);
-          if (targetNode) {
-            lines.push({
-              from: { x: sourceNode.x + 80, y: sourceNode.y },
-              to: { x: targetNode.x - 80, y: targetNode.y },
-              type: outputType
+      // Проверяем соединения
+      if (workflow.connections) {
+        const nodeIds = workflow.nodes.map((node: any) => node.id);
+        
+        Object.keys(workflow.connections).forEach(sourceNodeId => {
+          if (!nodeIds.includes(sourceNodeId)) {
+            issues.push({
+              type: 'error',
+              severity: 'medium',
+              message: `Соединение ссылается на несуществующий узел: ${sourceNodeId}`,
+              suggestion: 'Удалите неверные соединения или добавьте отсутствующие узлы.'
             });
           }
         });
-      });
-    });
-
-    return lines;
-  };
-
-  const connectionLines = getConnections();
-
-  // Вычисляем размеры SVG на основе расположения узлов
-  const getSvgDimensions = () => {
-    if (arrangedNodes.length === 0) return { width: 800, height: 400 };
-    
-    const maxX = Math.max(...arrangedNodes.map(n => n.x)) + 200;
-    const maxY = Math.max(...arrangedNodes.map(n => n.y)) + 100;
-    
-    return {
-      width: Math.max(800, maxX),
-      height: Math.max(400, maxY)
-    };
-  };
-
-  const { width: svgWidth, height: svgHeight } = getSvgDimensions();
-
-  if (nodes.length === 0) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
-        <div className="text-gray-500 dark:text-gray-400">
-          <Settings className="h-16 w-16 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">Нет данных для визуализации</p>
-          <p className="text-sm mt-2">Загрузите workflow для отображения структуры</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      {/* Заголовок */}
-      <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-        <h4 className="font-semibold flex items-center gap-2">
-          <Eye className="h-5 w-5" />
-          Структура рабочего процесса
-          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-            ({nodes.length} узлов, {connectionLines.length} соединений)
-          </span>
-        </h4>
-      </div>
-
-      {/* Область визуализации */}
-      <div className="p-6">
-        <div className="overflow-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
-          <div className="relative" style={{ width: `${svgWidth}px`, height: `${svgHeight}px`, minHeight: '400px' }}>
-            {/* SVG для соединений */}
-            <svg 
-              className="absolute inset-0 w-full h-full pointer-events-none" 
-              style={{ zIndex: 1 }}
-              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <defs>
-                <marker
-                  id="arrowhead"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="9"
-                  refY="3.5"
-                  orient="auto"
-                  markerUnits="strokeWidth"
-                >
-                  <polygon
-                    points="0 0, 10 3.5, 0 7"
-                    fill="#6b7280"
-                  />
-                </marker>
-                <marker
-                  id="arrowhead-success"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="9"
-                  refY="3.5"
-                  orient="auto"
-                  markerUnits="strokeWidth"
-                >
-                  <polygon
-                    points="0 0, 10 3.5, 0 7"
-                    fill="#10b981"
-                  />
-                </marker>
-                <marker
-                  id="arrowhead-error"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="9"
-                  refY="3.5"
-                  orient="auto"
-                  markerUnits="strokeWidth"
-                >
-                  <polygon
-                    points="0 0, 10 3.5, 0 7"
-                    fill="#ef4444"
-                  />
-                </marker>
-              </defs>
-
-              {/* Отрисовка соединений */}
-              {connectionLines.map((line, index) => {
-                const isSuccess = line.type === 'true' || line.type === 'success';
-                const isError = line.type === 'false' || line.type === 'error';
-                const strokeColor = isSuccess ? '#10b981' : isError ? '#ef4444' : '#6b7280';
-                const markerId = isSuccess ? 'arrowhead-success' : isError ? 'arrowhead-error' : 'arrowhead';
-                
-                return (
-                  <g key={index}>
-                    <path
-                      d={`M ${line.from.x} ${line.from.y} Q ${(line.from.x + line.to.x) / 2} ${line.from.y} ${line.to.x} ${line.to.y}`}
-                      stroke={strokeColor}
-                      strokeWidth="2"
-                      fill="none"
-                      markerEnd={`url(#${markerId})`}
-                      className="transition-all duration-200 hover:stroke-width-3"
-                    />
-                    {/* Подпись типа соединения */}
-                    {(isSuccess || isError) && (
-                      <text
-                        x={(line.from.x + line.to.x) / 2}
-                        y={(line.from.y + line.to.y) / 2 - 10}
-                        textAnchor="middle"
-                        className="text-xs fill-current"
-                        fill={strokeColor}
-                      >
-                        {isSuccess ? 'true' : 'false'}
-                      </text>
-                    )}
-                  </g>
-                );
-              })}
-            </svg>
-
-            {/* Отрисовка узлов */}
-            {arrangedNodes.map((node) => (
-              <div
-                key={node.id}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 hover:scale-105"
-                style={{ 
-                  left: `${node.x}px`, 
-                  top: `${node.y}px`,
-                  zIndex: selectedNode === node.id ? 10 : 2
-                }}
-                onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-              >
-                <div 
-                  className={`rounded-lg p-4 shadow-lg min-w-[160px] text-center text-white transition-all duration-200 ${
-                    selectedNode === node.id ? 'ring-4 ring-blue-300 shadow-xl' : 'hover:shadow-xl'
-                  }`}
-                  style={{ backgroundColor: getNodeColor(node.type) }}
-                >
-                  <div className="text-2xl mb-2">{getNodeIcon(node.type)}</div>
-                  <div className="font-medium text-sm leading-tight">
-                    {node.name || node.type}
-                  </div>
-                  <div className="text-xs opacity-75 mt-1">{node.type}</div>
-                  {selectedNode === node.id && (
-                    <div className="text-xs mt-2 bg-black bg-opacity-20 rounded px-2 py-1">
-                      ID: {node.id}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Информация о выбранном узле */}
-        {selectedNode && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h5 className="font-semibold mb-2">Информация об узле</h5>
-            {(() => {
-              const node = nodes.find(n => n.id === selectedNode);
-              if (!node) return null;
-              
-              return (
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <strong>Название:</strong> {node.name || 'Не указано'}
-                  </div>
-                  <div>
-                    <strong>Тип:</strong> {node.type}
-                  </div>
-                  <div>
-                    <strong>ID:</strong> {node.id}
-                  </div>
-                  <div>
-                    <strong>Параметры:</strong> {node.parameters ? 'Настроены' : 'Не настроены'}
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        {/* Легенда */}
-        <div className="mt-6 grid md:grid-cols-2 gap-6">
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h5 className="font-semibold mb-3 text-sm">Типы узлов:</h5>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {Object.entries({
-                'Webhook': '🔗 Триггеры',
-                'HTTP Request': '🌐 HTTP запросы', 
-                'IF': '❓ Условия',
-                'Function': '⚙️ Обработка',
-                'Error': '❌ Ошибки',
-                'Set': '📝 Данные'
-              }).map(([type, label]) => (
-                <div key={type} className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded"
-                    style={{ backgroundColor: getNodeColor(type) }}
-                  ></div>
-                  <span>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h5 className="font-semibold mb-3 text-sm">Типы соединений:</h5>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 bg-gray-500"></div>
-                <span>Основной поток</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 bg-green-500"></div>
-                <span>Успешное выполнение (true)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 bg-red-500"></div>
-                <span>Ошибка/условие (false)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Статистика */}
-        <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg">
-          <h5 className="font-semibold mb-3 text-sm">Статистика workflow:</h5>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="text-center">
-              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{nodes.length}</div>
-              <div className="text-gray-600 dark:text-gray-400">Узлов</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-green-600 dark:text-green-400">{connectionLines.length}</div>
-              <div className="text-gray-600 dark:text-gray-400">Соединений</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                {Math.max(...arrangedNodes.map(n => n.level || 0)) + 1}
-              </div>
-              <div className="text-gray-600 dark:text-gray-400">Уровней</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                {new Set(nodes.map(n => n.type)).size}
-              </div>
-              <div className="text-gray-600 dark:text-gray-400">Типов узлов</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const N8nWorkflowOptimizerPage: React.FC = () => {
-  const [workflowData, setWorkflowData] = useState<Workflow | null>(null);
-  const [optimizedWorkflowData, setOptimizedWorkflowData] = useState<Workflow | null>(null);
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadAreaRef = useRef<HTMLDivElement>(null);
-
-  // Обработка drag & drop
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/json') {
-      processWorkflowFile(file);
-    } else {
-      alert('Пожалуйста, загрузите JSON файл рабочего процесса n8n.');
-    }
-  };
-
-  const handleFileSelect = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      processWorkflowFile(file);
-    }
-  };
-
-  const processWorkflowFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const workflow = JSON.parse(event.target?.result as string);
-        setWorkflowData(workflow);
-        startAnalysis(workflow);
-      } catch (error) {
-        alert('Не удалось разобрать файл JSON. Убедитесь, что это корректный экспорт рабочего процесса n8n.');
-        console.error('JSON parsing error:', error);
       }
-    };
-    reader.readAsText(file);
-  };
 
-  const startAnalysis = async (workflow: Workflow) => {
-    setLoading(true);
-    setProgress(0);
-
-    // Имитация процесса анализа
-    const analysisSteps = [10, 25, 40, 60, 75, 90, 100];
-    
-    for (let i = 0; i < analysisSteps.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setProgress(analysisSteps[i]);
-    }
-
-    // Выполняем анализ
-    const analysisResult = analyzeWorkflow(workflow);
-    setAnalysis(analysisResult);
-
-    // Генерируем оптимизированный воркфлоу
-    const optimized = generateOptimizedWorkflow(workflow, analysisResult);
-    setOptimizedWorkflowData(optimized);
-
-    setLoading(false);
-  };
-
-  const analyzeWorkflow = (workflow: Workflow): Analysis => {
-    const nodes = workflow.nodes || [];
-    const connections = workflow.connections || {};
-
-    // Базовые метрики
-    const nodeCount = nodes.length;
-    const nodeTypes = countNodeTypes(nodes);
-    const hasErrorHandling = checkErrorHandling(nodes, connections);
-    const complexityScore = calculateComplexity(nodes, connections);
-    const overallScore = calculateOverallScore(nodeCount, hasErrorHandling, complexityScore);
-
-    // Выявляем проблемы
-    const issues = findIssues(workflow);
-
-    // Формируем рекомендации
-    const recommendations = generateRecommendations(workflow, issues);
-
-    // Предложения по оптимизации
-    const optimizations = generateOptimizations(workflow);
-
-    return {
-      nodeCount,
-      nodeTypes,
-      hasErrorHandling,
-      complexityScore,
-      overallScore,
-      issues,
-      recommendations,
-      optimizations
-    };
-  };
-
-  const countNodeTypes = (nodes: WorkflowNode[]): Record<string, number> => {
-    const types: Record<string, number> = {};
-    nodes.forEach(node => {
-      const type = node.type;
-      types[type] = (types[type] || 0) + 1;
-    });
-    return types;
-  };
-
-  const checkErrorHandling = (nodes: WorkflowNode[], connections: WorkflowConnections): boolean => {
-    const errorHandlerNodes = nodes.filter(node => 
-      node.type === 'Error' || 
-      (node.parameters && node.parameters.errorHandling)
-    );
-    return errorHandlerNodes.length > 0;
-  };
-
-  const calculateComplexity = (nodes: WorkflowNode[], connections: WorkflowConnections): number => {
-    let complexity = nodes.length;
-
-    // Учитываем количество соединений
-    let connectionCount = 0;
-    Object.values(connections).forEach(nodeConnections => {
-      Object.values(nodeConnections).forEach(outputs => {
-        connectionCount += outputs.length;
-      });
-    });
-    complexity += connectionCount * 0.5;
-
-    // Учитываем наличие условных узлов
-    const conditionalNodes = nodes.filter(node => 
-      node.type === 'IF' || 
-      node.type === 'Switch' || 
-      node.type === 'SplitInBatches'
-    );
-    complexity += conditionalNodes.length * 3;
-
-    return Math.round(complexity);
-  };
-
-  const calculateOverallScore = (nodeCount: number, hasErrorHandling: boolean, complexityScore: number): number => {
-    let score = 70;
-
-    if (nodeCount > 30) {
-      score -= 10;
-    } else if (nodeCount > 20) {
-      score -= 5;
-    }
-
-    if (hasErrorHandling) {
-      score += 15;
-    }
-
-    if (complexityScore > 50) {
-      score -= 20;
-    } else if (complexityScore > 30) {
-      score -= 10;
-    }
-
-    return Math.max(0, Math.min(100, score));
-  };
-
-  const findIssues = (workflow: Workflow): Issue[] => {
-    const nodes = workflow.nodes || [];
-    const connections = workflow.connections || {};
-    const issues: Issue[] = [];
-
-    // Проверка на отсутствие обработки ошибок
-    if (!checkErrorHandling(nodes, connections)) {
-      issues.push({
-        severity: 'warning',
-        title: 'Отсутствует обработка ошибок',
-        description: 'Рабочий процесс не содержит механизмов обработки ошибок, что может привести к сбоям при выполнении.',
-        solution: 'Добавьте узлы Error Trigger или настройте обработку ошибок в настройках критических узлов.'
-      });
-    }
-
-    // Поиск неиспользуемых узлов
-    nodes.forEach(node => {
-      if (node.type !== 'Set') {
-        const hasOutgoingConnections = connections[node.id] && 
-          Object.values(connections[node.id]).some(outputs => outputs.length > 0);
-        
-        if (!hasOutgoingConnections && !isEndNode(node)) {
-          issues.push({
-            severity: 'warning',
-            title: `Неиспользуемый узел: ${node.name || node.type}`,
-            description: `Узел "${node.name || node.type}" не имеет исходящих соединений и может быть неиспользуемым.`,
-            solution: 'Соедините узел с остальной частью рабочего процесса или удалите его, если он не нужен.',
-            nodeId: node.id
-          });
-        }
-      }
-    });
-
-    // Поиск потенциально медленных узлов
-    nodes.forEach(node => {
-      if (isSlowNode(node)) {
+      // Проверяем наличие Error Trigger
+      const hasErrorTrigger = workflow.nodes.some((node: any) => node.type === 'n8n-nodes-base.errorTrigger');
+      if (!hasErrorTrigger && workflow.nodes.length > 3) {
         issues.push({
-          severity: 'warning',
-          title: `Потенциально медленный узел: ${node.name || node.type}`,
-          description: `Узел "${node.name || node.type}" может замедлять выполнение рабочего процесса.`,
-          solution: 'Рассмотрите возможность оптимизации узла или добавления кеширования результатов.',
-          nodeId: node.id
+          type: 'optimization',
+          severity: 'medium',
+          message: 'Отсутствует обработка ошибок',
+          suggestion: 'Добавьте Error Trigger узел для обработки ошибок в workflow.'
         });
       }
-    });
 
-    // Добавляем демонстрационные проблемы
-    issues.push({
-      severity: 'critical',
-      title: 'HTTP-запросы без обработки ошибок',
-      description: 'Обнаружены HTTP-запросы без обработки потенциальных ошибок сервера или сети.',
-      solution: 'Добавьте узлы IF после HTTP-запросов для проверки кода статуса и обработки ошибок.'
-    });
+      // Проверяем наличие Manual Trigger для тестирования
+      const hasManualTrigger = workflow.nodes.some((node: any) => node.type === 'n8n-nodes-base.manualTrigger');
+      if (!hasManualTrigger) {
+        issues.push({
+          type: 'optimization',
+          severity: 'low',
+          message: 'Отсутствует Manual Trigger',
+          suggestion: 'Добавьте Manual Trigger для удобного тестирования workflow.'
+        });
+      }
+
+      // Если проблем не найдено
+      if (issues.length === 0) {
+        issues.push({
+          type: 'optimization',
+          severity: 'low',
+          message: 'Workflow выглядит хорошо настроенным!',
+          suggestion: 'Основные проблемы не обнаружены. Рекомендуется протестировать workflow с различными входными данными.'
+        });
+      }
+
+    } catch (error) {
+      issues.push({
+        type: 'error',
+        severity: 'high',
+        message: 'Ошибка парсинга JSON',
+        suggestion: 'Убедитесь, что вставленный код является корректным JSON из экспорта n8n workflow.'
+      });
+    }
 
     return issues;
   };
 
-  const isEndNode = (node: WorkflowNode): boolean => {
-    const endNodeTypes = ['Respond to Webhook', 'NoOp', 'Stop', 'Wait', 'Telegram', 'Slack', 'Email', 'Discord'];
-    return endNodeTypes.includes(node.type);
-  };
-
-  const isSlowNode = (node: WorkflowNode): boolean => {
-    const slowNodeTypes = ['HTTP Request', 'Execute Command', 'SFTP', 'SSH', 'Wait', 'GoogleSheets'];
-    return slowNodeTypes.includes(node.type);
-  };
-
-  const generateRecommendations = (workflow: Workflow, issues: Issue[]): Recommendation[] => {
-    const recommendations: Recommendation[] = [];
-
-    recommendations.push({
-      title: 'Добавьте обработку ошибок',
-      description: 'Рассмотрите возможность добавления обработки ошибок для повышения надежности рабочего процесса.',
-      importance: 'high'
-    });
-
-    recommendations.push({
-      title: 'Используйте кэширование данных',
-      description: 'Для повторяющихся операций с одинаковыми данными используйте кэширование для повышения производительности.',
-      importance: 'medium'
-    });
-
-    recommendations.push({
-      title: 'Оптимизируйте последовательные HTTP-запросы',
-      description: 'Используйте параллельное выполнение для независимых HTTP-запросов, чтобы сократить общее время выполнения.',
-      importance: 'medium'
-    });
-
-    return recommendations;
-  };
-
-  const generateOptimizations = (workflow: Workflow): Optimization[] => {
-    const optimizations: Optimization[] = [];
-
-    optimizations.push({
-      title: 'Оптимизация HTTP-запросов',
-      description: 'Объединение нескольких последовательных HTTP-запросов в один пакетный запрос может значительно повысить производительность.',
-      benefit: 'Сокращение времени выполнения и снижение нагрузки на API.',
-      implementation: '1. Найдите последовательные HTTP-запросы к одному API.\n2. Объедините их в один запрос с использованием batch API если доступно.\n3. Обработайте пакетный ответ с помощью SplitInBatches.'
-    });
-
-    optimizations.push({
-      title: 'Кэширование результатов',
-      description: 'Использование временного хранилища для кэширования результатов часто запрашиваемых данных.',
-      benefit: 'Значительное сокращение времени выполнения и снижение нагрузки на внешние сервисы.',
-      implementation: '1. Добавьте проверку наличия данных в кэше перед выполнением запроса.\n2. Используйте Set node для сохранения результатов в переменной workflow.\n3. Добавьте условное ветвление для использования кэшированных данных.'
-    });
-
-    return optimizations;
-  };
-
-  const generateOptimizedWorkflow = (workflow: Workflow, analysis: Analysis): Workflow => {
-    const optimizedWorkflow = JSON.parse(JSON.stringify(workflow));
-
-    // Применяем оптимизации
-    if (!analysis.hasErrorHandling && optimizedWorkflow.nodes) {
-      optimizedWorkflow.nodes.push({
-        id: "error-handler-" + Date.now(),
-        name: "Обработка ошибок",
-        type: "Error",
-        position: [800, 300],
-        parameters: {
-          errorHandling: "continueErrorOutput"
-        }
-      });
+  const handleAnalyze = () => {
+    if (!workflowData.trim()) {
+      alert('Пожалуйста, вставьте JSON код вашего n8n workflow.');
+      return;
     }
 
-    // Изменяем версию для отличия от оригинала
-    if (optimizedWorkflow.meta) {
-      optimizedWorkflow.meta.optimized = true;
-      optimizedWorkflow.meta.optimizedTime = new Date().toISOString();
-    } else {
-      optimizedWorkflow.meta = {
-        optimized: true,
-        optimizedTime: new Date().toISOString()
-      };
-    }
+    setIsAnalyzing(true);
+    setShowResult(false);
 
-    return optimizedWorkflow;
+    setTimeout(() => {
+      const issues = analyzeWorkflow(workflowData);
+      setAnalysisResult(issues);
+      setIsAnalyzing(false);
+      setShowResult(true);
+    }, 2000);
   };
 
-  const downloadOptimizedWorkflow = () => {
-    if (optimizedWorkflowData) {
-      const blob = new Blob([JSON.stringify(optimizedWorkflowData, null, 2)], {
-        type: 'application/json'
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'optimized-n8n-workflow.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('Не удалось скопировать текст. Пожалуйста, выделите текст и скопируйте его вручную.');
     }
   };
 
-  const loadSampleWorkflow = () => {
-    const sampleWorkflow: Workflow = {
-      nodes: [
-        {
-          id: "start",
-          name: "Webhook",
-          type: "Webhook",
-          position: [100, 200]
-        },
-        {
-          id: "http1",
-          name: "Get Data",
-          type: "HTTP Request",
-          position: [300, 200]
-        },
-        {
-          id: "if1",
-          name: "Check Status",
-          type: "IF",
-          position: [500, 200]
-        },
-        {
-          id: "process1",
-          name: "Process Data",
-          type: "Function",
-          position: [700, 150]
-        },
-        {
-          id: "error1",
-          name: "Handle Error",
-          type: "NoOperation",
-          position: [700, 250]
-        },
-        {
-          id: "telegram1",
-          name: "Send Notification",
-          type: "Telegram",
-          position: [900, 150]
-        }
-      ],
-      connections: {
-        start: {
-          main: [{ node: "http1", type: "main", index: 0 }]
-        },
-        http1: {
-          main: [{ node: "if1", type: "main", index: 0 }]
-        },
-        if1: {
-          true: [{ node: "process1", type: "main", index: 0 }],
-          false: [{ node: "error1", type: "main", index: 0 }]
-        },
-        process1: {
-          main: [{ node: "telegram1", type: "main", index: 0 }]
-        }
-      },
-      meta: {
-        instanceId: "test123",
-        lastUpdated: "2023-01-15T12:00:00.000Z"
-      }
-    };
-
-    setWorkflowData(sampleWorkflow);
-    startAnalysis(sampleWorkflow);
+  const handleClear = () => {
+    setWorkflowData('');
+    setShowResult(false);
+    setAnalysisResult([]);
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 dark:text-green-400';
-    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+  const toggleFaqItem = (index: number) => {
+    setOpenFaqItems(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'border-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'warning': return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
-      case 'info': return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
-      default: return 'border-gray-500 bg-gray-50 dark:bg-gray-900/20';
+      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/20';
+      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
+      case 'low': return 'text-green-600 bg-green-100 dark:bg-green-900/20';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20';
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case 'critical': return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'info': return <Info className="h-5 w-5 text-blue-500" />;
-      default: return <Info className="h-5 w-5 text-gray-500" />;
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'error': return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      case 'warning': return <HelpCircle className="h-5 w-5 text-yellow-500" />;
+      case 'optimization': return <TrendingUp className="h-5 w-5 text-blue-500" />;
+      default: return <CheckCircle className="h-5 w-5 text-green-500" />;
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>n8n Workflow Debugger & Optimizer — Анализ и оптимизация рабочих процессов</title>
-        <meta name="description" content="Бесплатный инструмент для анализа, отладки и оптимизации ваших рабочих процессов n8n. Повысьте производительность и надежность ваших автоматизаций." />
-        <meta name="keywords" content="n8n workflow optimizer, n8n debugger, автоматизация процессов, оптимизация workflow" />
+        <title>n8n Workflow Debugger & Optimizer | aimarkethub.pro</title>
+        <meta name="description" content="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации." />
+        <meta name="keywords" content="n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n, оптимизация workflow" />
+        <link rel="canonical" href="https://aimarkethub.pro/n8n-workflow-optimizer" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        {/* Рекламный баннер R-A-16048264-7 размером 1000x120 над заголовком */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-7" 
+          containerId="yandex_rtb_R-A-16048264-7_n8n_optimizer" 
+          position="n8n-optimizer-top"
+          className="mb-8 md:mb-12"
+        />
+
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
-            <Settings className="h-12 w-12 text-primary-600 dark:text-primary-400 mr-4" />
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              n8n Workflow Debugger & Optimizer
-            </h1>
-          </div>
-          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto">
-            Анализируйте, отлаживайте и оптимизируйте ваши рабочие процессы n8n для повышения производительности и надежности
+        <section className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+            n8n Workflow Debugger & Optimizer
+          </h1>
+          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto mb-8">
+            Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки конфигурации, 
+            улучшайте производительность и повышайте надежность автоматизации.
           </p>
-        </div>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
+              <Bug className="h-5 w-5 text-red-600" />
+              <span className="text-sm font-medium">Поиск ошибок</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              <span className="text-sm font-medium">Оптимизация</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span className="text-sm font-medium">Проверка качества</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
+              <Zap className="h-5 w-5 text-purple-600" />
+              <span className="text-sm font-medium">Повышение производительности</span>
+            </div>
+          </div>
+        </section>
 
-        {/* Upload Section */}
-        {!workflowData && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
-            <h2 className="text-2xl font-bold mb-6">Загрузите ваш рабочий процесс n8n</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Загрузите JSON файл вашего рабочего процесса n8n для анализа. Наш инструмент поможет:
-            </p>
-            <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-8 space-y-2">
-              <li>Выявить потенциальные проблемы и "бутылочные горлышки"</li>
-              <li>Предложить оптимизации для повышения производительности</li>
-              <li>Проанализировать структуру рабочего процесса</li>
-              <li>Проверить обработку ошибок и безопасность</li>
-            </ul>
-
-            <div
-              ref={uploadAreaRef}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-200 cursor-pointer ${
-                isDragging
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+        {/* Main Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('analyzer')}
+              className={`px-6 py-4 font-semibold transition-colors duration-200 ${
+                activeTab === 'analyzer'
+                  ? 'text-primary-600 border-b-2 border-primary-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary-600'
               }`}
-              onClick={handleFileSelect}
             >
-              <Upload className="h-16 w-16 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
-              <div className="text-xl font-medium mb-2">
-                Перетащите JSON файл рабочего процесса n8n сюда
-              </div>
-              <div className="text-gray-500 dark:text-gray-400 mb-4">или</div>
-              <button className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
-                Выбрать файл
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-
-            <div className="mt-6 text-center">
-              <button
-                onClick={loadSampleWorkflow}
-                className="bg-secondary-600 hover:bg-secondary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-              >
-                Демо: Загрузить пример workflow
-              </button>
-            </div>
+              Анализатор Workflow
+            </button>
+            <button
+              onClick={() => setActiveTab('tips')}
+              className={`px-6 py-4 font-semibold transition-colors duration-200 ${
+                activeTab === 'tips'
+                  ? 'text-primary-600 border-b-2 border-primary-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary-600'
+              }`}
+            >
+              Советы по оптимизации
+            </button>
+            <button
+              onClick={() => setActiveTab('faq')}
+              className={`px-6 py-4 font-semibold transition-colors duration-200 ${
+                activeTab === 'faq'
+                  ? 'text-primary-600 border-b-2 border-primary-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary-600'
+              }`}
+            >
+              FAQ
+            </button>
           </div>
-        )}
 
-        {/* Loading */}
-        {loading && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-4"></div>
-            <p className="text-lg font-medium mb-4">Анализ вашего рабочего процесса...</p>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
-              <div
-                className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{progress}% завершено</p>
-          </div>
-        )}
+          <div className="p-6">
+            {/* Analyzer Tab */}
+            {activeTab === 'analyzer' && (
+              <div className="space-y-6">
+                {/* Workflow Input */}
+                <div>
+                  <label htmlFor="workflow-data" className="block font-semibold mb-2">
+                    JSON код вашего n8n workflow
+                  </label>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    Экспортируйте ваш workflow из n8n (Settings → Export) и вставьте JSON код ниже для анализа.
+                  </p>
+                  <textarea
+                    id="workflow-data"
+                    value={workflowData}
+                    onChange={(e) => setWorkflowData(e.target.value)}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white resize-none font-mono text-sm"
+                    rows={12}
+                    placeholder={`{
+  "name": "My Workflow",
+  "nodes": [
+    {
+      "id": "node-1",
+      "type": "n8n-nodes-base.manualTrigger",
+      "name": "Manual Trigger",
+      "parameters": {},
+      "position": [250, 300]
+    }
+  ],
+  "connections": {},
+  "active": true,
+  "settings": {}
+}`}
+                  />
+                </div>
 
-        {/* Analysis Results */}
-        {analysis && !loading && (
-          <div className="space-y-8">
-            {/* Tabs */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-                {[
-                  { id: 'overview', label: 'Обзор', icon: BarChart3 },
-                  { id: 'issues', label: 'Проблемы', icon: AlertTriangle },
-                  { id: 'optimization', label: 'Оптимизация', icon: Zap },
-                  { id: 'visualization', label: 'Визуализация', icon: Eye }
-                ].map(tab => (
+                {/* Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
                   <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors duration-200 whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                    }`}
+                    onClick={handleClear}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
                   >
-                    <tab.icon className="h-5 w-5" />
-                    {tab.label}
+                    Очистить
                   </button>
-                ))}
-              </div>
-
-              <div className="p-8">
-                {/* Overview Tab */}
-                {activeTab === 'overview' && (
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-6">Общая оценка рабочего процесса</h3>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Общая оценка</span>
-                            <Activity className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div className={`text-3xl font-bold ${getScoreColor(analysis.overallScore)}`}>
-                            {analysis.overallScore}/100
-                          </div>
-                        </div>
-
-                        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Количество узлов</span>
-                            <Settings className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                            {analysis.nodeCount}
-                          </div>
-                        </div>
-
-                        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Сложность</span>
-                            <BarChart3 className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div className={`text-3xl font-bold ${
-                            analysis.complexityScore > 50 ? 'text-red-600 dark:text-red-400' :
-                            analysis.complexityScore > 30 ? 'text-yellow-600 dark:text-yellow-400' :
-                            'text-green-600 dark:text-green-400'
-                          }`}>
-                            {analysis.complexityScore}
-                          </div>
-                        </div>
-
-                        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Обработка ошибок</span>
-                            <Shield className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div className={`text-lg font-bold ${
-                            analysis.hasErrorHandling ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            {analysis.hasErrorHandling ? 'Реализована' : 'Отсутствует'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-xl font-bold mb-4">Сводка рекомендаций</h3>
-                      <div className="space-y-4">
-                        {analysis.recommendations.slice(0, 3).map((rec, index) => (
-                          <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold">{rec.title}</h4>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                rec.importance === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                rec.importance === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                                'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                              }`}>
-                                {rec.importance === 'high' ? 'Высокий приоритет' :
-                                 rec.importance === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
-                              </span>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-300">{rec.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Issues Tab */}
-                {activeTab === 'issues' && (
-                  <div>
-                    <h3 className="text-2xl font-bold mb-6">Выявленные проблемы</h3>
-                    {analysis.issues.length === 0 ? (
-                      <div className="text-center py-12">
-                        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                        <p className="text-xl font-medium text-green-600 dark:text-green-400">
-                          Проблемы не обнаружены!
-                        </p>
-                        <p className="text-gray-600 dark:text-gray-300 mt-2">
-                          Ваш рабочий процесс выглядит хорошо оптимизированным.
-                        </p>
-                      </div>
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !workflowData.trim()}
+                    className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                        Анализируем workflow...
+                      </>
                     ) : (
-                      <div className="space-y-4">
-                        {analysis.issues.map((issue, index) => (
-                          <div key={index} className={`p-6 rounded-lg border-l-4 ${getSeverityColor(issue.severity)}`}>
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                {getSeverityIcon(issue.severity)}
-                                <h4 className="font-semibold text-lg">{issue.title}</h4>
-                              </div>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                issue.severity === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                issue.severity === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                                'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                              }`}>
-                                {issue.severity === 'critical' ? 'Критическая' :
-                                 issue.severity === 'warning' ? 'Предупреждение' : 'Информация'}
-                              </span>
-                            </div>
-                            <p className="text-gray-700 dark:text-gray-300 mb-4">{issue.description}</p>
-                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                              <h5 className="font-medium mb-2">Решение:</h5>
-                              <p className="text-gray-600 dark:text-gray-300">{issue.solution}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <>
+                        <Settings className="h-5 w-5" />
+                        Анализировать workflow
+                      </>
                     )}
-                  </div>
-                )}
+                  </button>
+                </div>
 
-                {/* Optimization Tab */}
-                {activeTab === 'optimization' && (
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-6">Предложения по оптимизации</h3>
-                      <div className="space-y-6">
-                        {analysis.optimizations.map((opt, index) => (
-                          <div key={index} className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-lg">
-                            <h4 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                              <Lightbulb className="h-6 w-6 text-yellow-500" />
-                              {opt.title}
-                            </h4>
-                            <p className="text-gray-700 dark:text-gray-300 mb-4">{opt.description}</p>
-                            <div className="grid md:grid-cols-2 gap-4">
-                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                                <h5 className="font-medium mb-2 text-green-600 dark:text-green-400">Преимущество:</h5>
-                                <p className="text-gray-600 dark:text-gray-300">{opt.benefit}</p>
+                {/* Results */}
+                {showResult && (
+                  <div className="mt-8 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Результаты анализа</h3>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Найдено проблем: {analysisResult.length}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {analysisResult.map((issue, index) => (
+                        <div key={index} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-start gap-3">
+                            {getTypeIcon(issue.type)}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="font-medium">{issue.message}</span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(issue.severity)}`}>
+                                  {issue.severity === 'high' ? 'Высокий' : 
+                                   issue.severity === 'medium' ? 'Средний' : 'Низкий'}
+                                </span>
                               </div>
-                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                                <h5 className="font-medium mb-2 text-blue-600 dark:text-blue-400">Реализация:</h5>
-                                <pre className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-                                  {opt.implementation}
-                                </pre>
-                              </div>
+                              <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                {issue.suggestion}
+                              </p>
+                              {issue.nodeId && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  Узел: {issue.nodeId}
+                                </p>
+                              )}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-
-                    <div>
-                      <h3 className="text-xl font-bold mb-4">Оптимизированная версия</h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Ниже представлена оптимизированная версия вашего рабочего процесса. 
-                        Вы можете скачать JSON и импортировать его обратно в n8n.
+                    
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Анализ завершен. Исправьте найденные проблемы для улучшения workflow.
                       </p>
                       <button
-                        onClick={downloadOptimizedWorkflow}
-                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2 mb-4"
+                        onClick={handleAnalyze}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
                       >
-                        <Download className="h-5 w-5" />
-                        Скачать оптимизированный workflow
+                        <RotateCcw className="h-4 w-4" />
+                        Повторить анализ
                       </button>
-                      <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto max-h-96">
-                        <pre className="text-sm">
-                          {optimizedWorkflowData ? JSON.stringify(optimizedWorkflowData, null, 2) : 'Оптимизированный код будет доступен после анализа.'}
-                        </pre>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Visualization Tab */}
-                {activeTab === 'visualization' && workflowData && (
-                  <div>
-                    <h3 className="text-2xl font-bold mb-6">Визуализация рабочего процесса</h3>
-                    <WorkflowVisualization workflow={workflowData} />
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <h4 className="font-semibold mb-2">Описание визуализации:</h4>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">
-                        На диаграмме показана интерактивная структура вашего рабочего процесса n8n. Узлы представлены цветными блоками с иконками, 
-                        а стрелки показывают направление потока данных. Различные цвета обозначают разные типы узлов. 
-                        Нажмите на любой узел для получения дополнительной информации.
-                      </p>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Reset Button */}
-            <div className="text-center">
-              <button
-                onClick={() => {
-                  setWorkflowData(null);
-                  setAnalysis(null);
-                  setOptimizedWorkflowData(null);
-                  setActiveTab('overview');
-                }}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
-              >
-                Анализировать новый workflow
-              </button>
-            </div>
-          </div>
-        )}
+            {/* Tips Tab */}
+            {activeTab === 'tips' && (
+              <div>
+                <h3 className="text-xl font-semibold mb-6">Советы по оптимизации n8n workflow</h3>
+                <div className="grid gap-6">
+                  {tips.map((tip, index) => (
+                    <div key={index} className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Lightbulb className="h-6 w-6 text-yellow-500 mt-1 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold mb-2">{tip.title}</h4>
+                          <p className="text-gray-600 dark:text-gray-300 mb-3">{tip.description}</p>
+                          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-700 dark:text-gray-300">{tip.example}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <BarChart3 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Глубокий анализ</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Комплексный анализ структуры, производительности и надежности ваших рабочих процессов
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-            <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Zap className="h-8 w-8 text-green-600 dark:text-green-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Автоматическая оптимизация</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Получите готовые предложения по улучшению и оптимизированную версию workflow
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-            <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Shield className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Интерактивная визуализация</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Наглядное представление структуры workflow с возможностью детального изучения каждого узла
-            </p>
+            {/* FAQ Tab */}
+            {activeTab === 'faq' && (
+              <div>
+                <h3 className="text-xl font-semibold mb-6">Часто задаваемые вопросы</h3>
+                <div className="space-y-4">
+                  {faqItems.map((item, index) => (
+                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <button
+                        onClick={() => toggleFaqItem(index)}
+                        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                      >
+                        <span className="font-medium">{item.question}</span>
+                        {openFaqItems.includes(index) ? (
+                          <ChevronUp className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5 text-gray-500" />
+                        )}
+                      </button>
+                      {openFaqItems.includes(index) && (
+                        <div className="px-4 pb-4">
+                          <p className="text-gray-600 dark:text-gray-300">{item.answer}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* CTA Section */}
+        <section className="text-center mt-12 bg-gradient-to-r from-primary-600 to-secondary-500 text-white p-8 rounded-xl">
+          <h2 className="text-2xl font-bold mb-4">Нужна помощь с n8n автоматизацией?</h2>
+          <p className="text-lg mb-6 opacity-90">
+            Используйте AI для создания и оптимизации ваших workflow
+          </p>
+          <Link 
+            to="/chat"
+            className="inline-flex items-center gap-2 bg-white text-primary-600 font-medium py-3 px-6 rounded-lg transition-colors duration-200 hover:bg-gray-50"
+          >
+            <MessageSquare className="h-5 w-5" />
+            Получить помощь от AI
+          </Link>
+        </section>
       </div>
     </>
   );
