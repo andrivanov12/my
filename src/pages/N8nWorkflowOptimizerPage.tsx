@@ -75,26 +75,27 @@ interface Analysis {
   optimizations: Optimization[];
 }
 
-// Компонент для простой визуализации workflow
+// Улучшенный компонент для визуализации workflow
 const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) => {
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const nodes = workflow.nodes || [];
   const connections = workflow.connections || {};
 
   const getNodeColor = (nodeType: string) => {
     const colors = {
-      'Webhook': 'bg-blue-500',
-      'HTTP Request': 'bg-green-500',
-      'IF': 'bg-yellow-500',
-      'Function': 'bg-purple-500',
-      'Set': 'bg-gray-500',
-      'Error': 'bg-red-500',
-      'Telegram': 'bg-blue-400',
-      'Email': 'bg-indigo-500',
-      'NoOperation': 'bg-gray-400',
-      'Wait': 'bg-orange-500',
-      'Switch': 'bg-pink-500'
+      'Webhook': '#3b82f6', // blue-500
+      'HTTP Request': '#10b981', // green-500
+      'IF': '#f59e0b', // yellow-500
+      'Function': '#8b5cf6', // purple-500
+      'Set': '#6b7280', // gray-500
+      'Error': '#ef4444', // red-500
+      'Telegram': '#06b6d4', // cyan-500
+      'Email': '#6366f1', // indigo-500
+      'NoOperation': '#9ca3af', // gray-400
+      'Wait': '#f97316', // orange-500
+      'Switch': '#ec4899' // pink-500
     };
-    return colors[nodeType as keyof typeof colors] || 'bg-gray-500';
+    return colors[nodeType as keyof typeof colors] || '#6b7280';
   };
 
   const getNodeIcon = (nodeType: string) => {
@@ -109,21 +110,87 @@ const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) =
       case 'Email': return '📧';
       case 'Wait': return '⏰';
       case 'Switch': return '🔀';
+      case 'NoOperation': return '⭕';
       default: return '⚡';
     }
   };
 
-  // Простое автоматическое расположение узлов
+  // Улучшенное автоматическое расположение узлов
   const arrangeNodes = () => {
-    const arranged = nodes.map((node, index) => {
-      const row = Math.floor(index / 3);
-      const col = index % 3;
-      return {
+    if (nodes.length === 0) return [];
+
+    // Пытаемся найти стартовый узел (Webhook, Trigger и т.д.)
+    const startNodes = nodes.filter(node => 
+      node.type === 'Webhook' || 
+      node.type.includes('Trigger') ||
+      !Object.values(connections).some(outputs => 
+        Object.values(outputs).some(targets => 
+          targets.some(target => target.node === node.id)
+        )
+      )
+    );
+
+    const arranged: Array<WorkflowNode & { x: number; y: number; level: number }> = [];
+    const visited = new Set<string>();
+    const levels: Record<number, number> = {};
+
+    // Функция для размещения узла и его потомков
+    const placeNode = (nodeId: string, level: number = 0, parentX: number = 0) => {
+      if (visited.has(nodeId)) return;
+      
+      const node = nodes.find(n => n.id === nodeId);
+      if (!node) return;
+
+      visited.add(nodeId);
+      
+      // Подсчитываем количество узлов на этом уровне
+      levels[level] = (levels[level] || 0) + 1;
+      const positionInLevel = levels[level] - 1;
+      
+      // Вычисляем позицию
+      const x = level * 250 + 150;
+      const y = positionInLevel * 120 + 100;
+      
+      arranged.push({
         ...node,
-        x: col * 200 + 100,
-        y: row * 120 + 80
-      };
-    });
+        x,
+        y,
+        level
+      });
+
+      // Размещаем дочерние узлы
+      const nodeConnections = connections[nodeId];
+      if (nodeConnections) {
+        Object.values(nodeConnections).forEach(outputs => {
+          outputs.forEach(target => {
+            placeNode(target.node, level + 1, x);
+          });
+        });
+      }
+    };
+
+    // Начинаем с стартовых узлов
+    if (startNodes.length > 0) {
+      startNodes.forEach((startNode, index) => {
+        levels[0] = index;
+        placeNode(startNode.id, 0);
+      });
+    } else {
+      // Если стартовые узлы не найдены, размещаем все узлы
+      nodes.forEach((node, index) => {
+        if (!visited.has(node.id)) {
+          const row = Math.floor(index / 3);
+          const col = index % 3;
+          arranged.push({
+            ...node,
+            x: col * 200 + 150,
+            y: row * 120 + 100,
+            level: 0
+          });
+        }
+      });
+    }
+
     return arranged;
   };
 
@@ -131,19 +198,24 @@ const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) =
 
   // Получаем соединения для отрисовки линий
   const getConnections = () => {
-    const lines: Array<{ from: { x: number; y: number }; to: { x: number; y: number } }> = [];
+    const lines: Array<{ 
+      from: { x: number; y: number }; 
+      to: { x: number; y: number };
+      type: string;
+    }> = [];
     
     Object.entries(connections).forEach(([sourceId, outputs]) => {
       const sourceNode = arrangedNodes.find(n => n.id === sourceId);
       if (!sourceNode) return;
 
-      Object.values(outputs).forEach(targets => {
+      Object.entries(outputs).forEach(([outputType, targets]) => {
         targets.forEach(target => {
           const targetNode = arrangedNodes.find(n => n.id === target.node);
           if (targetNode) {
             lines.push({
-              from: { x: sourceNode.x + 80, y: sourceNode.y + 25 },
-              to: { x: targetNode.x, y: targetNode.y + 25 }
+              from: { x: sourceNode.x + 80, y: sourceNode.y },
+              to: { x: targetNode.x - 80, y: targetNode.y },
+              type: outputType
             });
           }
         });
@@ -155,83 +227,264 @@ const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) =
 
   const connectionLines = getConnections();
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 min-h-[500px] overflow-auto">
-      <div className="relative" style={{ width: '800px', height: '600px' }}>
-        {/* Отрисовка соединений */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-          {connectionLines.map((line, index) => (
-            <g key={index}>
-              <line
-                x1={line.from.x}
-                y1={line.from.y}
-                x2={line.to.x}
-                y2={line.to.y}
-                stroke="#6b7280"
-                strokeWidth="2"
-                markerEnd="url(#arrowhead)"
-              />
-            </g>
-          ))}
-          <defs>
-            <marker
-              id="arrowhead"
-              markerWidth="10"
-              markerHeight="7"
-              refX="9"
-              refY="3.5"
-              orient="auto"
-            >
-              <polygon
-                points="0 0, 10 3.5, 0 7"
-                fill="#6b7280"
-              />
-            </marker>
-          </defs>
-        </svg>
+  // Вычисляем размеры SVG на основе расположения узлов
+  const getSvgDimensions = () => {
+    if (arrangedNodes.length === 0) return { width: 800, height: 400 };
+    
+    const maxX = Math.max(...arrangedNodes.map(n => n.x)) + 200;
+    const maxY = Math.max(...arrangedNodes.map(n => n.y)) + 100;
+    
+    return {
+      width: Math.max(800, maxX),
+      height: Math.max(400, maxY)
+    };
+  };
 
-        {/* Отрисовка узлов */}
-        {arrangedNodes.map((node) => (
-          <div
-            key={node.id}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2"
-            style={{ 
-              left: `${node.x}px`, 
-              top: `${node.y}px`,
-              zIndex: 2
-            }}
-          >
-            <div className={`${getNodeColor(node.type)} text-white rounded-lg p-3 shadow-lg min-w-[160px] text-center`}>
-              <div className="text-2xl mb-1">{getNodeIcon(node.type)}</div>
-              <div className="font-medium text-sm">{node.name || node.type}</div>
-              <div className="text-xs opacity-75 mt-1">{node.type}</div>
-            </div>
+  const { width: svgWidth, height: svgHeight } = getSvgDimensions();
+
+  if (nodes.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <div className="text-gray-500 dark:text-gray-400">
+          <Settings className="h-16 w-16 mx-auto mb-4 opacity-50" />
+          <p className="text-lg">Нет данных для визуализации</p>
+          <p className="text-sm mt-2">Загрузите workflow для отображения структуры</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      {/* Заголовок */}
+      <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+        <h4 className="font-semibold flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          Структура рабочего процесса
+          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+            ({nodes.length} узлов, {connectionLines.length} соединений)
+          </span>
+        </h4>
+      </div>
+
+      {/* Область визуализации */}
+      <div className="p-6">
+        <div className="overflow-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
+          <div className="relative" style={{ width: `${svgWidth}px`, height: `${svgHeight}px`, minHeight: '400px' }}>
+            {/* SVG для соединений */}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none" 
+              style={{ zIndex: 1 }}
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                  markerUnits="strokeWidth"
+                >
+                  <polygon
+                    points="0 0, 10 3.5, 0 7"
+                    fill="#6b7280"
+                  />
+                </marker>
+                <marker
+                  id="arrowhead-success"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                  markerUnits="strokeWidth"
+                >
+                  <polygon
+                    points="0 0, 10 3.5, 0 7"
+                    fill="#10b981"
+                  />
+                </marker>
+                <marker
+                  id="arrowhead-error"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                  markerUnits="strokeWidth"
+                >
+                  <polygon
+                    points="0 0, 10 3.5, 0 7"
+                    fill="#ef4444"
+                  />
+                </marker>
+              </defs>
+
+              {/* Отрисовка соединений */}
+              {connectionLines.map((line, index) => {
+                const isSuccess = line.type === 'true' || line.type === 'success';
+                const isError = line.type === 'false' || line.type === 'error';
+                const strokeColor = isSuccess ? '#10b981' : isError ? '#ef4444' : '#6b7280';
+                const markerId = isSuccess ? 'arrowhead-success' : isError ? 'arrowhead-error' : 'arrowhead';
+                
+                return (
+                  <g key={index}>
+                    <path
+                      d={`M ${line.from.x} ${line.from.y} Q ${(line.from.x + line.to.x) / 2} ${line.from.y} ${line.to.x} ${line.to.y}`}
+                      stroke={strokeColor}
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd={`url(#${markerId})`}
+                      className="transition-all duration-200 hover:stroke-width-3"
+                    />
+                    {/* Подпись типа соединения */}
+                    {(isSuccess || isError) && (
+                      <text
+                        x={(line.from.x + line.to.x) / 2}
+                        y={(line.from.y + line.to.y) / 2 - 10}
+                        textAnchor="middle"
+                        className="text-xs fill-current"
+                        fill={strokeColor}
+                      >
+                        {isSuccess ? 'true' : 'false'}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Отрисовка узлов */}
+            {arrangedNodes.map((node) => (
+              <div
+                key={node.id}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 hover:scale-105"
+                style={{ 
+                  left: `${node.x}px`, 
+                  top: `${node.y}px`,
+                  zIndex: selectedNode === node.id ? 10 : 2
+                }}
+                onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+              >
+                <div 
+                  className={`rounded-lg p-4 shadow-lg min-w-[160px] text-center text-white transition-all duration-200 ${
+                    selectedNode === node.id ? 'ring-4 ring-blue-300 shadow-xl' : 'hover:shadow-xl'
+                  }`}
+                  style={{ backgroundColor: getNodeColor(node.type) }}
+                >
+                  <div className="text-2xl mb-2">{getNodeIcon(node.type)}</div>
+                  <div className="font-medium text-sm leading-tight">
+                    {node.name || node.type}
+                  </div>
+                  <div className="text-xs opacity-75 mt-1">{node.type}</div>
+                  {selectedNode === node.id && (
+                    <div className="text-xs mt-2 bg-black bg-opacity-20 rounded px-2 py-1">
+                      ID: {node.id}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Информация о выбранном узле */}
+        {selectedNode && (
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h5 className="font-semibold mb-2">Информация об узле</h5>
+            {(() => {
+              const node = nodes.find(n => n.id === selectedNode);
+              if (!node) return null;
+              
+              return (
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Название:</strong> {node.name || 'Не указано'}
+                  </div>
+                  <div>
+                    <strong>Тип:</strong> {node.type}
+                  </div>
+                  <div>
+                    <strong>ID:</strong> {node.id}
+                  </div>
+                  <div>
+                    <strong>Параметры:</strong> {node.parameters ? 'Настроены' : 'Не настроены'}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {/* Легенда */}
-        <div className="absolute bottom-4 right-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-lg" style={{ zIndex: 3 }}>
-          <h4 className="font-semibold mb-2 text-sm">Типы узлов:</h4>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Триггеры</span>
+        <div className="mt-6 grid md:grid-cols-2 gap-6">
+          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h5 className="font-semibold mb-3 text-sm">Типы узлов:</h5>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {Object.entries({
+                'Webhook': '🔗 Триггеры',
+                'HTTP Request': '🌐 HTTP запросы', 
+                'IF': '❓ Условия',
+                'Function': '⚙️ Обработка',
+                'Error': '❌ Ошибки',
+                'Set': '📝 Данные'
+              }).map(([type, label]) => (
+                <div key={type} className="flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded"
+                    style={{ backgroundColor: getNodeColor(type) }}
+                  ></div>
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span>HTTP запросы</span>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h5 className="font-semibold mb-3 text-sm">Типы соединений:</h5>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-gray-500"></div>
+                <span>Основной поток</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-green-500"></div>
+                <span>Успешное выполнение (true)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-red-500"></div>
+                <span>Ошибка/условие (false)</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-              <span>Условия</span>
+          </div>
+        </div>
+
+        {/* Статистика */}
+        <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg">
+          <h5 className="font-semibold mb-3 text-sm">Статистика workflow:</h5>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{nodes.length}</div>
+              <div className="text-gray-600 dark:text-gray-400">Узлов</div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-purple-500 rounded"></div>
-              <span>Обработка</span>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600 dark:text-green-400">{connectionLines.length}</div>
+              <div className="text-gray-600 dark:text-gray-400">Соединений</div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded"></div>
-              <span>Ошибки</span>
+            <div className="text-center">
+              <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                {Math.max(...arrangedNodes.map(n => n.level || 0)) + 1}
+              </div>
+              <div className="text-gray-600 dark:text-gray-400">Уровней</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                {new Set(nodes.map(n => n.type)).size}
+              </div>
+              <div className="text-gray-600 dark:text-gray-400">Типов узлов</div>
             </div>
           </div>
         </div>
@@ -964,9 +1217,9 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
                     <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <h4 className="font-semibold mb-2">Описание визуализации:</h4>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">
-                        На диаграмме показана структура вашего рабочего процесса n8n. Узлы представлены цветными блоками, 
-                        а стрелки показывают направление потока данных. Различные цвета обозначают разные типы узлов 
-                        (триггеры, HTTP-запросы, условия, обработка данных и т.д.).
+                        На диаграмме показана интерактивная структура вашего рабочего процесса n8n. Узлы представлены цветными блоками с иконками, 
+                        а стрелки показывают направление потока данных. Различные цвета обозначают разные типы узлов. 
+                        Нажмите на любой узел для получения дополнительной информации.
                       </p>
                     </div>
                   </div>
@@ -1017,9 +1270,9 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
             <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <Shield className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">Проверка безопасности</h3>
+            <h3 className="text-xl font-semibold mb-3">Интерактивная визуализация</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Выявление потенциальных проблем безопасности и рекомендации по их устранению
+              Наглядное представление структуры workflow с возможностью детального изучения каждого узла
             </p>
           </div>
         </div>
