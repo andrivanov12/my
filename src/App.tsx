@@ -71,6 +71,13 @@ const AiChatOnlinePage = lazy(() =>
   }))
 );
 
+// n8n Workflow Optimizer
+const N8nWorkflowOptimizerPage = lazy(() => 
+  import('./pages/N8nWorkflowOptimizerPage').catch(() => ({
+    default: () => <div>Ошибка загрузки n8n Workflow Optimizer</div>
+  }))
+);
+
 // Компонент загрузки с таймаутом
 const LoadingFallback = () => {
   const [showError, setShowError] = React.useState(false);
@@ -125,6 +132,9 @@ function App() {
           <Route path="/chatgpt-bez-registracii" element={<ChatGptBezRegistraciiPage />} />
           <Route path="/chat-gpt-besplatno" element={<ChatGptBesplatnoPage />} />
           <Route path="/ai-chat-online" element={<AiChatOnlinePage />} />
+          
+          {/* n8n Workflow Optimizer */}
+          <Route path="/n8n-workflow-optimizer" element={<N8nWorkflowOptimizerPage />} />
           
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center">

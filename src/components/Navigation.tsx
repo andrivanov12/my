@@ -11,6 +11,7 @@ const Navigation: React.FC = () => {
     { path: '/chat', label: 'Чат' },
     { path: '/guide', label: 'Руководство' },
     { path: '/blog', label: 'Блог' },
+    { path: '/n8n-workflow-optimizer', label: 'n8n Оптимизатор' },
     { path: '/tuya-instructions', label: 'Tuya API' },
     { path: '/about', label: 'О нас' },
     { path: '/contact', label: 'Контакты' }
