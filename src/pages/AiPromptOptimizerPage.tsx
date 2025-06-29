@@ -12,7 +12,8 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from 'lucide-react';
 
 interface PromptTemplate {
