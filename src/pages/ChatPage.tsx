@@ -3,66 +3,7 @@ import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-reac
 import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
-
-const YandexRTBBlock: React.FC<{ blockId: string; containerId: string }> = ({ blockId, containerId }) => {
-  const adRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Проверяем, что мы находимся на продакшн домене
-    const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
-                              window.location.hostname === 'www.aimarkethub.pro';
-    
-    if (!isProductionDomain) {
-      return; // Не загружаем рекламу на localhost или других доменах
-    }
-
-    // Инициализируем Яндекс.РТБ
-    if (!window.yaContextCb) {
-      window.yaContextCb = [];
-    }
-
-    // Добавляем скрипт Яндекс.РТБ если его еще нет
-    if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://yandex.ru/ads/system/context.js';
-      script.async = true;
-      document.head.appendChild(script);
-    }
-
-    // Рендерим рекламный блок
-    window.yaContextCb.push(() => {
-      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-        window.Ya.Context.AdvManager.render({
-          "blockId": blockId,
-          "renderTo": containerId
-        });
-      }
-    });
-  }, [blockId, containerId]);
-
-  // Не показываем блок рекламы на localhost
-  const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
-                            window.location.hostname === 'www.aimarkethub.pro';
-  
-  if (!isProductionDomain) {
-    return null;
-  }
-
-  return (
-    <div className="w-full bg-gray-50 dark:bg-gray-900 p-2 rounded-lg">
-      <div 
-        id={containerId}
-        className="w-full min-h-[120px] flex items-center justify-center bg-transparent"
-        style={{ maxWidth: '1000px', margin: '0 auto' }}
-      >
-        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
-        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-50">
-          ...
-        </div>
-      </div>
-    </div>
-  );
-};
+import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 
 const ModelSelector = () => {
   const { selectedModel, availableModels, setSelectedModel } = useChat();
@@ -155,10 +96,13 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          {/* Верхний рекламный блок - более незаметный */}
-          <div className="mb-4 md:mb-6">
-            <YandexRTBBlock blockId="R-A-16048264-1" containerId="yandex_rtb_R-A-16048264-1" />
-          </div>
+          {/* Верхний рекламный блок - адаптивный */}
+          <AdaptiveAdBlock 
+            blockId="R-A-16048264-1" 
+            containerId="yandex_rtb_R-A-16048264-1" 
+            position="top"
+            className="mb-4 md:mb-6"
+          />
 
           <div className="max-w-3xl mx-auto relative">
             {/* Desktop donation button */}
@@ -253,10 +197,13 @@ const ChatPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Нижний рекламный блок - более незаметный */}
-          <div className="mt-4 md:mt-6">
-            <YandexRTBBlock blockId="R-A-16048264-2" containerId="yandex_rtb_R-A-16048264-2" />
-          </div>
+          {/* Нижний рекламный блок - адаптивный */}
+          <AdaptiveAdBlock 
+            blockId="R-A-16048264-2" 
+            containerId="yandex_rtb_R-A-16048264-2" 
+            position="bottom"
+            className="mt-4 md:mt-6"
+          />
         </div>
       </div>
     </>
