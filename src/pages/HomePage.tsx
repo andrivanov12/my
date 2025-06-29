@@ -5,6 +5,71 @@ import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
 import { airtableService, AirtableArticle } from '../services/airtableService';
 
+// Компонент для верхнего рекламного блока
+const YandexRTBTopBanner: React.FC = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Проверяем, что мы находимся на продакшн домене
+    const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                              window.location.hostname === 'www.aimarkethub.pro';
+    
+    if (!isProductionDomain) {
+      return; // Не загружаем рекламу на localhost или других доменах
+    }
+
+    // Инициализируем Яндекс.РТБ
+    if (!window.yaContextCb) {
+      window.yaContextCb = [];
+    }
+
+    // Добавляем скрипт Яндекс.РТБ если его еще нет
+    if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://yandex.ru/ads/system/context.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Рендерим рекламный блок
+    window.yaContextCb.push(() => {
+      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+        window.Ya.Context.AdvManager.render({
+          "blockId": "R-A-16048264-4",
+          "renderTo": "yandex_rtb_R-A-16048264-4"
+        });
+      }
+    });
+  }, []);
+
+  // Не показываем блок рекламы на localhost
+  const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                            window.location.hostname === 'www.aimarkethub.pro';
+  
+  if (!isProductionDomain) {
+    return null;
+  }
+
+  return (
+    <div className="w-full bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-8">
+      <div 
+        id="yandex_rtb_R-A-16048264-4"
+        className="w-full flex items-center justify-center bg-transparent"
+        style={{ 
+          maxWidth: '1000px', 
+          height: '200px',
+          margin: '0 auto' 
+        }}
+      >
+        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
+        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-30">
+          ...
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Компонент для рекламного блока Яндекс.РТБ
 const YandexRTBBottomBlock: React.FC = () => {
   const adRef = useRef<HTMLDivElement>(null);
@@ -161,6 +226,9 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
+        {/* Верхний рекламный блок 1000x200 */}
+        <YandexRTBTopBanner />
+
         {/* Hero секция с улучшенным SEO контентом */}
         <section className="max-w-4xl mx-auto text-center mb-12 md:mb-16">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
