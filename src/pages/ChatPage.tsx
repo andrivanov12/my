@@ -196,6 +196,14 @@ const ChatPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Рекламный баннер R-A-16048264-4 под диалоговым окном */}
+          <AdaptiveAdBlock 
+            blockId="R-A-16048264-4" 
+            containerId="yandex_rtb_R-A-16048264-4_chat_bottom" 
+            position="chat-bottom"
+            className="mt-4 md:mt-6"
+          />
         </div>
       </div>
     </>
