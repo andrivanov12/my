@@ -7,7 +7,7 @@ import { airtableService, AirtableArticle } from '../services/airtableService';
 
 // Компонент для верхнего рекламного блока
 const YandexRTBTopBanner: React.FC = () => {
-  const adRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Проверяем, что мы находимся на продакшн домене
@@ -15,6 +15,7 @@ const YandexRTBTopBanner: React.FC = () => {
                               window.location.hostname === 'www.aimarkethub.pro';
     
     if (!isProductionDomain) {
+      console.log('Реклама не загружается на localhost');
       return; // Не загружаем рекламу на localhost или других доменах
     }
 
@@ -28,18 +29,35 @@ const YandexRTBTopBanner: React.FC = () => {
       const script = document.createElement('script');
       script.src = 'https://yandex.ru/ads/system/context.js';
       script.async = true;
+      script.onload = () => {
+        console.log('Яндекс.РТБ скрипт загружен');
+        setIsLoaded(true);
+      };
       document.head.appendChild(script);
+    } else {
+      setIsLoaded(true);
     }
 
-    // Рендерим рекламный блок
-    window.yaContextCb.push(() => {
-      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-        window.Ya.Context.AdvManager.render({
-          "blockId": "R-A-16048264-4",
-          "renderTo": "yandex_rtb_R-A-16048264-4"
-        });
-      }
-    });
+    // Небольшая задержка для загрузки скрипта
+    const timer = setTimeout(() => {
+      window.yaContextCb.push(() => {
+        try {
+          if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+            window.Ya.Context.AdvManager.render({
+              "blockId": "R-A-16048264-4",
+              "renderTo": "yandex_rtb_R-A-16048264-4"
+            });
+            console.log('Рекламный блок R-A-16048264-4 инициализирован');
+          } else {
+            console.warn('Яндекс.РТБ API недоступен');
+          }
+        } catch (error) {
+          console.error('Ошибка инициализации рекламного блока:', error);
+        }
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Не показываем блок рекламы на localhost
@@ -47,7 +65,23 @@ const YandexRTBTopBanner: React.FC = () => {
                             window.location.hostname === 'www.aimarkethub.pro';
   
   if (!isProductionDomain) {
-    return null;
+    return (
+      <div className="w-full bg-gray-100 dark:bg-gray-800 p-3 rounded-lg mb-8">
+        <div 
+          className="w-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded"
+          style={{ 
+            maxWidth: '1000px', 
+            height: '200px',
+            margin: '0 auto' 
+          }}
+        >
+          <div className="text-gray-500 dark:text-gray-400 text-center">
+            <div className="text-lg font-medium mb-2">Рекламный блок 1000×200</div>
+            <div className="text-sm">Отображается только на продакшн домене</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -61,10 +95,12 @@ const YandexRTBTopBanner: React.FC = () => {
           margin: '0 auto' 
         }}
       >
-        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
-        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-30">
-          ...
-        </div>
+        {/* Fallback контент пока загружается реклама */}
+        {!isLoaded && (
+          <div className="text-gray-400 dark:text-gray-600 text-center">
+            <div className="animate-pulse">Загрузка рекламы...</div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -72,7 +108,7 @@ const YandexRTBTopBanner: React.FC = () => {
 
 // Компонент для рекламного блока Яндекс.РТБ
 const YandexRTBBottomBlock: React.FC = () => {
-  const adRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Проверяем, что мы находимся на продакшн домене
@@ -93,18 +129,32 @@ const YandexRTBBottomBlock: React.FC = () => {
       const script = document.createElement('script');
       script.src = 'https://yandex.ru/ads/system/context.js';
       script.async = true;
+      script.onload = () => {
+        setIsLoaded(true);
+      };
       document.head.appendChild(script);
+    } else {
+      setIsLoaded(true);
     }
 
-    // Рендерим рекламный блок
-    window.yaContextCb.push(() => {
-      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-        window.Ya.Context.AdvManager.render({
-          "blockId": "R-A-16048264-3",
-          "renderTo": "yandex_rtb_R-A-16048264-3"
-        });
-      }
-    });
+    // Небольшая задержка для загрузки скрипта
+    const timer = setTimeout(() => {
+      window.yaContextCb.push(() => {
+        try {
+          if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+            window.Ya.Context.AdvManager.render({
+              "blockId": "R-A-16048264-3",
+              "renderTo": "yandex_rtb_R-A-16048264-3"
+            });
+            console.log('Рекламный блок R-A-16048264-3 инициализирован');
+          }
+        } catch (error) {
+          console.error('Ошибка инициализации рекламного блока:', error);
+        }
+      });
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Не показываем блок рекламы на localhost
@@ -126,10 +176,12 @@ const YandexRTBBottomBlock: React.FC = () => {
           margin: '0 auto' 
         }}
       >
-        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
-        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-30">
-          ...
-        </div>
+        {/* Fallback контент пока загружается реклама */}
+        {!isLoaded && (
+          <div className="text-gray-400 dark:text-gray-600 text-center">
+            <div className="animate-pulse">Загрузка рекламы...</div>
+          </div>
+        )}
       </div>
     </div>
   );
