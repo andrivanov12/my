@@ -96,11 +96,11 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          {/* Верхний рекламный блок - только R-A-16048264-1 */}
+          {/* Рекламный баннер R-A-16048264-3 над диалоговым окном */}
           <AdaptiveAdBlock 
-            blockId="R-A-16048264-1" 
-            containerId="yandex_rtb_R-A-16048264-1" 
-            position="top"
+            blockId="R-A-16048264-3" 
+            containerId="yandex_rtb_R-A-16048264-3_chat" 
+            position="chat-top"
             className="mb-4 md:mb-6"
           />
 
@@ -196,14 +196,6 @@ const ChatPage: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Нижний рекламный блок - только R-A-16048264-1 */}
-          <AdaptiveAdBlock 
-            blockId="R-A-16048264-1" 
-            containerId="yandex_rtb_R-A-16048264-1_bottom" 
-            position="bottom"
-            className="mt-4 md:mt-6"
-          />
         </div>
       </div>
     </>

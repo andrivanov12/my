@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 interface AdaptiveAdBlockProps {
   blockId: string;
   containerId: string;
-  position: 'top' | 'bottom' | 'sidebar' | 'main-banner' | 'bottom-banner';
+  position: 'top' | 'bottom' | 'sidebar' | 'main-banner' | 'bottom-banner' | 'chat-top';
   className?: string;
 }
 
@@ -38,8 +38,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
       return;
     }
 
-    // Инициализируем Яндекс.РТБ для блоков R-A-16048264-1 и R-A-16048264-2
-    if (blockId === 'R-A-16048264-1' || blockId === 'R-A-16048264-2') {
+    // Инициализируем Яндекс.РТБ для блоков R-A-16048264-1, R-A-16048264-2 и R-A-16048264-3
+    if (blockId === 'R-A-16048264-1' || blockId === 'R-A-16048264-2' || blockId === 'R-A-16048264-3') {
       if (!window.yaContextCb) {
         window.yaContextCb = [];
       }
@@ -102,8 +102,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
     );
   }
 
-  // Показываем только блоки R-A-16048264-1 и R-A-16048264-2
-  if (blockId !== 'R-A-16048264-1' && blockId !== 'R-A-16048264-2') {
+  // Показываем только блоки R-A-16048264-1, R-A-16048264-2 и R-A-16048264-3
+  if (blockId !== 'R-A-16048264-1' && blockId !== 'R-A-16048264-2' && blockId !== 'R-A-16048264-3') {
     return null;
   }
 
@@ -148,6 +148,9 @@ const getAdDimensions = (position: string, isMobile: boolean) => {
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     'bottom-banner': isMobile 
+      ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
+      : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
+    'chat-top': isMobile 
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     top: isMobile 
