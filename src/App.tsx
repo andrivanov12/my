@@ -78,6 +78,13 @@ const N8nWorkflowOptimizerPage = lazy(() =>
   }))
 );
 
+// AI Prompt Optimizer
+const AiPromptOptimizerPage = lazy(() => 
+  import('./pages/AiPromptOptimizerPage').catch(() => ({
+    default: () => <div>Ошибка загрузки AI Prompt Optimizer</div>
+  }))
+);
+
 // Компонент загрузки с таймаутом
 const LoadingFallback = () => {
   const [showError, setShowError] = React.useState(false);
@@ -135,6 +142,9 @@ function App() {
           
           {/* n8n Workflow Optimizer */}
           <Route path="/n8n-workflow-optimizer" element={<N8nWorkflowOptimizerPage />} />
+          
+          {/* AI Prompt Optimizer */}
+          <Route path="/ai-prompt-optimizer" element={<AiPromptOptimizerPage />} />
           
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center">
