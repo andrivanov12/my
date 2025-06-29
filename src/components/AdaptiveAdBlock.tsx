@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 interface AdaptiveAdBlockProps {
   blockId: string;
   containerId: string;
-  position: 'top' | 'bottom' | 'sidebar';
+  position: 'top' | 'bottom' | 'sidebar' | 'main-banner';
   className?: string;
 }
 
@@ -87,9 +87,9 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
   
   if (!isProductionDomain) {
     return (
-      <div className={`w-full bg-gray-100 dark:bg-gray-800 p-3 rounded-lg ${className}`}>
+      <div className={`w-full ${className}`}>
         <div 
-          className="w-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded"
+          className="w-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded border-2 border-dashed border-gray-400"
           style={getAdDimensions(position, isMobile)}
         >
           <div className="text-gray-500 dark:text-gray-400 text-center">
@@ -108,11 +108,11 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
   }
 
   return (
-    <div className={`w-full ${getContainerClasses(position, isMobile)} ${className}`}>
+    <div className={`w-full ${className}`}>
       {/* Yandex.RTB R-A-16048264-1 */}
       <div 
         id={containerId}
-        className="w-full flex items-center justify-center bg-transparent"
+        className="w-full flex items-center justify-center"
         style={getAdDimensions(position, isMobile)}
       >
         {/* Fallback контент пока загружается реклама */}
@@ -144,6 +144,9 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
 // Функция для получения размеров рекламного блока
 const getAdDimensions = (position: string, isMobile: boolean) => {
   const dimensions = {
+    'main-banner': isMobile 
+      ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
+      : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     top: isMobile 
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '728px', height: '90px', margin: '0 auto' },
@@ -156,23 +159,6 @@ const getAdDimensions = (position: string, isMobile: boolean) => {
   };
 
   return dimensions[position as keyof typeof dimensions] || dimensions.top;
-};
-
-// Функция для получения CSS классов контейнера
-const getContainerClasses = (position: string, isMobile: boolean) => {
-  const baseClasses = 'bg-gray-50 dark:bg-gray-900 rounded-lg';
-  
-  if (position === 'top' || position === 'bottom') {
-    return isMobile 
-      ? `${baseClasses} p-2 mb-4`
-      : `${baseClasses} p-3 mb-6`;
-  }
-  
-  if (position === 'sidebar') {
-    return `${baseClasses} p-3`;
-  }
-  
-  return baseClasses;
 };
 
 export default AdaptiveAdBlock;

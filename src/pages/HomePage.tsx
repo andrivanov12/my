@@ -97,12 +97,12 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Верхний адаптивный рекламный блок - только R-A-16048264-1 */}
+        {/* Главный рекламный баннер 1000x120 над заголовком */}
         <AdaptiveAdBlock 
           blockId="R-A-16048264-1" 
-          containerId="yandex_rtb_R-A-16048264-1" 
-          position="top"
-          className="mb-6 md:mb-8"
+          containerId="yandex_rtb_R-A-16048264-1_main" 
+          position="main-banner"
+          className="mb-8 md:mb-12"
         />
 
         {/* Hero секция с улучшенным SEO контентом */}
@@ -331,14 +331,6 @@ const HomePage: React.FC = () => {
             <span>Начать общение с ChatGPT</span>
           </Link>
         </section>
-
-        {/* Нижний адаптивный рекламный блок - только R-A-16048264-1 */}
-        <AdaptiveAdBlock 
-          blockId="R-A-16048264-1" 
-          containerId="yandex_rtb_R-A-16048264-1_bottom" 
-          position="bottom"
-          className="mt-12 md:mt-16"
-        />
       </div>
     </>
   );
