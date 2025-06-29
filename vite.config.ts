@@ -43,9 +43,5 @@ export default defineConfig({
       'uuid',
       'react-helmet-async'
     ]
-  },
-  define: {
-    // Убираем глобальные переменные, которые могут вызывать проблемы
-    global: 'globalThis',
   }
 });
