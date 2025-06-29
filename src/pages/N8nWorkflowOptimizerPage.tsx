@@ -14,7 +14,9 @@ import {
   Lightbulb,
   Shield,
   Clock,
-  Activity
+  Activity,
+  ArrowRight,
+  Circle
 } from 'lucide-react';
 
 interface WorkflowNode {
@@ -72,6 +74,171 @@ interface Analysis {
   recommendations: Recommendation[];
   optimizations: Optimization[];
 }
+
+// Компонент для простой визуализации workflow
+const WorkflowVisualization: React.FC<{ workflow: Workflow }> = ({ workflow }) => {
+  const nodes = workflow.nodes || [];
+  const connections = workflow.connections || {};
+
+  const getNodeColor = (nodeType: string) => {
+    const colors = {
+      'Webhook': 'bg-blue-500',
+      'HTTP Request': 'bg-green-500',
+      'IF': 'bg-yellow-500',
+      'Function': 'bg-purple-500',
+      'Set': 'bg-gray-500',
+      'Error': 'bg-red-500',
+      'Telegram': 'bg-blue-400',
+      'Email': 'bg-indigo-500',
+      'NoOperation': 'bg-gray-400',
+      'Wait': 'bg-orange-500',
+      'Switch': 'bg-pink-500'
+    };
+    return colors[nodeType as keyof typeof colors] || 'bg-gray-500';
+  };
+
+  const getNodeIcon = (nodeType: string) => {
+    switch (nodeType) {
+      case 'Webhook': return '🔗';
+      case 'HTTP Request': return '🌐';
+      case 'IF': return '❓';
+      case 'Function': return '⚙️';
+      case 'Set': return '📝';
+      case 'Error': return '❌';
+      case 'Telegram': return '📱';
+      case 'Email': return '📧';
+      case 'Wait': return '⏰';
+      case 'Switch': return '🔀';
+      default: return '⚡';
+    }
+  };
+
+  // Простое автоматическое расположение узлов
+  const arrangeNodes = () => {
+    const arranged = nodes.map((node, index) => {
+      const row = Math.floor(index / 3);
+      const col = index % 3;
+      return {
+        ...node,
+        x: col * 200 + 100,
+        y: row * 120 + 80
+      };
+    });
+    return arranged;
+  };
+
+  const arrangedNodes = arrangeNodes();
+
+  // Получаем соединения для отрисовки линий
+  const getConnections = () => {
+    const lines: Array<{ from: { x: number; y: number }; to: { x: number; y: number } }> = [];
+    
+    Object.entries(connections).forEach(([sourceId, outputs]) => {
+      const sourceNode = arrangedNodes.find(n => n.id === sourceId);
+      if (!sourceNode) return;
+
+      Object.values(outputs).forEach(targets => {
+        targets.forEach(target => {
+          const targetNode = arrangedNodes.find(n => n.id === target.node);
+          if (targetNode) {
+            lines.push({
+              from: { x: sourceNode.x + 80, y: sourceNode.y + 25 },
+              to: { x: targetNode.x, y: targetNode.y + 25 }
+            });
+          }
+        });
+      });
+    });
+
+    return lines;
+  };
+
+  const connectionLines = getConnections();
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 min-h-[500px] overflow-auto">
+      <div className="relative" style={{ width: '800px', height: '600px' }}>
+        {/* Отрисовка соединений */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+          {connectionLines.map((line, index) => (
+            <g key={index}>
+              <line
+                x1={line.from.x}
+                y1={line.from.y}
+                x2={line.to.x}
+                y2={line.to.y}
+                stroke="#6b7280"
+                strokeWidth="2"
+                markerEnd="url(#arrowhead)"
+              />
+            </g>
+          ))}
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon
+                points="0 0, 10 3.5, 0 7"
+                fill="#6b7280"
+              />
+            </marker>
+          </defs>
+        </svg>
+
+        {/* Отрисовка узлов */}
+        {arrangedNodes.map((node) => (
+          <div
+            key={node.id}
+            className="absolute transform -translate-x-1/2 -translate-y-1/2"
+            style={{ 
+              left: `${node.x}px`, 
+              top: `${node.y}px`,
+              zIndex: 2
+            }}
+          >
+            <div className={`${getNodeColor(node.type)} text-white rounded-lg p-3 shadow-lg min-w-[160px] text-center`}>
+              <div className="text-2xl mb-1">{getNodeIcon(node.type)}</div>
+              <div className="font-medium text-sm">{node.name || node.type}</div>
+              <div className="text-xs opacity-75 mt-1">{node.type}</div>
+            </div>
+          </div>
+        ))}
+
+        {/* Легенда */}
+        <div className="absolute bottom-4 right-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-lg" style={{ zIndex: 3 }}>
+          <h4 className="font-semibold mb-2 text-sm">Типы узлов:</h4>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded"></div>
+              <span>Триггеры</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded"></div>
+              <span>HTTP запросы</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+              <span>Условия</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-purple-500 rounded"></div>
+              <span>Обработка</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded"></div>
+              <span>Ошибки</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const N8nWorkflowOptimizerPage: React.FC = () => {
   const [workflowData, setWorkflowData] = useState<Workflow | null>(null);
@@ -592,7 +759,7 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
           <div className="space-y-8">
             {/* Tabs */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="flex border-b border-gray-200 dark:border-gray-700">
+              <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
                 {[
                   { id: 'overview', label: 'Обзор', icon: BarChart3 },
                   { id: 'issues', label: 'Проблемы', icon: AlertTriangle },
@@ -602,7 +769,7 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors duration-200 ${
+                    className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors duration-200 whitespace-nowrap ${
                       activeTab === tab.id
                         ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
@@ -780,7 +947,7 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
                         <Download className="h-5 w-5" />
                         Скачать оптимизированный workflow
                       </button>
-                      <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                      <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto max-h-96">
                         <pre className="text-sm">
                           {optimizedWorkflowData ? JSON.stringify(optimizedWorkflowData, null, 2) : 'Оптимизированный код будет доступен после анализа.'}
                         </pre>
@@ -790,19 +957,17 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
                 )}
 
                 {/* Visualization Tab */}
-                {activeTab === 'visualization' && (
+                {activeTab === 'visualization' && workflowData && (
                   <div>
                     <h3 className="text-2xl font-bold mb-6">Визуализация рабочего процесса</h3>
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-8 text-center min-h-[400px] flex items-center justify-center">
-                      <div>
-                        <Eye className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">
-                          Визуализация рабочего процесса
-                        </p>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          Здесь будет отображена интерактивная схема вашего рабочего процесса
-                        </p>
-                      </div>
+                    <WorkflowVisualization workflow={workflowData} />
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <h4 className="font-semibold mb-2">Описание визуализации:</h4>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">
+                        На диаграмме показана структура вашего рабочего процесса n8n. Узлы представлены цветными блоками, 
+                        а стрелки показывают направление потока данных. Различные цвета обозначают разные типы узлов 
+                        (триггеры, HTTP-запросы, условия, обработка данных и т.д.).
+                      </p>
                     </div>
                   </div>
                 )}
