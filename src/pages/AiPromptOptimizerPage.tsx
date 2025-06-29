@@ -15,6 +15,7 @@ import {
   Sparkles,
   MessageSquare
 } from 'lucide-react';
+import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 
 interface PromptTemplate {
   id: string;
@@ -282,6 +283,14 @@ const AiPromptOptimizerPage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        {/* Рекламный баннер R-A-16048264-5 размером 1000x120 над заголовком */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-5" 
+          containerId="yandex_rtb_R-A-16048264-5_prompt_optimizer" 
+          position="prompt-optimizer-top"
+          className="mb-8 md:mb-12"
+        />
+
         {/* Header */}
         <section className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
