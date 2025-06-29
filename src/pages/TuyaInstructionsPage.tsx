@@ -13,6 +13,7 @@ import {
   Shield,
   Zap
 } from 'lucide-react';
+import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 
 const TuyaInstructionsPage: React.FC = () => {
   return (
@@ -24,6 +25,14 @@ const TuyaInstructionsPage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        {/* Рекламный баннер R-A-16048264-9 размером 1000x120 над заголовком */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-9" 
+          containerId="yandex_rtb_R-A-16048264-9_tuya_api" 
+          position="n8n-optimizer-top"
+          className="mb-8 md:mb-12"
+        />
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
