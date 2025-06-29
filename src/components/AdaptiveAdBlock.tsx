@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 interface AdaptiveAdBlockProps {
   blockId: string;
   containerId: string;
-  position: 'top' | 'bottom' | 'sidebar' | 'main-banner';
+  position: 'top' | 'bottom' | 'sidebar' | 'main-banner' | 'bottom-banner';
   className?: string;
 }
 
@@ -38,8 +38,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
       return;
     }
 
-    // Инициализируем Яндекс.РТБ только для блока R-A-16048264-1
-    if (blockId === 'R-A-16048264-1') {
+    // Инициализируем Яндекс.РТБ для блоков R-A-16048264-1 и R-A-16048264-2
+    if (blockId === 'R-A-16048264-1' || blockId === 'R-A-16048264-2') {
       if (!window.yaContextCb) {
         window.yaContextCb = [];
       }
@@ -102,14 +102,14 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
     );
   }
 
-  // Показываем только блок R-A-16048264-1
-  if (blockId !== 'R-A-16048264-1') {
+  // Показываем только блоки R-A-16048264-1 и R-A-16048264-2
+  if (blockId !== 'R-A-16048264-1' && blockId !== 'R-A-16048264-2') {
     return null;
   }
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Yandex.RTB R-A-16048264-1 */}
+      {/* Yandex.RTB блоки */}
       <div 
         id={containerId}
         className="w-full flex items-center justify-center"
@@ -145,6 +145,9 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
 const getAdDimensions = (position: string, isMobile: boolean) => {
   const dimensions = {
     'main-banner': isMobile 
+      ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
+      : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
+    'bottom-banner': isMobile 
       ? { maxWidth: '320px', height: '100px', margin: '0 auto' }
       : { maxWidth: '1000px', height: '120px', margin: '0 auto' },
     top: isMobile 

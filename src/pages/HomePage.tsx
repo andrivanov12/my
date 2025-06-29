@@ -97,7 +97,7 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Главный рекламный баннер 1000x120 над заголовком */}
+        {/* Главный рекламный баннер R-A-16048264-1 размером 1000x120 над заголовком */}
         <AdaptiveAdBlock 
           blockId="R-A-16048264-1" 
           containerId="yandex_rtb_R-A-16048264-1_main" 
@@ -331,6 +331,14 @@ const HomePage: React.FC = () => {
             <span>Начать общение с ChatGPT</span>
           </Link>
         </section>
+
+        {/* Нижний рекламный баннер R-A-16048264-2 размером 1000x120 под кнопкой */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-2" 
+          containerId="yandex_rtb_R-A-16048264-2_bottom" 
+          position="bottom-banner"
+          className="mt-8 md:mt-12"
+        />
       </div>
     </>
   );
