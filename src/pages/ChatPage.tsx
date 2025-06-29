@@ -4,63 +4,45 @@ import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 
-interface AdBlockProps {
-  position: string;
-}
-
-const AdBlock: React.FC<AdBlockProps> = ({ position }) => {
-  const adRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (position === "Верхний 2" && adRef.current) {
-      const script = document.createElement('script');
-      script.text = 'window.yaContextCb=window.yaContextCb||[]';
-      adRef.current.appendChild(script);
-
-      const rtbScript = document.createElement('script');
-      rtbScript.src = 'https://yandex.ru/ads/system/context.js';
-      rtbScript.async = true;
-      adRef.current.appendChild(rtbScript);
-    }
-  }, [position]);
-
-  return (
-    <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
-      <div 
-        ref={adRef}
-        className="h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-4 flex items-center justify-center min-h-[80px] md:min-h-[120px]"
-      >
-        <span className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
-          Рекламный блок - {position}
-        </span>
-      </div>
-    </div>
-  );
-};
-
 const YandexRTBBlock: React.FC = () => {
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (adRef.current && window.yaContextCb) {
-      window.yaContextCb.push(() => {
-        if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-          window.Ya.Context.AdvManager.render({
-            "blockId": "R-A-16048264-1",
-            "renderTo": "yandex_rtb_R-A-16048264-1"
-          });
-        }
-      });
+    // Инициализируем Яндекс.РТБ
+    if (!window.yaContextCb) {
+      window.yaContextCb = [];
     }
+
+    // Добавляем скрипт Яндекс.РТБ если его еще нет
+    if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://yandex.ru/ads/system/context.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Рендерим рекламный блок
+    window.yaContextCb.push(() => {
+      if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+        window.Ya.Context.AdvManager.render({
+          "blockId": "R-A-16048264-1",
+          "renderTo": "yandex_rtb_R-A-16048264-1"
+        });
+      }
+    });
   }, []);
 
   return (
-    <div className="h-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
       <div 
-        ref={adRef}
-        className="h-full rounded min-h-[80px] md:min-h-[120px] flex items-center justify-center"
+        id="yandex_rtb_R-A-16048264-1"
+        className="w-full min-h-[120px] flex items-center justify-center"
+        style={{ maxWidth: '1000px', margin: '0 auto' }}
       >
-        <div id="yandex_rtb_R-A-16048264-1" className="w-full h-full"></div>
+        {/* Fallback контент пока загружается реклама */}
+        <div className="text-gray-400 dark:text-gray-500 text-sm">
+          Загрузка рекламы...
+        </div>
       </div>
     </div>
   );
@@ -157,10 +139,9 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-            <AdBlock position="Верхний 1" />
+          {/* Верхний рекламный блок Яндекс.РТБ */}
+          <div className="mb-4 md:mb-6">
             <YandexRTBBlock />
-            <AdBlock position="Верхний 3" />
           </div>
 
           <div className="max-w-3xl mx-auto relative">
@@ -256,10 +237,9 @@ const ChatPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-6">
-            <AdBlock position="Нижний 1" />
-            <AdBlock position="Нижний 2" />
-            <AdBlock position="Нижний 3" />
+          {/* Нижний рекламный блок Яндекс.РТБ */}
+          <div className="mt-4 md:mt-6">
+            <YandexRTBBlock />
           </div>
         </div>
       </div>
