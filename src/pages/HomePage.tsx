@@ -51,19 +51,19 @@ const YandexRTBBottomBlock: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mt-8">
+    <div className="w-full bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mt-8">
       <div 
         id="yandex_rtb_R-A-16048264-3"
-        className="w-full flex items-center justify-center"
+        className="w-full flex items-center justify-center bg-transparent"
         style={{ 
           maxWidth: '1000px', 
           height: '200px',
           margin: '0 auto' 
         }}
       >
-        {/* Fallback контент пока загружается реклама */}
-        <div className="text-gray-400 dark:text-gray-500 text-sm">
-          Загрузка рекламы...
+        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
+        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-30">
+          ...
         </div>
       </div>
     </div>
@@ -353,7 +353,7 @@ const HomePage: React.FC = () => {
           </Link>
         </section>
 
-        {/* Рекламный блок в самом конце */}
+        {/* Рекламный блок в самом конце - более незаметный */}
         <YandexRTBBottomBlock />
       </div>
     </>

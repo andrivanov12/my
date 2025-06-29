@@ -49,15 +49,15 @@ const YandexRTBBlock: React.FC<{ blockId: string; containerId: string }> = ({ bl
   }
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <div className="w-full bg-gray-50 dark:bg-gray-900 p-2 rounded-lg">
       <div 
         id={containerId}
-        className="w-full min-h-[120px] flex items-center justify-center"
+        className="w-full min-h-[120px] flex items-center justify-center bg-transparent"
         style={{ maxWidth: '1000px', margin: '0 auto' }}
       >
-        {/* Fallback контент пока загружается реклама */}
-        <div className="text-gray-400 dark:text-gray-500 text-sm">
-          Загрузка рекламы...
+        {/* Fallback контент пока загружается реклама - делаем его незаметным */}
+        <div className="text-gray-300 dark:text-gray-700 text-xs opacity-50">
+          ...
         </div>
       </div>
     </div>
@@ -155,7 +155,7 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          {/* Верхний рекламный блок Яндекс.РТБ */}
+          {/* Верхний рекламный блок - более незаметный */}
           <div className="mb-4 md:mb-6">
             <YandexRTBBlock blockId="R-A-16048264-1" containerId="yandex_rtb_R-A-16048264-1" />
           </div>
@@ -253,7 +253,7 @@ const ChatPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Нижний рекламный блок Яндекс.РТБ */}
+          {/* Нижний рекламный блок - более незаметный */}
           <div className="mt-4 md:mt-6">
             <YandexRTBBlock blockId="R-A-16048264-2" containerId="yandex_rtb_R-A-16048264-2" />
           </div>
