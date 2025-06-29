@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, AlertCircle } from 'lucide-react';
+import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2 } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
 
 const BlogPage: React.FC = () => {
   const [articles, setArticles] = useState<AirtableArticle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("Все");
   const [selectedArticle, setSelectedArticle] = useState<AirtableArticle | null>(null);
 
@@ -104,10 +103,9 @@ const BlogPage: React.FC = () => {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      setError(null);
       
       // Загружаем статьи из Airtable
-      const airtableArticles = await airtableService.getArticles().catch(() => []);
+      const airtableArticles = await airtableService.getArticles();
       
       // Объединяем статьи
       const allArticles = [
@@ -126,13 +124,9 @@ const BlogPage: React.FC = () => {
       );
       
       setArticles(uniqueArticles);
-      
-      if (airtableArticles.length === 0) {
-        setError('Показываем статические статьи. Статьи из Airtable недоступны.');
-      }
     } catch (err) {
-      console.error('Error loading articles:', err);
-      setError('Не удалось загрузить статьи. Показываем статические статьи.');
+      console.warn('⚠️ Ошибка при загрузке статей:', err);
+      // Используем только статические статьи при ошибке
       setArticles(staticArticles);
     } finally {
       setLoading(false);
@@ -267,20 +261,11 @@ const BlogPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Статус загрузки и ошибки */}
+        {/* Статус загрузки */}
         {loading && (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
             <span className="ml-2 text-gray-600 dark:text-gray-400">Загружаем статьи...</span>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
-              <span className="text-blue-800 dark:text-blue-200">{error}</span>
-            </div>
           </div>
         )}
 

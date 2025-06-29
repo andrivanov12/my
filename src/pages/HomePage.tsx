@@ -17,9 +17,37 @@ const HomePage: React.FC = () => {
       const articles = await airtableService.getArticles();
       // Берем только 2 последние статьи для главной страницы
       setLatestArticles(articles.slice(0, 2));
+      
+      // Если статей из Airtable нет, используем fallback статьи
+      if (articles.length === 0) {
+        setLatestArticles([
+          {
+            id: 'fallback-1',
+            title: "Революция искусственного интеллекта: как ChatGPT меняет наш мир",
+            excerpt: "Исследуем влияние больших языковых моделей на различные сферы жизни...",
+            publishedAt: "2025-01-15",
+            author: "Команда AI Hub",
+            category: "Технологии",
+            imageUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
+            content: "",
+            slug: "ai-revolution"
+          },
+          {
+            id: 'fallback-2',
+            title: "Сравнение языковых моделей: Qwen vs Gemini vs Llama",
+            excerpt: "Подробный анализ возможностей различных AI-моделей и рекомендации...",
+            publishedAt: "2025-01-12",
+            author: "Эксперт AI",
+            category: "Обзоры",
+            imageUrl: "https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
+            content: "",
+            slug: "ai-models-comparison"
+          }
+        ]);
+      }
     } catch (error) {
-      console.error('Error loading latest articles:', error);
-      // Fallback статьи если Airtable недоступен
+      console.warn('⚠️ Ошибка при загрузке последних статей:', error);
+      // Используем fallback статьи при любой ошибке
       setLatestArticles([
         {
           id: 'fallback-1',
@@ -28,7 +56,7 @@ const HomePage: React.FC = () => {
           publishedAt: "2025-01-15",
           author: "Команда AI Hub",
           category: "Технологии",
-          imageUrl: "",
+          imageUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
           content: "",
           slug: "ai-revolution"
         },
@@ -39,7 +67,7 @@ const HomePage: React.FC = () => {
           publishedAt: "2025-01-12",
           author: "Эксперт AI",
           category: "Обзоры",
-          imageUrl: "",
+          imageUrl: "https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
           content: "",
           slug: "ai-models-comparison"
         }
