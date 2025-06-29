@@ -594,6 +594,14 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
             Получить помощь от AI
           </Link>
         </section>
+
+        {/* Рекламный баннер R-A-16048264-8 размером 1000x120 под кнопкой "Получить помощь от AI" */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-8" 
+          containerId="yandex_rtb_R-A-16048264-8_n8n_optimizer_bottom" 
+          position="n8n-optimizer-bottom"
+          className="mt-8 md:mt-12"
+        />
       </div>
     </>
   );
