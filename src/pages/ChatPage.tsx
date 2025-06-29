@@ -96,7 +96,7 @@ const ChatPage: React.FC = () => {
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          {/* Верхний рекламный блок - адаптивный */}
+          {/* Верхний рекламный блок - только R-A-16048264-1 */}
           <AdaptiveAdBlock 
             blockId="R-A-16048264-1" 
             containerId="yandex_rtb_R-A-16048264-1" 
@@ -197,10 +197,10 @@ const ChatPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Нижний рекламный блок - адаптивный */}
+          {/* Нижний рекламный блок - только R-A-16048264-1 */}
           <AdaptiveAdBlock 
-            blockId="R-A-16048264-2" 
-            containerId="yandex_rtb_R-A-16048264-2" 
+            blockId="R-A-16048264-1" 
+            containerId="yandex_rtb_R-A-16048264-1_bottom" 
             position="bottom"
             className="mt-4 md:mt-6"
           />

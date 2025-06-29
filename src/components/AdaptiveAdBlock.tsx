@@ -38,45 +38,47 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
       return;
     }
 
-    // Инициализируем Яндекс.РТБ
-    if (!window.yaContextCb) {
-      window.yaContextCb = [];
-    }
+    // Инициализируем Яндекс.РТБ только для блока R-A-16048264-1
+    if (blockId === 'R-A-16048264-1') {
+      if (!window.yaContextCb) {
+        window.yaContextCb = [];
+      }
 
-    // Добавляем скрипт Яндекс.РТБ если его еще нет
-    if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://yandex.ru/ads/system/context.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('Яндекс.РТБ скрипт загружен');
+      // Добавляем скрипт Яндекс.РТБ если его еще нет
+      if (!document.querySelector('script[src*="yandex.ru/ads/system/context.js"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://yandex.ru/ads/system/context.js';
+        script.async = true;
+        script.onload = () => {
+          console.log('Яндекс.РТБ скрипт загружен');
+          setIsLoaded(true);
+        };
+        document.head.appendChild(script);
+      } else {
         setIsLoaded(true);
-      };
-      document.head.appendChild(script);
-    } else {
-      setIsLoaded(true);
-    }
+      }
 
-    // Задержка для загрузки скрипта
-    const timer = setTimeout(() => {
-      window.yaContextCb.push(() => {
-        try {
-          if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-            window.Ya.Context.AdvManager.render({
-              "blockId": blockId,
-              "renderTo": containerId
-            });
-            console.log(`Рекламный блок ${blockId} инициализирован`);
-          } else {
-            console.warn('Яндекс.РТБ API недоступен');
+      // Задержка для загрузки скрипта
+      const timer = setTimeout(() => {
+        window.yaContextCb.push(() => {
+          try {
+            if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+              window.Ya.Context.AdvManager.render({
+                "blockId": blockId,
+                "renderTo": containerId
+              });
+              console.log(`Рекламный блок ${blockId} инициализирован`);
+            } else {
+              console.warn('Яндекс.РТБ API недоступен');
+            }
+          } catch (error) {
+            console.error('Ошибка инициализации рекламного блока:', error);
           }
-        } catch (error) {
-          console.error('Ошибка инициализации рекламного блока:', error);
-        }
-      });
-    }, 1000);
+        });
+      }, 1000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, [blockId, containerId]);
 
   // Не показываем блок рекламы на localhost
@@ -100,8 +102,14 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
     );
   }
 
+  // Показываем только блок R-A-16048264-1
+  if (blockId !== 'R-A-16048264-1') {
+    return null;
+  }
+
   return (
     <div className={`w-full ${getContainerClasses(position, isMobile)} ${className}`}>
+      {/* Yandex.RTB R-A-16048264-1 */}
       <div 
         id={containerId}
         className="w-full flex items-center justify-center bg-transparent"
@@ -114,6 +122,21 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
           </div>
         )}
       </div>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.yaContextCb = window.yaContextCb || [];
+            window.yaContextCb.push(() => {
+              if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+                window.Ya.Context.AdvManager.render({
+                  "blockId": "${blockId}",
+                  "renderTo": "${containerId}"
+                });
+              }
+            });
+          `
+        }}
+      />
     </div>
   );
 };

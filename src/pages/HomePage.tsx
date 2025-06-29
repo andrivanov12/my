@@ -97,10 +97,10 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Верхний адаптивный рекламный блок */}
+        {/* Верхний адаптивный рекламный блок - только R-A-16048264-1 */}
         <AdaptiveAdBlock 
-          blockId="R-A-16048264-4" 
-          containerId="yandex_rtb_R-A-16048264-4" 
+          blockId="R-A-16048264-1" 
+          containerId="yandex_rtb_R-A-16048264-1" 
           position="top"
           className="mb-6 md:mb-8"
         />
@@ -187,16 +187,6 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
-
-        {/* Средний рекламный блок - только на десктопе */}
-        <div className="hidden lg:block mb-12">
-          <AdaptiveAdBlock 
-            blockId="R-A-16048264-5" 
-            containerId="yandex_rtb_R-A-16048264-5" 
-            position="sidebar"
-            className="max-w-md mx-auto"
-          />
-        </div>
 
         {/* Подробное описание для SEO */}
         <section className="max-w-4xl mx-auto mb-12 md:mb-16 px-4">
@@ -342,10 +332,10 @@ const HomePage: React.FC = () => {
           </Link>
         </section>
 
-        {/* Нижний адаптивный рекламный блок */}
+        {/* Нижний адаптивный рекламный блок - только R-A-16048264-1 */}
         <AdaptiveAdBlock 
-          blockId="R-A-16048264-3" 
-          containerId="yandex_rtb_R-A-16048264-3" 
+          blockId="R-A-16048264-1" 
+          containerId="yandex_rtb_R-A-16048264-1_bottom" 
           position="bottom"
           className="mt-12 md:mt-16"
         />
