@@ -8,6 +8,14 @@ const YandexRTBBlock: React.FC = () => {
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Проверяем, что мы находимся на продакшн домене
+    const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                              window.location.hostname === 'www.aimarkethub.pro';
+    
+    if (!isProductionDomain) {
+      return; // Не загружаем рекламу на localhost или других доменах
+    }
+
     // Инициализируем Яндекс.РТБ
     if (!window.yaContextCb) {
       window.yaContextCb = [];
@@ -31,6 +39,14 @@ const YandexRTBBlock: React.FC = () => {
       }
     });
   }, []);
+
+  // Не показываем блок рекламы на localhost
+  const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
+                            window.location.hostname === 'www.aimarkethub.pro';
+  
+  if (!isProductionDomain) {
+    return null;
+  }
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
