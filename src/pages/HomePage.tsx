@@ -35,8 +35,8 @@ const YandexRTBBottomBlock: React.FC = () => {
     window.yaContextCb.push(() => {
       if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
         window.Ya.Context.AdvManager.render({
-          "blockId": "R-A-16048264-2",
-          "renderTo": "yandex_rtb_R-A-16048264-2"
+          "blockId": "R-A-16048264-3",
+          "renderTo": "yandex_rtb_R-A-16048264-3"
         });
       }
     });
@@ -53,7 +53,7 @@ const YandexRTBBottomBlock: React.FC = () => {
   return (
     <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mt-8">
       <div 
-        id="yandex_rtb_R-A-16048264-2"
+        id="yandex_rtb_R-A-16048264-3"
         className="w-full flex items-center justify-center"
         style={{ 
           maxWidth: '1000px', 
