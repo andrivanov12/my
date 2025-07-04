@@ -1,0 +1,5 @@
+Contact: mailto:support@aimarkethub.pro
+Expires: 2026-01-01T00:00:00.000Z
+Preferred-Languages: ru, en
+Canonical: https://aimarkethub.pro/.well-known/security.txt
+Policy: https://aimarkethub.pro/security-policy

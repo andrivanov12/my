@@ -1,0 +1,12 @@
+/* TEAM */
+	Developer: AI Market Hub Team
+	Contact: support@aimarkethub.pro
+	Telegram: @solvillage
+	From: Russia
+
+/* SITE */
+	Last update: 2025/05/15
+	Language: Russian
+	Doctype: HTML5
+	IDE: Visual Studio Code
+	Stack: React, TypeScript, Tailwind CSS, Vite
