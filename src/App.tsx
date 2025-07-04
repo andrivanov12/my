@@ -78,6 +78,13 @@ const N8nWorkflowOptimizerPage = lazy(() =>
   }))
 );
 
+// n8n Assistant
+const N8nAssistantPage = lazy(() => 
+  import('./pages/N8nAssistantPage').catch(() => ({
+    default: () => <div>Ошибка загрузки n8n Assistant</div>
+  }))
+);
+
 // AI Prompt Optimizer
 const AiPromptOptimizerPage = lazy(() => 
   import('./pages/AiPromptOptimizerPage').catch(() => ({
@@ -85,10 +92,10 @@ const AiPromptOptimizerPage = lazy(() =>
   }))
 );
 
-// n8n Assistant
-const N8nAssistantPage = lazy(() => 
-  import('./pages/N8nAssistantPage').catch(() => ({
-    default: () => <div>Ошибка загрузки n8n Assistant</div>
+// ChatGPT на русском
+const ChatGptNaRusskomPage = lazy(() => 
+  import('./pages/ChatGptNaRusskomPage').catch(() => ({
+    default: () => <div>Ошибка загрузки страницы</div>
   }))
 );
 
@@ -146,21 +153,22 @@ function App() {
           <Route path="/chatgpt-bez-registracii" element={<ChatGptBezRegistraciiPage />} />
           <Route path="/chat-gpt-besplatno" element={<ChatGptBesplatnoPage />} />
           <Route path="/ai-chat-online" element={<AiChatOnlinePage />} />
+          <Route path="/chatgpt-na-russkom" element={<ChatGptNaRusskomPage />} />
           
           {/* n8n Workflow Optimizer */}
           <Route path="/n8n-workflow-optimizer" element={<N8nWorkflowOptimizerPage />} />
           
-          {/* AI Prompt Optimizer */}
-          <Route path="/ai-prompt-optimizer" element={<AiPromptOptimizerPage />} />
-          
           {/* n8n Assistant */}
           <Route path="/n8n-assistant" element={<N8nAssistantPage />} />
+          
+          {/* AI Prompt Optimizer */}
+          <Route path="/ai-prompt-optimizer" element={<AiPromptOptimizerPage />} />
           
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center">
               <div className="text-center">
                 <h1 className="text-2xl font-bold mb-4">Страница не найдена</h1>
-                <p className="text-gray-600 mb-4">Запрашиваемая страница не существует</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">Запрашиваемая страница не существует</p>
                 <a href="/" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700">
                   На главную
                 </a>

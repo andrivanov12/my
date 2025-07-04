@@ -1,14 +1,29 @@
 User-agent: *
 Allow: /
 
-# Disallow admin or private areas (if any)
+# Приоритетные страницы для индексации
+Allow: /chat
+Allow: /chatgpt-bez-registracii
+Allow: /chat-gpt-besplatno
+Allow: /ai-chat-online
+Allow: /guide
+Allow: /blog
+Allow: /ai-prompt-optimizer
+Allow: /n8n-workflow-optimizer
+Allow: /n8n-assistant
+
+# Запрещенные для индексации области
 Disallow: /admin/
 Disallow: /private/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /src/
+Disallow: /dist/
+Disallow: /build/
 
-# Allow all search engines to crawl the site
-Crawl-delay: 1
-
-# Specific instructions for search engines
+# Разрешения для конкретных ботов
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
@@ -21,10 +36,30 @@ User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
-# Important pages for indexing
-Allow: /chat
-Allow: /blog
-Allow: /guide
-Allow: /about
+User-agent: facebookexternalhit
+Allow: /
 
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Блокировка нежелательных ботов
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+# Карта сайта
 Sitemap: https://aimarkethub.pro/sitemap.xml
+
+# Дополнительные инструкции
+Host: aimarkethub.pro

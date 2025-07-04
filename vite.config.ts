@@ -25,7 +25,7 @@ export default defineConfig({
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
-    target: 'es2015', // Лучшая совместимость с браузерами
+    target: 'es2015',
   },
   server: {
     hmr: {
@@ -43,5 +43,9 @@ export default defineConfig({
       'uuid',
       'react-helmet-async'
     ]
+  },
+  // SEO оптимизация для статических ресурсов
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   }
 });

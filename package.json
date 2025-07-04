@@ -1,7 +1,7 @@
 {
-  "name": "project",
+  "name": "aimarkethub",
   "private": true,
-  "version": "0.0.0",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "npx vite",
@@ -12,7 +12,8 @@
     "netlify:dev": "netlify dev",
     "netlify:build": "npm run build && netlify deploy --prod",
     "analyze": "npx vite-bundle-analyzer dist/stats.html",
-    "optimize": "npm run build && npm run analyze"
+    "optimize": "npm run build && npm run analyze",
+    "sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0",
@@ -42,10 +43,44 @@
     "eslint-plugin-react-refresh": "^0.4.4",
     "netlify-cli": "^17.0.0",
     "postcss": "^8.4.31",
+    "sitemap": "^7.1.1",
     "tailwindcss": "^3.3.5",
     "terser": "^5.43.1",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vite-bundle-analyzer": "^0.7.0"
+    "vite-bundle-analyzer": "^0.7.0",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-imagemin": "^0.6.1"
+  },
+  "keywords": [
+    "chatgpt",
+    "ai",
+    "artificial intelligence",
+    "chat",
+    "gpt",
+    "без регистрации",
+    "бесплатно",
+    "русский язык",
+    "n8n",
+    "workflow",
+    "automation"
+  ],
+  "author": "AI Market Hub",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aimarkethub/aimarkethub.pro"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
