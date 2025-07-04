@@ -1084,7 +1084,7 @@ return items.map(item => {
     json: {
       customer: {
         id: item.json.id,
-        fullName: `${item.json.firstName} ${item.json.lastName}`,
+        fullName: \`${item.json.firstName} ${item.json.lastName}`,
         contactInfo: {
           email: item.json.email,
           phone: item.json.phone
