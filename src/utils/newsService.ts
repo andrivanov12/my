@@ -119,8 +119,7 @@ export const fetchRssNews = async (forceRefresh = false): Promise<NewsItem[]> =>
     
     // Список RSS-лент для n8n и AI новостей
     const rssSources = [
-      { url: 'https://n8n.io/blog/rss/', category: 'n8n' },
-      { url: 'https://openai.com/blog/rss/', category: 'ai' }
+      { url: 'https://n8n.io/blog/rss/', category: 'n8n' }
     ];
     
     // Функция для парсинга RSS через прокси-сервис
