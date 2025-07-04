@@ -1,16 +1,22 @@
 User-agent: *
 Allow: /
 
-# Приоритетные страницы для индексации
+# Приоритетные страницы и инструменты для индексации
 Allow: /chat
 Allow: /chatgpt-bez-registracii
 Allow: /chat-gpt-besplatno
 Allow: /ai-chat-online
+Allow: /chatgpt-na-russkom
 Allow: /guide
 Allow: /blog
+Allow: /blog/*
 Allow: /ai-prompt-optimizer
 Allow: /n8n-workflow-optimizer
 Allow: /n8n-assistant
+Allow: /tuya-token-generator
+Allow: /tuya-instructions
+Allow: /about
+Allow: /contact
 
 # Запрещенные для индексации области
 Disallow: /admin/
@@ -42,6 +48,9 @@ Allow: /
 User-agent: Twitterbot
 Allow: /
 
+User-agent: DuckDuckBot
+Allow: /
+
 User-agent: LinkedInBot
 Allow: /
 
@@ -58,8 +67,13 @@ Disallow: /
 User-agent: SemrushBot
 Disallow: /
 
+User-agent: Baiduspider
+Disallow: /
+
 # Карта сайта
 Sitemap: https://aimarkethub.pro/sitemap.xml
 
 # Дополнительные инструкции
 Host: aimarkethub.pro
+Clean-param: ref /blog/*
+Clean-param: utm_source&utm_medium&utm_campaign /

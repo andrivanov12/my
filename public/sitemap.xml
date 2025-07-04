@@ -9,34 +9,34 @@
   <!-- Главная страница -->
   <url>
     <loc>https://aimarkethub.pro/</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://aimarkethub.pro/images/chatgpt-hero.jpg</image:loc>
-      <image:title>ChatGPT без регистрации бесплатно</image:title>
-      <image:caption>Бесплатный доступ к ChatGPT без регистрации</image:caption>
+      <image:loc>https://aimarkethub.pro/images/aimarkethub-hero.jpg</image:loc>
+      <image:title>AI Market Hub - платформа AI инструментов</image:title>
+      <image:caption>Платформа AI инструментов с ChatGPT без регистрации</image:caption>
     </image:image>
   </url>
   
   <!-- Основные страницы -->
   <url>
     <loc>https://aimarkethub.pro/chat</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/guide</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/blog</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -44,35 +44,50 @@
   <!-- Инструменты -->
   <url>
     <loc>https://aimarkethub.pro/ai-prompt-optimizer</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/prompt-optimizer.jpg</image:loc>
+      <image:title>AI Prompt Optimizer</image:title>
+      <image:caption>Инструмент для оптимизации промптов</image:caption>
+    </image:image>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/n8n-workflow-optimizer</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/n8n-workflow-optimizer.jpg</image:loc>
+      <image:title>n8n Workflow Optimizer</image:title>
+      <image:caption>Инструмент для оптимизации n8n workflow</image:caption>
+    </image:image>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/n8n-assistant</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/n8n-assistant.jpg</image:loc>
+      <image:title>n8n Assistant</image:title>
+      <image:caption>AI-ассистент для n8n автоматизации</image:caption>
+    </image:image>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/tuya-token-generator</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/tuya-instructions</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -80,14 +95,14 @@
   <!-- Информационные страницы -->
   <url>
     <loc>https://aimarkethub.pro/about</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/contact</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -95,21 +110,21 @@
   <!-- SEO страницы для ключевых запросов -->
   <url>
     <loc>https://aimarkethub.pro/chatgpt-bez-registracii</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/chat-gpt-besplatno</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/ai-chat-online</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -117,42 +132,71 @@
   <!-- Дополнительные SEO страницы -->
   <url>
     <loc>https://aimarkethub.pro/chatgpt-na-russkom</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/besplatnyj-chatgpt</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/gpt-chat-bez-registracii</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/ai-assistant-online</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/neural-network-chat</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://aimarkethub.pro/openai-chat-free</loc>
-    <lastmod>2025-01-27</lastmod>
+    <lastmod>2025-05-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Новые SEO страницы для ключевых запросов -->
+  <url>
+    <loc>https://aimarkethub.pro/ai-tools-platform</loc>
+    <lastmod>2025-05-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/n8n-automation-guide</loc>
+    <lastmod>2025-05-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/prompt-engineering-tips</loc>
+    <lastmod>2025-05-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/tuya-api-integration</loc>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

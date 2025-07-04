@@ -414,9 +414,9 @@ const N8nAssistantPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>n8n Assistant | Специализированный AI для автоматизации с n8n | AIMarketHub</title>
-        <meta name="description" content="Специализированный AI-ассистент для n8n. Получите точные ответы по созданию workflows, настройке узлов и автоматизации процессов с n8n." />
-        <meta name="keywords" content="n8n, n8n assistant, n8n автоматизация, n8n workflow, n8n nodes, n8n интеграция, ChatGPT, prompt engineering, n8n AI" />
+        <title>n8n Assistant | Помощник по автоматизации рабочих процессов | AIMarketHub</title>
+        <meta name="description" content="Специализированный AI-ассистент для n8n. Получите точные ответы по созданию workflows, настройке узлов и автоматизации бизнес-процессов с n8n." />
+        <meta name="keywords" content="помощник по n8n, n8n интеграции, автоматизация процессов n8n, настройка рабочих потоков n8n, создание n8n воркфлоу, n8n для начинающих, n8n assistant, n8n автоматизация, n8n workflow, n8n nodes" />
         <link rel="canonical" href="https://aimarkethub.pro/n8n-assistant" />
       </Helmet>
 
@@ -438,7 +438,7 @@ const N8nAssistantPage: React.FC = () => {
                   n8n Assistant
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-                  Специализированный AI-ассистент для создания и оптимизации workflow в n8n
+                  Специализированный AI-ассистент для автоматизации рабочих процессов с n8n
                 </p>
               </div>
               
