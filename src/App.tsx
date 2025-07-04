@@ -34,6 +34,18 @@ const BlogPage = lazy(() =>
   }))
 );
 
+const BlogCategoryPage = lazy(() => 
+  import('./pages/BlogCategoryPage').catch(() => ({
+    default: () => <div>Ошибка загрузки категории блога</div>
+  }))
+);
+
+const BlogArticlePage = lazy(() => 
+  import('./pages/BlogArticlePage').catch(() => ({
+    default: () => <div>Ошибка загрузки статьи</div>
+  }))
+);
+
 const ContactPage = lazy(() => 
   import('./pages/ContactPage').catch(() => ({
     default: () => <div>Ошибка загрузки контактов</div>
@@ -71,10 +83,9 @@ const AiChatOnlinePage = lazy(() =>
   }))
 );
 
-// n8n Workflow Optimizer
-const N8nWorkflowOptimizerPage = lazy(() => 
-  import('./pages/N8nWorkflowOptimizerPage').catch(() => ({
-    default: () => <div>Ошибка загрузки n8n Workflow Optimizer</div>
+const ChatGptNaRusskomPage = lazy(() => 
+  import('./pages/ChatGptNaRusskomPage').catch(() => ({
+    default: () => <div>Ошибка загрузки страницы</div>
   }))
 );
 
@@ -85,17 +96,17 @@ const N8nAssistantPage = lazy(() =>
   }))
 );
 
+// n8n Workflow Optimizer
+const N8nWorkflowOptimizerPage = lazy(() => 
+  import('./pages/N8nWorkflowOptimizerPage').catch(() => ({
+    default: () => <div>Ошибка загрузки n8n Workflow Optimizer</div>
+  }))
+);
+
 // AI Prompt Optimizer
 const AiPromptOptimizerPage = lazy(() => 
   import('./pages/AiPromptOptimizerPage').catch(() => ({
     default: () => <div>Ошибка загрузки AI Prompt Optimizer</div>
-  }))
-);
-
-// ChatGPT на русском
-const ChatGptNaRusskomPage = lazy(() => 
-  import('./pages/ChatGptNaRusskomPage').catch(() => ({
-    default: () => <div>Ошибка загрузки страницы</div>
   }))
 );
 
@@ -144,7 +155,12 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          
+          {/* Блог и категории */}
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:category" element={<BlogCategoryPage />} />
+          <Route path="/blog/article/:slug" element={<BlogArticlePage />} />
+          
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/tuya-token-generator" element={<TuyaTokenPage />} />
           <Route path="/tuya-instructions" element={<TuyaInstructionsPage />} />
