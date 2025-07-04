@@ -22,8 +22,10 @@ const N8nAssistantPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [rememberKey, setRememberKey] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const templates: Template[] = [
     {
@@ -191,6 +193,7 @@ const N8nAssistantPage: React.FC = () => {
   const handleTemplateClick = (prompt: string) => {
     setInputValue(prompt);
     textareaRef.current?.focus();
+    setSidebarOpen(false); // Закрываем сайдбар на мобильных
   };
 
   const formatMessage = (content: string) => {
@@ -343,246 +346,303 @@ const N8nAssistantPage: React.FC = () => {
         <link rel="canonical" href="https://aimarkethub.pro/n8n-assistant" />
       </Helmet>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm">
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              n8n Assistant
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-4xl">
-              Специализированный AI-ассистент для создания и оптимизации workflow в n8n. 
-              Получите точные ответы по настройке узлов и автоматизации ваших процессов.
-            </p>
+        <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  n8n Assistant
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
+                  Специализированный AI-ассистент для создания и оптимизации workflow в n8n
+                </p>
+              </div>
+              
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-            <div className="flex flex-col lg:flex-row h-[calc(100vh-280px)] min-h-[600px]">
-              {/* Sidebar */}
-              <div className="w-full lg:w-80 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                  Готовые шаблоны запросов
-                </h3>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Sidebar */}
+          <div className={`
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
+            transform transition-transform duration-300 ease-in-out lg:transform-none
+            flex flex-col
+          `}>
+            {/* Sidebar Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 lg:hidden">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Шаблоны</h2>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-                {/* Basic Templates */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Основы</h4>
-                  <div className="space-y-2">
-                    {templates.filter(t => t.category === 'basic').map((template, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleTemplateClick(template.prompt)}
-                        className="w-full text-left p-3 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                      >
-                        {template.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {/* Sidebar Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 hidden lg:block">
+                Готовые шаблоны запросов
+              </h3>
 
-                {/* Integration Templates */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Интеграции</h4>
-                  <div className="space-y-2">
-                    {templates.filter(t => t.category === 'integrations').map((template, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleTemplateClick(template.prompt)}
-                        className="w-full text-left p-3 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                      >
+              {/* Basic Templates */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Основы</h4>
+                <div className="space-y-2">
+                  {templates.filter(t => t.category === 'basic').map((template, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTemplateClick(template.prompt)}
+                      className="w-full text-left p-3 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 group"
+                    >
+                      <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400">
                         {template.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Automation Templates */}
-                <div>
-                  <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Автоматизация</h4>
-                  <div className="space-y-2">
-                    {templates.filter(t => t.category === 'automation').map((template, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleTemplateClick(template.prompt)}
-                        className="w-full text-left p-3 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                      >
-                        {template.title}
-                      </button>
-                    ))}
-                  </div>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Chat Area */}
-              <div className="flex-1 flex flex-col">
-                {/* Messages */}
-                <div className="flex-1 p-6 overflow-y-auto space-y-6">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              {/* Integration Templates */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Интеграции</h4>
+                <div className="space-y-2">
+                  {templates.filter(t => t.category === 'integrations').map((template, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTemplateClick(template.prompt)}
+                      className="w-full text-left p-3 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 group"
                     >
-                      {message.role === 'assistant' && (
-                        <div className="w-9 h-9 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Settings className="h-5 w-5 text-white" />
-                        </div>
-                      )}
-                      
-                      <div
-                        className={`max-w-[80%] p-4 rounded-lg ${
-                          message.role === 'user'
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                        }`}
-                      >
-                        <div
-                          className="prose prose-sm max-w-none dark:prose-invert"
-                          dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
-                        />
-                      </div>
-
-                      {message.role === 'user' && (
-                        <div className="w-9 h-9 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium text-sm">
-                          Вы
-                        </div>
-                      )}
-                    </div>
+                      <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                        {template.title}
+                      </span>
+                    </button>
                   ))}
+                </div>
+              </div>
 
-                  {isLoading && (
-                    <div className="flex gap-4 justify-start">
-                      <div className="w-9 h-9 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Settings className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                        </div>
-                      </div>
+              {/* Automation Templates */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Автоматизация</h4>
+                <div className="space-y-2">
+                  {templates.filter(t => t.category === 'automation').map((template, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTemplateClick(template.prompt)}
+                      className="w-full text-left p-3 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 group"
+                    >
+                      <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                        {template.title}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Overlay for mobile */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
+          {/* Chat Area */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Messages Container - Fixed Height */}
+            <div 
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4"
+              style={{ height: 'calc(100vh - 200px)' }}
+            >
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Settings className="h-4 w-4 text-white" />
                     </div>
                   )}
-
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input Area */}
-                <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-                  <div className="flex gap-3">
-                    <textarea
-                      ref={textareaRef}
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Опишите задачу автоматизации или задайте вопрос о n8n..."
-                      className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg p-3 resize-none h-16 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                      disabled={isLoading}
+                  
+                  <div
+                    className={`max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-primary-600 text-white rounded-br-sm'
+                        : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-bl-sm'
+                    }`}
+                  >
+                    <div
+                      className="prose prose-sm max-w-none dark:prose-invert"
+                      dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
                     />
-                    <button
-                      onClick={sendMessage}
-                      disabled={isLoading || !inputValue.trim()}
-                      className="w-16 h-16 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center transition-colors duration-200"
-                    >
-                      <Send className="h-5 w-5" />
-                    </button>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
-                    Shift+Enter для новой строки
-                  </p>
-                </div>
 
-                {/* Status */}
-                <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-900">
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>n8n Assistant на связи</span>
+                  {message.role === 'user' && (
+                    <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium text-xs">
+                      Вы
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Settings className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-lg rounded-bl-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
                   </div>
                 </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Area - Fixed at Bottom */}
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+              <div className="flex gap-3">
+                <textarea
+                  ref={textareaRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Опишите задачу автоматизации или задайте вопрос о n8n..."
+                  className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg p-3 resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white min-h-[44px] max-h-32"
+                  disabled={isLoading}
+                  rows={1}
+                  style={{ height: 'auto' }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = 'auto';
+                    target.style.height = Math.min(target.scrollHeight, 128) + 'px';
+                  }}
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={isLoading || !inputValue.trim()}
+                  className="w-11 h-11 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center transition-colors duration-200 flex-shrink-0"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                Shift+Enter для новой строки
+              </p>
+
+              {/* Status */}
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-600 dark:text-gray-400 mt-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>n8n Assistant на связи</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Features Section */}
-        <div className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
-            Возможности n8n Assistant
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <Layers className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 py-8">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
+              Возможности n8n Assistant
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Layers className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Настройка узлов
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Точные инструкции по настройке
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Точная настройка узлов
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Получите подробные инструкции по настройке любого узла n8n с оптимальными параметрами для вашей задачи.
-              </p>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <GitBranch className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <GitBranch className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Готовые процессы
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Полные workflow для задач
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Готовые рабочие процессы
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Получите полные рабочие процессы для типовых задач автоматизации, готовые к импорту в вашу систему n8n.
-              </p>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <Code className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Code className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Примеры кода
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  JavaScript для Function узлов
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Примеры кода
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Получите готовые сниппеты JavaScript кода для узлов Function, FunctionItem и Code для решения сложных задач обработки данных.
-              </p>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <HelpCircle className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <HelpCircle className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Отладка
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Решение проблем workflow
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Отладка проблем
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Опишите проблемы, с которыми вы столкнулись в n8n, и получите подробные рекомендации по их устранению и оптимизации workflow.
-              </p>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Zap className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Интеграции
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Подключение к сервисам
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Быстрые интеграции
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Узнайте, как быстро интегрировать n8n с популярными сервисами, API и собственными приложениями.
-              </p>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                <Check className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              <div className="text-center p-4">
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Check className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Лучшие практики
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Рекомендации экспертов
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Лучшие практики
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Получите рекомендации по организации рабочих процессов, обеспечению их надежности и масштабируемости.
-              </p>
             </div>
           </div>
         </div>
