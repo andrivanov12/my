@@ -171,6 +171,42 @@ const N8nAssistantPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Add event listeners for copy buttons after messages update
+  useEffect(() => {
+    const handleCopyCode = (event: Event) => {
+      const button = event.target as HTMLButtonElement;
+      const codeBlock = button.closest('.code-block');
+      if (codeBlock) {
+        const codeElement = codeBlock.querySelector('code');
+        if (codeElement) {
+          const code = codeElement.textContent || '';
+          navigator.clipboard.writeText(code).then(() => {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+            setTimeout(() => {
+              button.innerHTML = originalHTML;
+            }, 1000);
+          }).catch(err => {
+            console.error('Не удалось скопировать текст: ', err);
+          });
+        }
+      }
+    };
+
+    // Add event listeners to all copy buttons
+    const copyButtons = document.querySelectorAll('.code-copy-btn');
+    copyButtons.forEach(button => {
+      button.addEventListener('click', handleCopyCode);
+    });
+
+    // Cleanup event listeners
+    return () => {
+      copyButtons.forEach(button => {
+        button.removeEventListener('click', handleCopyCode);
+      });
+    };
+  }, [messages]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -202,7 +238,7 @@ const N8nAssistantPage: React.FC = () => {
       return `<div class="code-block" data-language="${lang}">
         <div class="code-header">
           <span class="code-language">${lang}</span>
-          <button class="code-copy-btn" onclick="copyCode(this)">
+          <button class="code-copy-btn" type="button">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
@@ -791,24 +827,6 @@ const N8nAssistantPage: React.FC = () => {
           font-style: italic;
         }
       `}</style>
-
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          window.copyCode = function(button) {
-            const codeBlock = button.closest('.code-block');
-            const code = codeBlock.querySelector('code').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-              const originalHTML = button.innerHTML;
-              button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
-              setTimeout(() => {
-                button.innerHTML = originalHTML;
-              }, 1000);
-            }).catch(err => {
-              console.error('Не удалось скопировать текст: ', err);
-            });
-          }
-        `
-      }} />
     </>
   );
 };
