@@ -85,6 +85,13 @@ const AiPromptOptimizerPage = lazy(() =>
   }))
 );
 
+// n8n Assistant
+const N8nAssistantPage = lazy(() => 
+  import('./pages/N8nAssistantPage').catch(() => ({
+    default: () => <div>Ошибка загрузки n8n Assistant</div>
+  }))
+);
+
 // Компонент загрузки с таймаутом
 const LoadingFallback = () => {
   const [showError, setShowError] = React.useState(false);
@@ -145,6 +152,9 @@ function App() {
           
           {/* AI Prompt Optimizer */}
           <Route path="/ai-prompt-optimizer" element={<AiPromptOptimizerPage />} />
+          
+          {/* n8n Assistant */}
+          <Route path="/n8n-assistant" element={<N8nAssistantPage />} />
           
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center">

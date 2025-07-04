@@ -13,6 +13,7 @@ const Navigation: React.FC = () => {
     { path: '/blog', label: 'Блог' },
     { path: '/ai-prompt-optimizer', label: 'Prompt Optimizer' },
     { path: '/n8n-workflow-optimizer', label: 'n8n Оптимизатор' },
+    { path: '/n8n-assistant', label: 'n8n Assistant' },
     { path: '/tuya-instructions', label: 'Tuya API' },
     { path: '/about', label: 'О нас' },
     { path: '/contact', label: 'Контакты' }
