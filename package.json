@@ -15,7 +15,7 @@
     "analyze": "vite-bundle-analyzer dist/stats.html",
     "optimize": "npm run build && npm run analyze",
     "sitemap": "node scripts/generate-sitemap.js",
-    "postbuild": "npm run sitemap"
+    "postbuild": "npm run sitemap",
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0",
