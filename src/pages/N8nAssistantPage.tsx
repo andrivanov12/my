@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Send, Copy, Check, Settings, Layers, Code, Zap, GitBranch, HelpCircle } from 'lucide-react';
+import { Send, Copy, Check, Settings, Layers, Code, Zap, GitBranch, HelpCircle, RefreshCw } from 'lucide-react';
+import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import NewsGrid from '../components/NewsGrid';
+import NewsletterSignup from '../components/NewsletterSignup';
+import { fetchCombinedNews, NewsItem } from '../utils/newsService';
 
 interface Message {
   id: string;
@@ -23,6 +27,8 @@ const N8nAssistantPage: React.FC = () => {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [rememberKey, setRememberKey] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -153,18 +159,26 @@ const N8nAssistantPage: React.FC = () => {
     const welcomeMessage: Message = {
       id: '1',
       role: 'assistant',
-      content: `Привет! Я специализированный n8n Assistant, эксперт по автоматизации с помощью n8n. Расскажите, какой workflow вы хотите создать или какие вопросы у вас есть по n8n?
+      content: `# Добро пожаловать в n8n Assistant! 👋
 
-Я могу помочь с:
-- Настройкой конкретных узлов n8n
-- Созданием рабочих процессов для различных задач
-- Интеграцией внешних сервисов и API
-- Отладкой и оптимизацией workflows
-- Примерами кода для Function и FunctionItem узлов`,
+Я специализированный AI-ассистент по n8n, готовый помочь вам с автоматизацией рабочих процессов. Расскажите, какой workflow вы хотите создать или какие вопросы у вас есть по n8n?
+
+## Я могу помочь с:
+
+- 🔧 Настройкой конкретных узлов n8n
+- 🔄 Созданием рабочих процессов для различных задач
+- 🔌 Интеграцией внешних сервисов и API
+- 🐛 Отладкой и оптимизацией workflows
+- 💻 Примерами кода для Function и FunctionItem узлов
+
+Выберите готовый шаблон из боковой панели или задайте свой вопрос!`,
       timestamp: new Date().toISOString()
     };
 
     setMessages([welcomeMessage]);
+    
+    // Загружаем новости
+    loadNews();
   }, []);
 
   useEffect(() => {
@@ -206,6 +220,30 @@ const N8nAssistantPage: React.FC = () => {
       });
     };
   }, [messages]);
+
+  const loadNews = async () => {
+    setNewsLoading(true);
+    try {
+      const newsData = await fetchCombinedNews();
+      setNews(newsData);
+    } catch (error) {
+      console.error('Error loading news:', error);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
+  const refreshNews = async () => {
+    setNewsLoading(true);
+    try {
+      const newsData = await fetchCombinedNews(true);
+      setNews(newsData);
+    } catch (error) {
+      console.error('Error refreshing news:', error);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -383,6 +421,14 @@ const N8nAssistantPage: React.FC = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        {/* Рекламный баннер */}
+        <AdaptiveAdBlock 
+          blockId="R-A-16048264-7" 
+          containerId="yandex_rtb_R-A-16048264-7_n8n_assistant" 
+          position="main-banner"
+          className="mb-0"
+        />
+
         {/* Header */}
         <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="container mx-auto px-4 py-6">
@@ -492,6 +538,11 @@ const N8nAssistantPage: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Newsletter Signup */}
+              <div className="mt-8">
+                <NewsletterSignup />
+              </div>
             </div>
           </div>
 
@@ -509,7 +560,7 @@ const N8nAssistantPage: React.FC = () => {
             <div 
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4"
-              style={{ height: 'calc(100vh - 200px)' }}
+              style={{ height: 'calc(100vh - 280px)' }}
             >
               {messages.map((message) => (
                 <div
@@ -601,8 +652,31 @@ const N8nAssistantPage: React.FC = () => {
           </div>
         </div>
 
+        {/* News Section */}
+        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                Новости n8n и AI
+              </h2>
+              <button 
+                onClick={refreshNews}
+                className="flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span className="text-sm">Обновить</span>
+              </button>
+            </div>
+            
+            <NewsGrid 
+              news={news.filter(item => item.category === 'n8n' || item.category === 'ai').slice(0, 3)} 
+              loading={newsLoading} 
+            />
+          </div>
+        </div>
+
         {/* Features Section */}
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-xl md:text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
               Возможности n8n Assistant
@@ -788,6 +862,10 @@ const N8nAssistantPage: React.FC = () => {
           font-size: 0.875em;
         }
 
+        .dark .prose .inline-code {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
         .prose h2, .prose h3, .prose h4 {
           margin-top: 1.5rem;
           margin-bottom: 0.75rem;
@@ -799,6 +877,10 @@ const N8nAssistantPage: React.FC = () => {
           font-size: 1.25rem;
           border-bottom: 1px solid #e5e7eb;
           padding-bottom: 0.25rem;
+        }
+
+        .dark .prose h2 {
+          border-bottom-color: #374151;
         }
 
         .prose h3 {
@@ -817,6 +899,10 @@ const N8nAssistantPage: React.FC = () => {
           color: #7c3aed;
           text-decoration: underline;
           text-underline-offset: 2px;
+        }
+
+        .dark .prose a {
+          color: #a78bfa;
         }
 
         .prose strong {

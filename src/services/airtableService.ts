@@ -17,6 +17,11 @@ export interface AirtableRecord {
     Title?: string;
     Content?: string;
     'Image URL'?: string;
+    Category?: string;
+    Author?: string;
+    PublishedAt?: string;
+    Excerpt?: string;
+    Tags?: string[];
   };
   createdTime: string;
 }
@@ -56,8 +61,8 @@ class AirtableService {
         params.append('view', AIRTABLE_VIEW_ID);
       }
       
-      // Сортируем по дате создания (новые сначала)
-      params.append('sort[0][field]', 'Title');
+      // Сортируем по дате публикации (новые сначала)
+      params.append('sort[0][field]', 'PublishedAt');
       params.append('sort[0][direction]', 'desc');
       
       // Ограничиваем количество записей для оптимизации
@@ -182,15 +187,22 @@ class AirtableService {
     // Генерируем slug из заголовка
     const slug = this.generateSlug(fields.Title || '');
     
-    // Генерируем excerpt из контента
-    const excerpt = this.generateExcerpt(fields.Content || '');
+    // Генерируем excerpt из контента, если он не указан явно
+    const excerpt = fields.Excerpt || this.generateExcerpt(fields.Content || '');
     
     // Обрабатываем URL изображения
     let imageUrl = fields['Image URL'] || '';
     
     // Если URL изображения пустой, используем дефолтное
     if (!imageUrl || !imageUrl.trim()) {
-      imageUrl = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+      const category = fields.Category || 'Общее';
+      if (category === 'n8n') {
+        imageUrl = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+      } else if (category === 'AI') {
+        imageUrl = 'https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+      } else {
+        imageUrl = 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400';
+      }
     } else {
       // Очищаем URL от лишних пробелов
       imageUrl = imageUrl.trim();
@@ -204,22 +216,25 @@ class AirtableService {
       }
     }
 
-    // Определяем категорию на основе контента или заголовка
-    const category = this.detectCategory(fields.Title || '', fields.Content || '');
+    // Определяем категорию, если она не указана
+    const category = fields.Category || this.detectCategory(fields.Title || '', fields.Content || '');
 
     // Обрабатываем контент для корректного отображения
     const processedContent = this.processContent(fields.Content || '');
+
+    // Обрабатываем теги
+    const tags = fields.Tags || this.extractTags(fields.Title || '', fields.Content || '', category);
 
     return {
       id: record.id,
       title: fields.Title || '',
       content: processedContent,
       imageUrl,
-      author: 'AI Hub Team',
+      author: fields.Author || 'AI Market Hub',
       category,
-      publishedAt: record.createdTime,
+      publishedAt: fields.PublishedAt || record.createdTime,
       excerpt,
-      tags: this.extractTags(fields.Title || '', fields.Content || ''),
+      tags,
       slug,
     };
   }
@@ -247,7 +262,7 @@ class AirtableService {
     
     // Группируем списки
     processed = processed.replace(/(<li>.*?<\/li>\s*)+/gs, (match) => {
-      return '<ul>' + match + '</ul>';
+      return '<ul class="list-disc pl-5 my-4">' + match + '</ul>';
     });
     
     // Обрабатываем переносы строк
@@ -307,9 +322,12 @@ class AirtableService {
   private detectCategory(title: string, content: string): string {
     const text = (title + ' ' + content).toLowerCase();
     
-    // Простая категоризация на основе ключевых слов
-    if (text.includes('ai') || text.includes('ии') || text.includes('искусственный интеллект') || text.includes('chatgpt') || text.includes('робот')) {
-      return 'Технологии';
+    // Категоризация на основе ключевых слов
+    if (text.includes('n8n') || text.includes('workflow') || text.includes('автоматизация процессов') || text.includes('рабочий процесс')) {
+      return 'n8n';
+    }
+    if (text.includes('ai') || text.includes('ии') || text.includes('искусственный интеллект') || text.includes('chatgpt') || text.includes('нейронная сеть')) {
+      return 'AI';
     }
     if (text.includes('обзор') || text.includes('сравнение') || text.includes('тест')) {
       return 'Обзоры';
@@ -317,37 +335,41 @@ class AirtableService {
     if (text.includes('обучение') || text.includes('образование') || text.includes('курс') || text.includes('инструкция')) {
       return 'Образование';
     }
-    if (text.includes('этика') || text.includes('безопасность') || text.includes('приватность')) {
-      return 'Этика';
-    }
     if (text.includes('no-code') || text.includes('без кода') || text.includes('автоматизация')) {
-      return 'No-Code';
+      return 'Автоматизация';
     }
     
     return 'Общее';
   }
 
-  private extractTags(title: string, content: string): string[] {
+  private extractTags(title: string, content: string, category: string): string[] {
     const text = (title + ' ' + content).toLowerCase();
     const tags: string[] = [];
     
+    // Добавляем категорию как тег
+    if (category && !tags.includes(category)) {
+      tags.push(category);
+    }
+    
     // Извлекаем теги на основе ключевых слов
+    if (text.includes('n8n')) tags.push('n8n');
+    if (text.includes('workflow') || text.includes('рабочий процесс')) tags.push('Workflow');
+    if (text.includes('автоматизация')) tags.push('Автоматизация');
     if (text.includes('chatgpt')) tags.push('ChatGPT');
     if (text.includes('ai') || text.includes('ии')) tags.push('AI');
-    if (text.includes('робот')) tags.push('Роботы');
+    if (text.includes('искусственный интеллект')) tags.push('Искусственный интеллект');
+    if (text.includes('нейронная сеть')) tags.push('Нейронные сети');
+    if (text.includes('интеграция')) tags.push('Интеграция');
+    if (text.includes('api')) tags.push('API');
     if (text.includes('no-code') || text.includes('без кода')) tags.push('NoCode');
-    if (text.includes('автоматизация')) tags.push('Автоматизация');
-    if (text.includes('машинное обучение')) tags.push('Машинное обучение');
-    if (text.includes('нейронные сети')) tags.push('Нейронные сети');
-    if (text.includes('программирование')) tags.push('Программирование');
-    if (text.includes('веб-разработка')) tags.push('Веб-разработка');
-    if (text.includes('telegram')) tags.push('Telegram');
-    if (text.includes('openai')) tags.push('OpenAI');
-    if (text.includes('n8n')) tags.push('n8n');
-    if (text.includes('make')) tags.push('Make');
-    if (text.includes('zapier')) tags.push('Zapier');
+    if (text.includes('low-code')) tags.push('LowCode');
+    if (text.includes('tutorial') || text.includes('руководство')) tags.push('Руководство');
+    if (text.includes('бизнес')) tags.push('Бизнес');
+    if (text.includes('маркетинг')) tags.push('Маркетинг');
+    if (text.includes('продуктивность')) tags.push('Продуктивность');
     
-    return tags.slice(0, 5); // Ограничиваем количество тегов
+    // Удаляем дубликаты и ограничиваем количество тегов
+    return Array.from(new Set(tags)).slice(0, 5);
   }
 
   // Метод для тестирования подключения
