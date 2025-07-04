@@ -138,7 +138,7 @@ const HomePage: React.FC = () => {
             <div className="prose dark:prose-invert max-w-none">
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
                 Наш сервис предоставляет <strong>бесплатный доступ к ChatGPT без регистрации</strong> — это реальность! 
-                Просто нажмите кнопку "Начать общение" и задайте свой вопрос. Никаких форм, паролей или подтверждений email.
+                Просто нажмите кнопку "Начать общение\" и задайте свой вопрос. Никаких форм, паролей или подтверждений email.
               </p>
               
               <div className="grid md:grid-cols-2 gap-6 my-6">
