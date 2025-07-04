@@ -15,7 +15,7 @@
     "analyze": "vite-bundle-analyzer dist/stats.html",
     "optimize": "npm run build && npm run analyze",
     "sitemap": "node scripts/generate-sitemap.js",
-    "postbuild": "npm run sitemap",
+    "postbuild": "npm run sitemap"
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0",
@@ -52,8 +52,7 @@
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
     "vite-bundle-analyzer": "^0.7.0",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-imagemin": "^0.6.1"
+    "vite-plugin-compression": "^0.5.1"
   },
   "keywords": [
     "chatgpt",
