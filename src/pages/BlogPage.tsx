@@ -1084,7 +1084,7 @@ return items.map(item => {
     json: {
       customer: {
         id: item.json.id,
-        fullName: \`${item.json.firstName} ${item.json.lastName}`,
+        fullName: \`\${item.json.firstName} \${item.json.lastName}\`,
         contactInfo: {
           email: item.json.email,
           phone: item.json.phone
@@ -1092,7 +1092,7 @@ return items.map(item => {
       },
       orderDetails: {
         orderId: item.json.orderId,
-        total: parseFloat(item.json.total),
+        total: Number(item.json.total),
         items: item.json.items || []
       },
       metadata: {
@@ -1125,7 +1125,7 @@ for (const item of items) {
   
   // Обновляем агрегированные данные
   aggregated[category].count++;
-  aggregated[category].totalSales += parseFloat(item.json.amount);
+  aggregated[category].totalSales += Number(item.json.amount);
   aggregated[category].items.push(item.json.id);
 }
 
@@ -1175,7 +1175,7 @@ return Object.entries(aggregated).map(([category, data]) => {
         <p>Используйте Function узел для расчета статистических показателей:</p>
         <pre>
 // Получаем все значения из определенного поля
-const values = items.map(item => parseFloat(item.json.value)).filter(val => !isNaN(val));
+const values = items.map(item => Number(item.json.value)).filter(val => !isNaN(val));
 
 // Рассчитываем статистику
 const sum = values.reduce((acc, val) => acc + val, 0);
@@ -1207,7 +1207,7 @@ return [{
         <p>Для обнаружения аномалий в данных:</p>
         <pre>
 // Получаем все значения
-const values = items.map(item => parseFloat(item.json.value)).filter(val => !isNaN(val));
+const values = items.map(item => Number(item.json.value)).filter(val => !isNaN(val));
 
 // Рассчитываем статистику
 const average = values.reduce((acc, val) => acc + val, 0) / values.length;
@@ -1219,7 +1219,7 @@ const threshold = 2 * stdDev;
 
 // Находим аномалии
 return items.map(item => {
-  const value = parseFloat(item.json.value);
+  const value = Number(item.json.value);
   const deviation = Math.abs(value - average);
   const isAnomaly = deviation > threshold;
   
