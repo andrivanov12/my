@@ -1,32 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-interface LazyImageProps {
+interface ImageOptimizerProps {
   src: string;
   alt: string;
   width?: number;
   height?: number;
   className?: string;
+  lazy?: boolean;
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
 }
 
-const LazyImage: React.FC<LazyImageProps> = ({
+/**
+ * Компонент для оптимизации изображений
+ * - Ленивая загрузка
+ * - Оптимизированные размеры
+ * - Поддержка WebP
+ * - Плейсхолдеры
+ */
+const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
   src,
   alt,
   width,
   height,
   className = '',
+  lazy = true,
   placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+',
   onLoad,
   onError
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [isError, setIsError] = useState(false);
   const [supportsWebP, setSupportsWebP] = useState(false);
-
+  
   // Проверяем поддержку WebP
   useEffect(() => {
     const checkWebP = async () => {
@@ -42,25 +49,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     
     checkWebP();
   }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
+  
   // Оптимизируем URL изображения
   const getOptimizedSrc = () => {
     // Если это URL Pexels, добавляем параметры оптимизации
@@ -81,49 +70,46 @@ const LazyImage: React.FC<LazyImageProps> = ({
       return url.toString();
     }
     
+    // Для других изображений возвращаем исходный URL
     return src;
   };
-
+  
+  const optimizedSrc = getOptimizedSrc();
+  
   const handleLoad = () => {
     setIsLoaded(true);
-    onLoad?.();
+    if (onLoad) onLoad();
   };
-
+  
   const handleError = () => {
-    setHasError(true);
-    onError?.();
+    setIsError(true);
+    if (onError) onError();
   };
-
-  const optimizedSrc = getOptimizedSrc();
-
+  
   return (
-    <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
-      {!isLoaded && !hasError && (
-        <img
-          src={placeholder}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-sm"
-          aria-hidden="true"
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* Плейсхолдер */}
+      {!isLoaded && !isError && (
+        <div 
+          className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"
+          style={{ backgroundImage: `url(${placeholder})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
       )}
       
-      {isInView && (
-        <img
-          src={hasError ? placeholder : optimizedSrc}
-          width={width}
-          height={height}
-          alt={alt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={handleLoad}
-          onError={handleError}
-          loading="lazy"
-          decoding="async"
-        />
-      )}
+      {/* Изображение */}
+      <img
+        src={isError ? placeholder : optimizedSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        loading={lazy ? 'lazy' : 'eager'}
+        decoding="async"
+        onLoad={handleLoad}
+        onError={handleError}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
     </div>
   );
 };
 
-export default LazyImage;
+export default ImageOptimizer;

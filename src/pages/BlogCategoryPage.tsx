@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowRight, Loader2, Search, Filter, RefreshCw } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import PageSEO from '../components/PageSEO';
+import { generateBreadcrumbSchema } from '../utils/seoUtils';
 
 interface CategoryInfo {
   [key: string]: {
@@ -304,13 +305,41 @@ const BlogCategoryPage: React.FC = () => {
   // Получаем информацию о текущей категории
   const currentCategory = category ? categoryInfo[category] : null;
 
+  // Хлебные крошки для структурированных данных
+  const breadcrumbItems = [
+    { name: 'Главная', url: 'https://aimarkethub.pro' },
+    { name: 'Блог', url: 'https://aimarkethub.pro/blog' }
+  ];
+
+  if (category && currentCategory) {
+    breadcrumbItems.push({
+      name: currentCategory.title,
+      url: `https://aimarkethub.pro/blog/${category}`
+    });
+  }
+
+  // Структурированные данные для хлебных крошек
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
   return (
     <>
-      <Helmet>
-        <title>{currentCategory?.metaTitle || 'Блог о n8n и искусственном интеллекте | Новости автоматизации'}</title>
-        <meta name="description" content={currentCategory?.metaDescription || 'Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика.'} />
-        <meta name="keywords" content={currentCategory?.keywords || 'блог n8n, новости автоматизации, искусственный интеллект статьи, машинное обучение, workflow automation'} />
-      </Helmet>
+      <PageSEO
+        title={currentCategory?.metaTitle || 'Блог о n8n и искусственном интеллекте | Новости автоматизации'}
+        description={currentCategory?.metaDescription || 'Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика.'}
+        keywords={currentCategory?.keywords || 'блог n8n, новости автоматизации, искусственный интеллект статьи, машинное обучение, workflow automation'}
+        canonicalUrl={`https://aimarkethub.pro/blog${category ? `/${category}` : ''}`}
+        imageUrl="https://aimarkethub.pro/images/blog-placeholder.jpg"
+        breadcrumbs={breadcrumbItems}
+      >
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={currentCategory?.metaTitle || 'Блог о n8n и искусственном интеллекте | Новости автоматизации'} />
+        <meta property="og:description" content={currentCategory?.metaDescription || 'Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика.'} />
+        <meta property="og:url" content={`https://aimarkethub.pro/blog${category ? `/${category}` : ''}`} />
+        <meta property="og:image" content="https://aimarkethub.pro/images/blog-placeholder.jpg" />
+      </PageSEO>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         <div className="mb-8 md:mb-12">
@@ -391,6 +420,7 @@ const BlogCategoryPage: React.FC = () => {
                   key={article.id}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer flex flex-col"
                   onClick={() => navigate(`/blog/article/${article.slug || article.id}`)}
+                  aria-label={`Статья: ${article.title}`}
                 >
                   <div className="relative">
                     <img 

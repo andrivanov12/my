@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Send, Copy, Check, Settings, Layers, Code, Zap, GitBranch, HelpCircle, RefreshCw } from 'lucide-react';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
-import NewsGrid from '../components/NewsGrid';
-import NewsletterSignup from '../components/NewsletterSignup';
-import { fetchCombinedNews, NewsItem } from '../utils/newsService';
+import { generateFAQSchema } from '../utils/seoHelpers';
 
 interface Message {
   id: string;
@@ -27,8 +26,6 @@ const N8nAssistantPage: React.FC = () => {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [rememberKey, setRememberKey] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [newsLoading, setNewsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -176,9 +173,6 @@ const N8nAssistantPage: React.FC = () => {
     };
 
     setMessages([welcomeMessage]);
-    
-    // Загружаем новости
-    loadNews();
   }, []);
 
   useEffect(() => {
@@ -220,30 +214,6 @@ const N8nAssistantPage: React.FC = () => {
       });
     };
   }, [messages]);
-
-  const loadNews = async () => {
-    setNewsLoading(true);
-    try {
-      const newsData = await fetchCombinedNews();
-      setNews(newsData);
-    } catch (error) {
-      console.error('Error loading news:', error);
-    } finally {
-      setNewsLoading(false);
-    }
-  };
-
-  const refreshNews = async () => {
-    setNewsLoading(true);
-    try {
-      const newsData = await fetchCombinedNews(true);
-      setNews(newsData);
-    } catch (error) {
-      console.error('Error refreshing news:', error);
-    } finally {
-      setNewsLoading(false);
-    }
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -411,14 +381,42 @@ const N8nAssistantPage: React.FC = () => {
     }
   };
 
+  // FAQ для структурированных данных
+  const faqItems = [
+    {
+      question: "Что такое n8n Assistant?",
+      answer: "n8n Assistant — это специализированный AI-ассистент для n8n, который помогает создавать, оптимизировать и отлаживать рабочие процессы автоматизации. Он предоставляет точные инструкции по настройке узлов, примеры кода и готовые решения для различных задач автоматизации."
+    },
+    {
+      question: "Как использовать n8n Assistant?",
+      answer: "Просто введите ваш вопрос о n8n в поле ввода или выберите один из готовых шаблонов запросов. n8n Assistant предоставит подробный ответ с инструкциями, примерами кода и рекомендациями по настройке workflow."
+    },
+    {
+      question: "Нужен ли API ключ для использования n8n Assistant?",
+      answer: "Да, для работы n8n Assistant требуется API ключ OpenAI. Ключ хранится только в вашем браузере и не передается на наш сервер. Вы можете получить ключ на сайте OpenAI."
+    },
+    {
+      question: "Какие типы вопросов можно задавать n8n Assistant?",
+      answer: "Вы можете задавать вопросы о настройке конкретных узлов n8n, создании рабочих процессов для различных задач, интеграции внешних сервисов и API, отладке и оптимизации workflows, а также запрашивать примеры кода для Function и FunctionItem узлов."
+    }
+  ];
+
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqItems);
+
   return (
     <>
-      <Helmet>
-        <title>n8n Assistant | Помощник по автоматизации рабочих процессов | AIMarketHub</title>
-        <meta name="description" content="Специализированный AI-ассистент для n8n. Получите точные ответы по созданию workflows, настройке узлов и автоматизации бизнес-процессов с n8n." />
-        <meta name="keywords" content="помощник по n8n, n8n интеграции, автоматизация процессов n8n, настройка рабочих потоков n8n, создание n8n воркфлоу, n8n для начинающих, n8n assistant, n8n автоматизация, n8n workflow, n8n nodes" />
-        <link rel="canonical" href="https://aimarkethub.pro/n8n-assistant" />
-      </Helmet>
+      <SEOTags
+        title="n8n Assistant | Помощник по автоматизации рабочих процессов | AIMarketHub"
+        description="Специализированный AI-ассистент для n8n. Получите точные ответы по созданию workflows, настройке узлов и автоматизации бизнес-процессов с n8n."
+        keywords="помощник по n8n, n8n интеграции, автоматизация процессов n8n, настройка рабочих потоков n8n, создание n8n воркфлоу, n8n для начинающих, n8n assistant, n8n автоматизация, n8n workflow, n8n nodes"
+        canonicalUrl="https://aimarkethub.pro/n8n-assistant"
+        imageUrl="https://aimarkethub.pro/images/n8n-assistant.jpg"
+        structuredData={[faqSchema]}
+      >
+        <meta name="application-name" content="n8n Assistant" />
+        <meta name="apple-mobile-web-app-title" content="n8n Assistant" />
+      </SEOTags>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         {/* Рекламный баннер */}

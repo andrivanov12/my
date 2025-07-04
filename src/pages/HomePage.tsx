@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Settings } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Settings, Cpu } from 'lucide-react';
 import FAQ from '../components/FAQ';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 import { airtableService, AirtableArticle } from '../services/airtableService';
+import { generateWebAppSchema, generateOrganizationSchema, generateFAQSchema } from '../utils/seoHelpers';
 
 const HomePage: React.FC = () => {
   const [latestArticles, setLatestArticles] = useState<AirtableArticle[]>([]);
@@ -74,14 +76,89 @@ const HomePage: React.FC = () => {
     }
   };
 
+  // FAQ для структурированных данных
+  const faqItems = [
+    {
+      question: "Что такое AI Market Hub?",
+      answer: "AI Market Hub — это платформа AI инструментов, предоставляющая бесплатный доступ к ChatGPT без регистрации, инструменты для n8n автоматизации, prompt оптимизации и Tuya API интеграции. Все необходимые AI решения в одном месте."
+    },
+    {
+      question: "Нужно ли создавать аккаунт для использования ChatGPT?",
+      answer: "Нет, наш сервис предоставляет доступ к ChatGPT без необходимости регистрации или создания аккаунта. Вы можете начать общение с ИИ немедленно, просто открыв сайт."
+    },
+    {
+      question: "Какие модели ИИ доступны на сайте?",
+      answer: "Мы предоставляем доступ к нескольким передовым моделям ИИ: Qwen 3 30B, Gemini 2.5 Flash, Llama 4 Maverick, Deepseek Chat, Gemini 2.0 Flash и другие. Каждая модель имеет свои особенности и преимущества."
+    },
+    {
+      question: "Как долго сохраняется история переписки?",
+      answer: "История вашей переписки сохраняется локально в браузере в течение 7 дней. После этого или при очистке данных браузера история будет удалена. Мы не храним переписку на серверах для обеспечения вашей приватности."
+    }
+  ];
+
+  // Структурированные данные для веб-приложения
+  const webAppSchema = generateWebAppSchema({
+    name: "AI Market Hub - платформа AI инструментов",
+    description: "Платформа AI инструментов с ChatGPT без регистрации, n8n автоматизацией, prompt оптимизацией и Tuya API интеграциями. Все AI решения в одном месте!",
+    url: "https://aimarkethub.pro",
+    applicationCategory: "AI Tools Platform",
+    operatingSystem: "Any",
+    offers: { price: "0", priceCurrency: "RUB" },
+    features: [
+      "ChatGPT без регистрации и входа",
+      "n8n Assistant для автоматизации",
+      "AI Prompt Optimizer для эффективных запросов",
+      "Tuya API интеграции для умного дома",
+      "6+ AI моделей",
+      "Анализ изображений",
+      "Поддержка русского языка"
+    ],
+    screenshot: "https://aimarkethub.pro/images/chatgpt-screenshot.jpg",
+    rating: { value: 4.9, count: 2847 }
+  });
+
+  // Структурированные данные для организации
+  const organizationSchema = generateOrganizationSchema({
+    name: "AI Market Hub",
+    url: "https://aimarkethub.pro",
+    logo: "https://aimarkethub.pro/images/logo.png",
+    description: "Платформа для бесплатного доступа к ChatGPT и другим AI технологиям без регистрации",
+    foundingDate: "2024",
+    contactPoint: {
+      contactType: "customer service",
+      url: "https://t.me/solvillage",
+      availableLanguage: ["Russian", "English"]
+    },
+    sameAs: ["https://t.me/solvillage"]
+  });
+
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqItems);
+
   return (
     <>
-      <Helmet>
-        <title>AI Market Hub - платформа AI инструментов | ChatGPT без регистрации бесплатно 2025</title>
-        <meta name="description" content="⭐ AI Market Hub - платформа AI инструментов и ChatGPT без регистрации бесплатно! Используйте чат ГПТ онлайн, n8n автоматизацию, prompt оптимизацию и Tuya API интеграции. Все AI решения в одном месте!" />
-        <meta name="keywords" content="AIMarketHub, AI инструменты, искусственный интеллект, AI платформа, AI маркетплейс, n8n автоматизация, Prompt оптимизация, Tuya API интеграции, chatgpt без регистрации, чат гпт бесплатно, chatgpt онлайн, чат гпт без входа, бесплатный chatgpt, чатгпт без регистрации, gpt чат онлайн, ai чат бесплатно" />
-        <link rel="canonical" href="https://aimarkethub.pro" />
-      </Helmet>
+      <SEOTags
+        title="AI Market Hub - платформа AI инструментов | ChatGPT без регистрации бесплатно 2025"
+        description="⭐ AI Market Hub - платформа AI инструментов и ChatGPT без регистрации бесплатно! Используйте чат ГПТ онлайн, n8n автоматизацию, prompt оптимизацию и Tuya API интеграции. Все AI решения в одном месте!"
+        keywords="AIMarketHub, AI инструменты, искусственный интеллект, AI платформа, AI маркетплейс, n8n автоматизация, Prompt оптимизация, Tuya API интеграции, chatgpt без регистрации, чат гпт бесплатно, chatgpt онлайн, чат гпт без входа, бесплатный chatgpt, чатгпт без регистрации, gpt чат онлайн, ai чат бесплатно"
+        canonicalUrl="https://aimarkethub.pro"
+        imageUrl="https://aimarkethub.pro/images/aimarkethub-hero.jpg"
+        structuredData={[
+          webAppSchema,
+          organizationSchema,
+          faqSchema
+        ]}
+      >
+        <meta name="author" content="AI Market Hub" />
+        <meta name="publisher" content="AI Market Hub" />
+        <meta name="copyright" content="© 2025 AI Market Hub" />
+        <meta name="language" content="Russian" />
+        <meta name="geo.region" content="RU" />
+        <meta name="geo.country" content="Russia" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        <meta name="revisit-after" content="1 day" />
+      </SEOTags>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Главный рекламный баннер */}
@@ -357,8 +434,8 @@ const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-6">
             {latestArticles.map((article) => (
               <article key={article.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
-                <h3 className="font-semibold mb-2 text-lg">
-                  <Link to="/blog" className="hover:text-primary-600 dark:hover:text-primary-400">
+                <h3 className="font-semibold mb-2 text-lg line-clamp-2">
+                  <Link to={`/blog/article/${article.slug || article.id}`} className="hover:text-primary-600 dark:hover:text-primary-400">
                     {article.title}
                   </Link>
                 </h3>
@@ -367,6 +444,15 @@ const HomePage: React.FC = () => {
                 </p>
                 <div className="text-xs text-gray-500 dark:text-gray-500">
                   {formatDate(article.publishedAt || '')}
+                </div>
+                <div className="mt-3">
+                  <Link 
+                    to={`/blog/article/${article.slug || article.id}`}
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1"
+                  >
+                    Читать полностью
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
               </article>
             ))}

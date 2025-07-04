@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { 
   Settings, 
   CheckCircle, 
@@ -19,7 +18,10 @@ import {
   Zap,
   Bug
 } from 'lucide-react';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import { generateFAQSchema } from '../utils/seoHelpers';
 
 interface WorkflowIssue {
   type: 'error' | 'warning' | 'optimization';
@@ -325,14 +327,28 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
     }
   };
 
+  // FAQ для структурированных данных
+  const faqSchemaItems = faqItems.map(item => ({
+    question: item.question,
+    answer: item.answer
+  }));
+
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqSchemaItems);
+
   return (
     <>
-      <Helmet>
-        <title>n8n Workflow Optimizer | Оптимизация и отладка n8n процессов</title>
-        <meta name="description" content="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации рабочих процессов." />
-        <meta name="keywords" content="n8n workflow оптимизация, автоматизация рабочих процессов, улучшение n8n процессов, настройка n8n интеграций, оптимизация производительности n8n, ускорение работы автоматизаций, n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n" />
-        <link rel="canonical" href="https://aimarkethub.pro/n8n-workflow-optimizer" />
-      </Helmet>
+      <SEOTags
+        title="n8n Workflow Optimizer | Оптимизация и отладка n8n процессов"
+        description="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации рабочих процессов."
+        keywords="n8n workflow оптимизация, автоматизация рабочих процессов, улучшение n8n процессов, настройка n8n интеграций, оптимизация производительности n8n, ускорение работы автоматизаций, n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n"
+        canonicalUrl="https://aimarkethub.pro/n8n-workflow-optimizer"
+        imageUrl="https://aimarkethub.pro/images/n8n-workflow-optimizer.jpg"
+        structuredData={[faqSchema]}
+      >
+        <meta name="application-name" content="n8n Workflow Optimizer" />
+        <meta name="apple-mobile-web-app-title" content="n8n Workflow Optimizer" />
+      </SEOTags>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         {/* Рекламный баннер R-A-16048264-7 размером 1000x120 над заголовком */}

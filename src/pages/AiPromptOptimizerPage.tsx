@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { 
   Zap, 
   CheckCircle, 
@@ -15,7 +14,10 @@ import {
   Sparkles,
   MessageSquare
 } from 'lucide-react';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import { generateFAQSchema } from '../utils/seoHelpers';
 
 interface PromptTemplate {
   id: string;
@@ -273,14 +275,28 @@ const AiPromptOptimizerPage: React.FC = () => {
     );
   };
 
+  // FAQ для структурированных данных
+  const faqSchemaItems = faqItems.map(item => ({
+    question: item.question,
+    answer: item.answer
+  }));
+
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqSchemaItems);
+
   return (
     <>
-      <Helmet>
-        <title>AI Prompt Optimizer | Оптимизация промптов для нейросетей</title>
-        <meta name="description" content="Превратите ваши обычные запросы в оптимизированные промпты для искусственного интеллекта. Создавайте эффективные инструкции для AI с помощью инструментов prompt инженерии." />
-        <meta name="keywords" content="оптимизация промптов, как писать эффективные промпты, генерация качественных промптов, инструмент для улучшения запросов к AI, prompt инженерия, улучшение взаимодействия с нейросетями, ai prompt optimizer, промпт оптимизатор, автоматизация ai" />
-        <link rel="canonical" href="https://aimarkethub.pro/ai-prompt-optimizer" />
-      </Helmet>
+      <SEOTags
+        title="AI Prompt Optimizer | Оптимизация промптов для нейросетей"
+        description="Превратите ваши обычные запросы в оптимизированные промпты для искусственного интеллекта. Создавайте эффективные инструкции для AI с помощью инструментов prompt инженерии."
+        keywords="оптимизация промптов, как писать эффективные промпты, генерация качественных промптов, инструмент для улучшения запросов к AI, prompt инженерия, улучшение взаимодействия с нейросетями, ai prompt optimizer, промпт оптимизатор, автоматизация ai"
+        canonicalUrl="https://aimarkethub.pro/ai-prompt-optimizer"
+        imageUrl="https://aimarkethub.pro/images/prompt-optimizer.jpg"
+        structuredData={[faqSchema]}
+      >
+        <meta name="application-name" content="AI Prompt Optimizer" />
+        <meta name="apple-mobile-web-app-title" content="AI Prompt Optimizer" />
+      </SEOTags>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         {/* Рекламный баннер R-A-16048264-5 размером 1000x120 над заголовком */}

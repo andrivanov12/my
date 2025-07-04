@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, RefreshCw, Filter, Search } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import { generateBreadcrumbSchema } from '../utils/seoHelpers';
 
 const BlogPage: React.FC = () => {
   const [articles, setArticles] = useState<AirtableArticle[]>([]);
@@ -248,14 +250,25 @@ const BlogPage: React.FC = () => {
     }
   };
 
+  // Хлебные крошки для структурированных данных
+  const breadcrumbItems = [
+    { name: 'Главная', url: 'https://aimarkethub.pro' },
+    { name: 'Блог', url: 'https://aimarkethub.pro/blog' }
+  ];
+
+  // Структурированные данные для хлебных крошек
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
   if (selectedArticle) {
     return (
       <>
-        <Helmet>
-          <title>{selectedArticle.title} | Блог о n8n и AI</title>
-          <meta name="description" content={selectedArticle.excerpt} />
-          <meta name="keywords" content={selectedArticle.tags?.join(', ')} />
-        </Helmet>
+        <PageSEO
+          title={selectedArticle.title}
+          description={selectedArticle.excerpt}
+          keywords={selectedArticle.tags?.join(', ')}
+          canonicalUrl={`https://aimarkethub.pro/blog/article/${selectedArticle.slug || selectedArticle.id}`}
+          imageUrl={selectedArticle.imageUrl}
+        />
 
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <button
@@ -323,11 +336,20 @@ const BlogPage: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Блог о n8n и искусственном интеллекте | Новости автоматизации</title>
-        <meta name="description" content="Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика." />
-        <meta name="keywords" content="блог n8n, новости автоматизации, искусственный интеллект статьи, машинное обучение, workflow automation" />
-      </Helmet>
+      <SEOTags
+        title="Блог о n8n и искусственном интеллекте | Новости автоматизации"
+        description="Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика."
+        keywords="блог n8n, новости автоматизации, искусственный интеллект статьи, машинное обучение, workflow automation, n8n интеграции, автоматизация процессов n8n, настройка рабочих потоков n8n, создание n8n воркфлоу, n8n для начинающих"
+        canonicalUrl="https://aimarkethub.pro/blog"
+        imageUrl="https://aimarkethub.pro/images/blog-placeholder.jpg"
+        structuredData={[breadcrumbSchema]}
+      >
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Блог о n8n и искусственном интеллекте | Новости автоматизации" />
+        <meta property="og:description" content="Читайте последние новости и статьи о n8n, автоматизации рабочих процессов, искусственном интеллекте и машинном обучении. Экспертные обзоры, руководства и аналитика." />
+        <meta property="og:url" content="https://aimarkethub.pro/blog" />
+        <meta property="og:image" content="https://aimarkethub.pro/images/blog-placeholder.jpg" />
+      </SEOTags>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         <div className="text-center mb-12">
@@ -442,6 +464,7 @@ const BlogPage: React.FC = () => {
                   key={article.id}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer flex flex-col"
                   onClick={() => navigate(`/blog/article/${article.slug || article.id}`)}
+                  aria-label={`Статья: ${article.title}`}
                 >
                   <div className="relative">
                     <img 
@@ -486,6 +509,17 @@ const BlogPage: React.FC = () => {
                         <ArrowRight className="h-4 w-4" />
                       </div>
                     </div>
+                    
+                    {/* Теги статьи */}
+                    {article.tags && article.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {article.tags.slice(0, 3).map((tag, tagIndex) => (
+                          <span key={tagIndex} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}

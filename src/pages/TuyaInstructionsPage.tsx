@@ -1,5 +1,4 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { 
   Key, 
@@ -13,16 +12,61 @@ import {
   Shield,
   Zap
 } from 'lucide-react';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 
 const TuyaInstructionsPage: React.FC = () => {
+  // FAQ для структурированных данных
+  const faqItems = [
+    {
+      question: "Что такое Tuya API?",
+      answer: "Tuya API — это интерфейс программирования приложений, который позволяет разработчикам интегрировать устройства умного дома Tuya с другими системами и сервисами. С помощью API вы можете управлять устройствами, получать данные о их состоянии и автоматизировать различные сценарии."
+    },
+    {
+      question: "Как получить токены доступа к Tuya API?",
+      answer: "Для получения токенов доступа к Tuya API вам необходимо: 1) Зарегистрироваться на Tuya IoT Platform, 2) Создать проект и получить Client ID и Client Secret, 3) Использовать наш генератор токенов или Postman коллекцию для получения access_token и refresh_token."
+    },
+    {
+      question: "Как долго действуют токены Tuya API?",
+      answer: "Access token обычно действует 2 часа (7200 секунд), после чего его нужно обновить с помощью refresh token. Refresh token действует около 30 дней. Если refresh token истек, необходимо получить новую пару токенов."
+    },
+    {
+      question: "Как интегрировать Tuya API с n8n?",
+      answer: "Для интеграции Tuya API с n8n вы можете использовать HTTP Request узлы. Настройте заголовки запроса с вашим access token и выполняйте запросы к API Tuya для управления устройствами и получения данных."
+    }
+  ];
+
+  // Структурированные данные для FAQ
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
+      }
+    }))
+  };
+
   return (
     <>
-      <Helmet>
-        <title>Tuya API интеграции | Получение токенов для умного дома</title>
-        <meta name="description" content="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman." />
-        <meta name="keywords" content="интеграция с Tuya, Tuya API документация, умный дом Tuya, подключение устройств через Tuya, автоматизация Tuya устройств, разработка с Tuya API, tuya api postman, инструкция tuya токены" />
-      </Helmet>
+      <SEOTags
+        title="Tuya API интеграции | Получение токенов для умного дома"
+        description="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman."
+        keywords="интеграция с Tuya, Tuya API документация, умный дом Tuya, подключение устройств через Tuya, автоматизация Tuya устройств, разработка с Tuya API, tuya api postman, инструкция tuya токены"
+        canonicalUrl="https://aimarkethub.pro/tuya-instructions"
+        imageUrl="https://aimarkethub.pro/images/tuya-api-integration.jpg"
+        structuredData={[faqSchema]}
+      >
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Tuya API интеграции | Получение токенов для умного дома" />
+        <meta property="og:description" content="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman." />
+        <meta property="og:url" content="https://aimarkethub.pro/tuya-instructions" />
+        <meta property="og:image" content="https://aimarkethub.pro/images/tuya-api-integration.jpg" />
+      </SEOTags>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         {/* Рекламный баннер R-A-16048264-9 размером 1000x120 над заголовком */}

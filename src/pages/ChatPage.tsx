@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
+import SEOTags from '../components/SEOTags';
+import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import { generateFAQSchema } from '../utils/seoHelpers';
 
 const ModelSelector = () => {
   const { selectedModel, availableModels, setSelectedModel } = useChat();
@@ -86,13 +88,44 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  // FAQ для структурированных данных
+  const faqItems = [
+    {
+      question: "Как использовать AI чат-бот без регистрации?",
+      answer: "Просто выберите AI модель из выпадающего списка, введите ваш вопрос в поле ввода и нажмите кнопку отправки. Никакой регистрации или входа в аккаунт не требуется."
+    },
+    {
+      question: "Какие AI модели доступны в чате?",
+      answer: "В нашем чате доступны несколько передовых AI моделей: Qwen 3 30B, Gemini 2.5 Flash, Llama 4 Maverick (с поддержкой анализа изображений), Deepseek Chat, Gemini 2.0 Flash и другие."
+    },
+    {
+      question: "Сохраняется ли история чата?",
+      answer: "История чата сохраняется только локально в вашем браузере в течение 7 дней. Мы не храним ваши сообщения на серверах для обеспечения приватности."
+    },
+    {
+      question: "Можно ли использовать чат-бот на мобильных устройствах?",
+      answer: "Да, наш AI чат-бот полностью адаптирован для мобильных устройств и работает на смартфонах и планшетах через любой браузер."
+    }
+  ];
+
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqItems);
+
   return (
     <>
-      <Helmet>
-        <title>AI чат-бот | Общайтесь с искусственным интеллектом без регистрации</title>
-        <meta name="description" content="Общайтесь с AI чат-ботом прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений. Интерактивный AI помощник онлайн." />
-        <meta name="keywords" content="AI чат-бот, чат с искусственным интеллектом, онлайн AI ассистент, интерактивный AI помощник, умный чат-бот, AI консультант, чатgpt диалог, чат с ии, искусственный интеллект чат, чатбот без регистрации" />
-      </Helmet>
+      <SEOTags
+        title="AI чат-бот | Общайтесь с искусственным интеллектом без регистрации"
+        description="Общайтесь с AI чат-ботом прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений. Интерактивный AI помощник онлайн."
+        keywords="AI чат-бот, чат с искусственным интеллектом, онлайн AI ассистент, интерактивный AI помощник, умный чат-бот, AI консультант, чатgpt диалог, чат с ии, искусственный интеллект чат, чатбот без регистрации"
+        canonicalUrl="https://aimarkethub.pro/chat"
+        imageUrl="https://aimarkethub.pro/images/chatgpt-screenshot.jpg"
+        structuredData={[faqSchema]}
+      >
+        <meta name="application-name" content="AI чат-бот без регистрации" />
+        <meta name="apple-mobile-web-app-title" content="AI чат-бот" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </SEOTags>
 
       <div className="min-h-screen w-full">
         <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
@@ -162,6 +195,7 @@ const ChatPage: React.FC = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Задайте вопрос искусственному интеллекту..."
                     className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
+                    aria-label="Введите ваш вопрос"
                     style={{ minHeight: '40px', maxHeight: '40px' }}
                     rows={1}
                     disabled={loading}

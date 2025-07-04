@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowRight, ArrowLeft, Share2, Bookmark, Copy, Check, MessageSquare } from 'lucide-react';
 import { airtableService, AirtableArticle } from '../services/airtableService';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
+import BlogSEO from '../components/BlogSEO';
 
 const BlogArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -315,21 +315,18 @@ const BlogArticlePage: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{article.title} | Блог о n8n и AI</title>
-        <meta name="description" content={article.excerpt} />
-        <meta name="keywords" content={article.tags?.join(', ')} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.excerpt} />
-        <meta property="og:image" content={article.imageUrl} />
-        <meta property="og:type" content="article" />
-        <meta property="article:published_time" content={article.publishedAt} />
-        <meta property="article:author" content={article.author} />
-        <meta property="article:section" content={article.category} />
-        {article.tags?.map((tag, index) => (
-          <meta key={index} property="article:tag" content={tag} />
-        ))}
-      </Helmet>
+      <BlogSEO
+        title={`${article.title} | Блог о n8n и AI`}
+        description={article.excerpt || ''}
+        keywords={article.tags?.join(', ')}
+        canonicalUrl={`https://aimarkethub.pro/blog/article/${article.slug || article.id}`}
+        imageUrl={article.imageUrl}
+        publishDate={article.publishedAt || new Date().toISOString()}
+        author={article.author || 'AI Market Hub'}
+        category={article.category}
+        tags={article.tags}
+        slug={article.slug || article.id}
+      />
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Навигация */}
@@ -460,18 +457,20 @@ const BlogArticlePage: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Поделиться:</span>
                   <button 
-                    onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`, '_blank')}
+                    onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`, '_blank', 'noopener,noreferrer')}
                     className="p-2 bg-[#0088cc] text-white rounded-full hover:opacity-90 transition-opacity"
                     title="Поделиться в Telegram"
+                    aria-label="Поделиться в Telegram"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19.44 4.552 2.56 11.017c-1.151.435-1.143 1.102-.21 1.387l4.349 1.358 10.073-6.352c.476-.294.91-.134.553.188L8.818 15.51l-.206 3.08c.3.418.436.418.872.127l2.092-1.854 4.35 3.21c.803.442 1.38.211 1.58-.744l2.859-13.471c.294-1.176-.447-1.712-1.247-1.306Z"/>
                     </svg>
                   </button>
                   <button 
-                    onClick={() => window.open(`https://vk.com/share.php?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(article.title)}`, '_blank')}
+                    onClick={() => window.open(`https://vk.com/share.php?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(article.title)}`, '_blank', 'noopener,noreferrer')}
                     className="p-2 bg-[#4C75A3] text-white rounded-full hover:opacity-90 transition-opacity"
                     title="Поделиться ВКонтакте"
+                    aria-label="Поделиться ВКонтакте"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path d="M21.579 6.855c.14-.465 0-.806-.666-.806h-2.199c-.56 0-.817.296-.956.624 0 0-1.116 2.719-2.7 4.484-.51.51-.743.675-1.021.675-.14 0-.347-.165-.347-.63V6.855c0-.56-.161-.806-.626-.806H9.642c-.347 0-.557.26-.557.507 0 .532.794.654.874 2.15v3.251c0 .713-.129.842-.41.842-.743 0-2.549-2.731-3.62-5.857-.21-.606-.42-.854-.98-.854H2.752c-.626 0-.752.296-.752.624 0 .584.743 3.477 3.461 7.302 1.812 2.614 4.363 4.029 6.684 4.029 1.393 0 1.565-.314 1.565-.853v-1.966c0-.626.132-.752.574-.752.325 0 .882.166 2.183 1.417 1.486 1.486 1.732 2.153 2.567 2.153h2.199c.626 0 .939-.314.759-.932-.197-.614-.907-1.506-1.849-2.564-.51-.604-1.277-1.254-1.51-1.579-.325-.419-.232-.604 0-.976.001 0 2.672-3.765 2.949-5.044Z"/>
@@ -481,6 +480,7 @@ const BlogArticlePage: React.FC = () => {
                     onClick={handleCopyLink}
                     className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                     title="Копировать ссылку"
+                    aria-label="Копировать ссылку"
                   >
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
