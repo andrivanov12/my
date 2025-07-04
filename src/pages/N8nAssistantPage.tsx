@@ -423,8 +423,8 @@ const N8nAssistantPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         {/* Рекламный баннер */}
         <AdaptiveAdBlock 
-          blockId="R-A-16048264-7" 
-          containerId="yandex_rtb_R-A-16048264-7_n8n_assistant" 
+          blockId="R-A-16048264-9" 
+          containerId="yandex_rtb_R-A-16048264-9_n8n_assistant" 
           position="main-banner"
           className="mb-0"
         />
@@ -539,10 +539,6 @@ const N8nAssistantPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Newsletter Signup */}
-              <div className="mt-8">
-                <NewsletterSignup />
-              </div>
             </div>
           </div>
 
@@ -649,29 +645,6 @@ const N8nAssistantPage: React.FC = () => {
                 <span>n8n Assistant на связи</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* News Section */}
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                Новости n8n и AI
-              </h2>
-              <button 
-                onClick={refreshNews}
-                className="flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-              >
-                <RefreshCw className="h-4 w-4" />
-                <span className="text-sm">Обновить</span>
-              </button>
-            </div>
-            
-            <NewsGrid 
-              news={news.filter(item => item.category === 'n8n' || item.category === 'ai').slice(0, 3)} 
-              loading={newsLoading} 
-            />
           </div>
         </div>
 
