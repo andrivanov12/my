@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp } from 'lucide-react';
+import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Settings } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import FAQ from '../components/FAQ';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
