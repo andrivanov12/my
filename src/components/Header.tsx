@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Moon, Sun } from 'lucide-react';
+import { MessageSquare, Moon, Sun, Zap } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import Navigation from './Navigation';
 
@@ -13,9 +13,9 @@ const Header: React.FC = () => {
         <Link 
           to="/" 
           className="flex items-center gap-1.5 md:gap-2 text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200"
-          title="ChatGPT без регистрации бесплатно - AI Market Hub"
+          title="AI Market Hub - платформа AI инструментов и ChatGPT без регистрации"
         >
-          <MessageSquare className="h-5 w-5 md:h-6 md:w-6" />
+          <Zap className="h-5 w-5 md:h-6 md:w-6" />
           <span className="text-base md:text-lg">AI Market Hub</span>
         </Link>
         

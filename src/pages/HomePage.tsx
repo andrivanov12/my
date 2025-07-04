@@ -77,9 +77,9 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>ChatGPT без регистрации бесплатно 2025 | Чат ГПТ онлайн без входа | AI Market Hub</title>
-        <meta name="description" content="⭐ ChatGPT без регистрации бесплатно! Используйте чат ГПТ онлайн прямо сейчас без входа в аккаунт. 6+ AI моделей, анализ изображений, русский язык. Работает 24/7!" />
-        <meta name="keywords" content="chatgpt без регистрации, чат гпт бесплатно, chatgpt онлайн, чат гпт без входа, бесплатный chatgpt, чатгпт без регистрации, gpt чат онлайн, ai чат бесплатно, искусственный интеллект чат, нейросеть онлайн, chatgpt русский, гпт чат, чат с ии, openai чат, машинное обучение чат, chatgpt 2025" />
+        <title>AI Market Hub - платформа AI инструментов | ChatGPT без регистрации бесплатно 2025</title>
+        <meta name="description" content="⭐ AI Market Hub - платформа AI инструментов и ChatGPT без регистрации бесплатно! Используйте чат ГПТ онлайн, n8n автоматизацию, prompt оптимизацию и Tuya API интеграции. Все AI решения в одном месте!" />
+        <meta name="keywords" content="AIMarketHub, AI инструменты, искусственный интеллект, AI платформа, AI маркетплейс, n8n автоматизация, Prompt оптимизация, Tuya API интеграции, chatgpt без регистрации, чат гпт бесплатно, chatgpt онлайн, чат гпт без входа, бесплатный chatgpt, чатгпт без регистрации, gpt чат онлайн, ai чат бесплатно" />
         <link rel="canonical" href="https://aimarkethub.pro" />
       </Helmet>
 
@@ -96,11 +96,11 @@ const HomePage: React.FC = () => {
         <section className="max-w-5xl mx-auto text-center mb-12 md:mb-16">
           <div className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 p-8 md:p-12 rounded-2xl mb-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              ChatGPT без регистрации бесплатно 2025
+              AI Market Hub - платформа AI инструментов
             </h1>
             
             <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed">
-              ⭐ Чат ГПТ онлайн без входа в аккаунт — используйте искусственный интеллект прямо сейчас!
+              ⭐ Платформа AI инструментов с ChatGPT без регистрации, n8n автоматизацией и Prompt оптимизацией
             </h2>
             
             <div className="grid md:grid-cols-3 gap-4 mb-8 text-sm md:text-base">
@@ -110,11 +110,11 @@ const HomePage: React.FC = () => {
               </div>
               <div className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
                 <Shield className="h-5 w-5 text-blue-500" />
-                <span className="font-medium">Без регистрации</span>
+                <span className="font-medium">AI инструменты</span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
                 <Globe className="h-5 w-5 text-purple-500" />
-                <span className="font-medium">6+ AI моделей</span>
+                <span className="font-medium">Автоматизация</span>
               </div>
             </div>
             
@@ -132,44 +132,45 @@ const HomePage: React.FC = () => {
         <section className="max-w-4xl mx-auto mb-12 md:mb-16 px-4">
           <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-md">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
-              Почему выбирают наш ChatGPT без регистрации?
+              Почему выбирают AI Market Hub?
             </h2>
             
             <div className="prose dark:prose-invert max-w-none">
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-                Наш сервис предоставляет <strong>бесплатный доступ к ChatGPT без регистрации</strong> — это реальность! 
-                Просто нажмите кнопку "Начать общение\" и задайте свой вопрос. Никаких форм, паролей или подтверждений email.
+                <strong>AI Market Hub</strong> — это платформа AI инструментов, предоставляющая <strong>бесплатный доступ к ChatGPT без регистрации</strong>, 
+                инструменты для <strong>n8n автоматизации</strong>, <strong>prompt оптимизации</strong> и <strong>Tuya API интеграции</strong>. 
+                Все необходимые AI решения в одном месте!
               </p>
               
               <div className="grid md:grid-cols-2 gap-6 my-6">
                 <div>
                   <h3 className="text-xl font-semibold mb-3 text-primary-600 dark:text-primary-400">
-                    🚀 Мгновенный доступ
+                    🚀 AI инструменты для всех задач
                   </h3>
                   <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-                    <li>• Без регистрации и входа в аккаунт</li>
-                    <li>• Работает в любом браузере</li>
-                    <li>• Доступен на всех устройствах</li>
-                    <li>• Никаких ограничений по региону</li>
+                    <li>• ChatGPT без регистрации и входа</li>
+                    <li>• n8n Assistant для автоматизации</li>
+                    <li>• AI Prompt Optimizer для эффективных запросов</li>
+                    <li>• Tuya API интеграции для умного дома</li>
                   </ul>
                 </div>
                 
                 <div>
                   <h3 className="text-xl font-semibold mb-3 text-secondary-600 dark:text-secondary-400">
-                    🎯 Передовые AI модели
+                    🎯 Преимущества платформы
                   </h3>
                   <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-                    <li>• <strong>Qwen 3 30B</strong> — универсальная модель</li>
-                    <li>• <strong>Gemini 2.5 Flash</strong> — быстрые ответы</li>
-                    <li>• <strong>Llama 4 Maverick</strong> — анализ изображений</li>
-                    <li>• <strong>Deepseek Chat</strong> — технические задачи</li>
+                    <li>• Все инструменты бесплатно</li>
+                    <li>• Интеграция между сервисами</li>
+                    <li>• Регулярные обновления</li>
+                    <li>• Экспертная поддержка</li>
                   </ul>
                 </div>
               </div>
               
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                <strong>ChatGPT на русском языке</strong> работает круглосуточно и поддерживает все современные функции: 
-                анализ изображений, генерацию кода, решение математических задач, написание текстов и многое другое.
+                <strong>AI Market Hub</strong> — это центр AI технологий, где каждый найдет инструменты для своих задач. 
+                Наша платформа объединяет лучшие AI решения для бизнеса, образования и личного использования.
               </p>
               
               <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-lg">
@@ -202,7 +203,7 @@ const HomePage: React.FC = () => {
         {/* Статистика с улучшенными цифрами */}
         <section className="max-w-4xl mx-auto mb-12 md:mb-16">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-            Нам доверяют тысячи пользователей
+            Нам доверяют тысячи пользователей и компаний
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
@@ -227,7 +228,7 @@ const HomePage: React.FC = () => {
         {/* Преимущества с расширенным контентом */}
         <section className="max-w-5xl mx-auto grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8 sm:col-span-2 md:col-span-3">
-            Преимущества нашего ChatGPT
+            Преимущества платформы AI Market Hub
           </h2>
           
           <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
@@ -236,7 +237,7 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">Мощный ИИ</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Доступ к 6+ передовым AI моделям включая Qwen 3, Gemini 2.5, Llama 4 Maverick с поддержкой анализа изображений и Deepseek Chat для технических задач.
+              Доступ к передовым AI технологиям и инструментам для решения различных задач: от общения с ChatGPT до автоматизации бизнес-процессов с n8n.
             </p>
           </article>
           
@@ -246,7 +247,7 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">Без регистрации</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Никаких аккаунтов, паролей или личных данных. Полная анонимность и приватность. История чата сохраняется только в вашем браузере.
+              Никаких аккаунтов, паролей или личных данных для использования большинства инструментов. Полная анонимность и приватность для всех пользователей.
             </p>
           </article>
           
@@ -256,7 +257,7 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">Мгновенный доступ</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Начните общение с ChatGPT прямо сейчас. Никаких очередей, ожидания активации или подтверждения email. Просто откройте и пользуйтесь.
+              Начните использовать AI инструменты прямо сейчас. Никаких очередей, ожидания активации или подтверждения email. Просто откройте и пользуйтесь.
             </p>
           </article>
 
@@ -264,9 +265,9 @@ const HomePage: React.FC = () => {
             <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-full w-14 h-14 flex items-center justify-center">
               <Globe className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">Русский язык</h3>
+            <h3 className="text-xl font-semibold mb-3">Интеграции</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Полная поддержка русского языка. ChatGPT отлично понимает и отвечает на русском, помогает с переводами и изучением языков.
+              Возможность интеграции различных сервисов и API. Подключайте n8n к внешним системам, используйте Tuya API для умного дома и многое другое.
             </p>
           </article>
 
@@ -274,9 +275,9 @@ const HomePage: React.FC = () => {
             <div className="mb-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full w-14 h-14 flex items-center justify-center">
               <TrendingUp className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">Всегда актуально</h3>
+            <h3 className="text-xl font-semibold mb-3">Автоматизация</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Регулярные обновления и добавление новых AI моделей. Мы следим за последними достижениями в области искусственного интеллекта.
+              Инструменты для автоматизации бизнес-процессов с помощью n8n. Оптимизируйте рабочие процессы, интегрируйте сервисы и экономьте время.
             </p>
           </article>
 
@@ -284,9 +285,9 @@ const HomePage: React.FC = () => {
             <div className="mb-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full w-14 h-14 flex items-center justify-center">
               <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">Высокая скорость</h3>
+            <h3 className="text-xl font-semibold mb-3">Prompt инженерия</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Быстрые ответы благодаря оптимизированной инфраструктуре. Модель Gemini 2.5 Flash обеспечивает мгновенные ответы на простые вопросы.
+              Инструменты для создания эффективных промптов для AI. Оптимизируйте запросы к искусственному интеллекту для получения лучших результатов.
             </p>
           </article>
         </section>
@@ -294,48 +295,48 @@ const HomePage: React.FC = () => {
         {/* Возможности использования с расширенным списком */}
         <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-            Что можно делать с ChatGPT бесплатно
+            Инструменты AI Market Hub
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <BookOpen className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
-              <h3 className="font-semibold mb-2">Обучение и образование</h3>
+              <MessageSquare className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">ChatGPT без регистрации</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Объяснение сложных тем, помощь с домашними заданиями, изучение новых предметов
+                Бесплатный доступ к ChatGPT и другим AI моделям без регистрации и ограничений
               </p>
               <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
-                <li>• Решение математических задач</li>
-                <li>• Подготовка к экзаменам</li>
-                <li>• Изучение иностранных языков</li>
-                <li>• Объяснение научных концепций</li>
+                <li>• 6+ AI моделей</li>
+                <li>• Анализ изображений</li>
+                <li>• Поддержка русского языка</li>
+                <li>• Работает 24/7</li>
               </ul>
             </div>
             
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <Users className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mb-4" />
-              <h3 className="font-semibold mb-2">Работа и бизнес</h3>
+              <Settings className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mb-4" />
+              <h3 className="font-semibold mb-2">n8n автоматизация</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Написание писем, создание презентаций, анализ данных, генерация идей
+                Инструменты для создания, оптимизации и отладки n8n workflow
               </p>
               <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
-                <li>• Составление резюме</li>
-                <li>• Бизнес-планы</li>
-                <li>• Email-рассылки</li>
-                <li>• Анализ конкурентов</li>
+                <li>• n8n Assistant</li>
+                <li>• Workflow Optimizer</li>
+                <li>• Готовые шаблоны</li>
+                <li>• Интеграции с API</li>
               </ul>
             </div>
             
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-              <Award className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
-              <h3 className="font-semibold mb-2">Творчество</h3>
+              <Zap className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Prompt оптимизация</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Написание стихов, рассказов, сценариев, создание контента для соцсетей
+                Инструменты для создания эффективных промптов для AI моделей
               </p>
               <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
-                <li>• Генерация идей для контента</li>
-                <li>• Написание статей</li>
-                <li>• Создание слоганов</li>
-                <li>• Редактирование текстов</li>
+                <li>• AI Prompt Optimizer</li>
+                <li>• Шаблоны промптов</li>
+                <li>• Советы по prompt инженерии</li>
+                <li>• Примеры эффективных запросов</li>
               </ul>
             </div>
           </div>
@@ -344,7 +345,7 @@ const HomePage: React.FC = () => {
         {/* Последние статьи из блога */}
         <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold">Полезные статьи о ChatGPT</h2>
+            <h2 className="text-2xl md:text-3xl font-bold">Полезные статьи о AI и n8n</h2>
             <Link 
               to="/blog"
               className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1"
@@ -378,10 +379,10 @@ const HomePage: React.FC = () => {
         <section className="max-w-4xl mx-auto text-center px-4 mt-12 md:mt-16">
           <div className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white p-8 md:p-12 rounded-2xl shadow-xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Готовы начать использовать ChatGPT бесплатно?
+              Готовы начать использовать AI инструменты?
             </h2>
             <p className="text-lg md:text-xl mb-8 opacity-90">
-              Присоединяйтесь к 150,000+ пользователей, которые уже используют наш сервис
+              Присоединяйтесь к 150,000+ пользователей, которые уже используют платформу AI Market Hub
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
@@ -390,7 +391,7 @@ const HomePage: React.FC = () => {
                 className="inline-flex items-center gap-2 bg-white text-primary-600 font-medium py-4 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg hover:bg-gray-50 transform hover:scale-105"
               >
                 <MessageSquare className="h-6 w-6" />
-                <span>Начать общение с ChatGPT</span>
+                <span>Начать использовать AI инструменты</span>
               </Link>
               
               <div className="flex items-center gap-2 text-white/80">

@@ -276,9 +276,9 @@ const AiPromptOptimizerPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>AI Prompt Optimizer для автоматизации | aimarkethub.pro</title>
-        <meta name="description" content="Превратите ваши обычные запросы в оптимизированные промпты для искусственного интеллекта. Создавайте более эффективные инструкции для AI в контексте автоматизации задач." />
-        <meta name="keywords" content="ai prompt optimizer, промпт оптимизатор, автоматизация ai, n8n промпты, zapier ai, make.com ai" />
+        <title>AI Prompt Optimizer | Оптимизация промптов для нейросетей</title>
+        <meta name="description" content="Превратите ваши обычные запросы в оптимизированные промпты для искусственного интеллекта. Создавайте эффективные инструкции для AI с помощью инструментов prompt инженерии." />
+        <meta name="keywords" content="оптимизация промптов, как писать эффективные промпты, генерация качественных промптов, инструмент для улучшения запросов к AI, prompt инженерия, улучшение взаимодействия с нейросетями, ai prompt optimizer, промпт оптимизатор, автоматизация ai" />
         <link rel="canonical" href="https://aimarkethub.pro/ai-prompt-optimizer" />
       </Helmet>
 
@@ -294,11 +294,12 @@ const AiPromptOptimizerPage: React.FC = () => {
         {/* Header */}
         <section className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-            AI Prompt Optimizer для автоматизации
+            AI Prompt Optimizer - инструмент для prompt инженерии
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto mb-8">
-            Превратите обычные запросы в оптимизированные промпты для искусственного интеллекта. 
-            Создавайте четкие инструкции, которые приведут к желаемым результатам в ваших задачах автоматизации.
+            Превратите обычные запросы в оптимизированные промпты для искусственного интеллекта с помощью 
+            профессиональных инструментов prompt инженерии. Создавайте четкие инструкции для нейросетей, 
+            которые приведут к желаемым результатам.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 mb-8">

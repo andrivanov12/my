@@ -9,12 +9,12 @@ const Navigation: React.FC = () => {
   const navItems = [
     { path: '/', label: 'Главная' },
     { path: '/chat', label: 'Чат' },
-    { path: '/guide', label: 'Руководство' },
+    { path: '/guide', label: 'AI Руководство' },
     { path: '/blog', label: 'Блог' },
     { path: '/ai-prompt-optimizer', label: 'Prompt Optimizer' },
     { path: '/n8n-workflow-optimizer', label: 'n8n Оптимизатор' },
     { path: '/n8n-assistant', label: 'n8n Assistant' },
-    { path: '/tuya-instructions', label: 'Tuya API' },
+    { path: '/tuya-instructions', label: 'Tuya API Интеграции' },
     { path: '/about', label: 'О нас' },
     { path: '/contact', label: 'Контакты' }
   ];

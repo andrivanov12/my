@@ -39,19 +39,19 @@ const ContactPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Контакты | Связаться с командой ChatGPT без регистрации</title>
-        <meta name="description" content="Свяжитесь с нами по любым вопросам о ChatGPT без регистрации. Техническая поддержка, предложения и обратная связь." />
-        <meta name="keywords" content="контакты chatgpt, поддержка ai чат, связаться с разработчиками" />
+        <title>Контакты | Связаться с экспертами AI Market Hub</title>
+        <meta name="description" content="Свяжитесь с командой экспертов AI Market Hub по вопросам искусственного интеллекта, автоматизации и интеграций. Техническая поддержка, консультации и обратная связь." />
+        <meta name="keywords" content="контактная информация AI платформы, обратная связь по AI сервисам, поддержка пользователей AIMarketHub, как найти AIMarketHub, контакты экспертов по искусственному интеллекту" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-            Свяжитесь с нами
+            Связаться с экспертами AI Market Hub
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            Мы всегда готовы помочь и ответить на ваши вопросы. Выберите удобный способ связи 
-            или заполните форму обратной связи.
+            Наша команда экспертов по искусственному интеллекту и автоматизации всегда готова помочь 
+            с вашими вопросами и проектами. Выберите удобный способ связи или заполните форму.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ const ContactPage: React.FC = () => {
               <h2 className="text-xl font-bold mb-6">Контактная информация</h2>
               
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 mb-5">
                   <MessageCircle className="h-5 w-5 text-primary-600 dark:text-primary-400 mt-1" />
                   <div>
                     <h3 className="font-medium mb-1">Telegram</h3>
@@ -80,7 +80,7 @@ const ContactPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 mb-5">
                   <Mail className="h-5 w-5 text-secondary-600 dark:text-secondary-400 mt-1" />
                   <div>
                     <h3 className="font-medium mb-1">Email</h3>
@@ -96,7 +96,7 @@ const ContactPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 mb-5">
                   <Clock className="h-5 w-5 text-primary-600 dark:text-primary-400 mt-1" />
                   <div>
                     <h3 className="font-medium mb-1">Время работы</h3>
@@ -111,7 +111,7 @@ const ContactPage: React.FC = () => {
               <div className="mt-8 p-4 bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-lg">
                 <h3 className="font-medium mb-2">Быстрая помощь</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                  Для срочных вопросов рекомендуем Telegram - отвечаем в течение нескольких минут.
+                  Для срочных вопросов по AI инструментам и автоматизации рекомендуем Telegram - отвечаем в течение нескольких минут.
                 </p>
                 <a 
                   href="https://t.me/solvillage" 
@@ -190,6 +190,9 @@ const ContactPage: React.FC = () => {
                     <option value="technical">Техническая поддержка</option>
                     <option value="feature">Предложение функции</option>
                     <option value="bug">Сообщение об ошибке</option>
+                    <option value="consultation">Консультация по AI</option>
+                    <option value="n8n">Вопрос по n8n автоматизации</option>
+                    <option value="tuya">Вопрос по Tuya API</option>
                     <option value="partnership">Партнерство</option>
                     <option value="other">Другое</option>
                   </select>
@@ -242,8 +245,8 @@ const ContactPage: React.FC = () => {
                 Как быстро вы отвечаете на сообщения?
               </h3>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                В Telegram отвечаем в течение нескольких минут в рабочее время. 
-                На email - в течение 24 часов.
+                В Telegram отвечаем в течение 15-30 минут в рабочее время. 
+                На email - в течение 24 часов. По срочным вопросам автоматизации и интеграции - приоритетная поддержка.
               </p>
             </div>
             <div>
@@ -260,8 +263,8 @@ const ContactPage: React.FC = () => {
                 Есть ли техническая поддержка?
               </h3>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Да, наша команда готова помочь с любыми техническими вопросами 
-                и проблемами использования сервиса.
+                Да, наша команда экспертов по AI и автоматизации готова помочь с любыми техническими вопросами 
+                по использованию инструментов платформы, настройке n8n workflow и интеграции с внешними сервисами.
               </p>
             </div>
             <div>

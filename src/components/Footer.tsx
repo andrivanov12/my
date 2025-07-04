@@ -13,11 +13,12 @@ const Footer: React.FC = () => {
           {/* О проекте */}
           <div className="md:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              AI Market Hub
+              AI Market Hub - платформа AI инструментов
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-              Бесплатный доступ к ChatGPT без регистрации. Используйте передовые AI технологии 
-              для обучения, работы и творчества. 6+ моделей искусственного интеллекта в одном месте.
+              Платформа AI инструментов с бесплатным доступом к ChatGPT без регистрации. Используйте передовые 
+              AI технологии для обучения, работы и автоматизации бизнес-процессов. 
+              Все инструменты искусственного интеллекта в одном месте.
             </p>
             <div className="flex items-center gap-4">
               <a
@@ -50,7 +51,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to="/chat" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
                   ChatGPT без регистрации
                 </Link>
@@ -58,25 +59,25 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to="/guide" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  Руководство по использованию
+                  Руководство по AI
                 </Link>
               </li>
               <li>
                 <Link 
                   to="/blog" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  Блог о ChatGPT
+                  Блог о AI и n8n
                 </Link>
               </li>
               <li>
                 <Link 
                   to="/ai-prompt-optimizer" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  AI Prompt Optimizer
+                  Prompt инженерия
                 </Link>
               </li>
             </ul>
@@ -91,7 +92,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to="/n8n-assistant" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
                   n8n Assistant
                 </Link>
@@ -99,25 +100,25 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to="/n8n-workflow-optimizer" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  n8n Workflow Optimizer
+                  Оптимизация n8n workflow
                 </Link>
               </li>
               <li>
                 <Link 
                   to="/tuya-instructions" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  Tuya API Generator
+                  Tuya API интеграции
                 </Link>
               </li>
               <li>
                 <Link 
                   to="/about" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 text-sm font-medium"
                 >
-                  О нас
+                  О команде AIMarketHub
                 </Link>
               </li>
             </ul>
@@ -129,7 +130,7 @@ const Footer: React.FC = () => {
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
             Популярные запросы:
           </h4>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             <Link 
               to="/chatgpt-bez-registracii" 
               className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-1 rounded transition-colors duration-200"
@@ -148,15 +149,33 @@ const Footer: React.FC = () => {
             >
               AI чат онлайн
             </Link>
-            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
+            <Link 
+              to="/chatgpt-na-russkom" 
+              className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-1 rounded transition-colors duration-200"
+            >
               ChatGPT на русском
-            </span>
-            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
-              Бесплатный ИИ
-            </span>
-            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
-              Нейросеть онлайн
-            </span>
+            </Link>
+            <Link 
+              to="/n8n-assistant" 
+              className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-1 rounded transition-colors duration-200"
+            >
+              n8n интеграции
+            </Link>
+            <Link 
+              to="/ai-prompt-optimizer" 
+              className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-1 rounded transition-colors duration-200"
+            >
+              Prompt инженерия
+            </Link>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">нейросеть онлайн</span>
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">искусственный интеллект</span>
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">машинное обучение</span>
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">автоматизация бизнес-процессов</span>
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">генеративный AI</span>
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">AI интеграции</span>
           </div>
         </div>
 
@@ -165,7 +184,7 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                &copy; {currentYear} AI Market Hub. Все права защищены.
+                &copy; {currentYear} AI Market Hub - платформа AI инструментов. Все права защищены.
               </p>
               <Link 
                 to="/contact" 

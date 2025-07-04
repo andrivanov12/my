@@ -89,9 +89,9 @@ const ChatPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Диалог с ChatGPT - Общайтесь с ИИ без регистрации</title>
-        <meta name="description" content="Общайтесь с ChatGPT прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений." />
-        <meta name="keywords" content="чатgpt диалог, чат с ии, онлайн чат, искусственный интеллект чат, чатбот без регистрации" />
+        <title>AI чат-бот | Общайтесь с искусственным интеллектом без регистрации</title>
+        <meta name="description" content="Общайтесь с AI чат-ботом прямо сейчас! Задавайте вопросы, получайте мгновенные ответы от искусственного интеллекта без регистрации и ограничений. Интерактивный AI помощник онлайн." />
+        <meta name="keywords" content="AI чат-бот, чат с искусственным интеллектом, онлайн AI ассистент, интерактивный AI помощник, умный чат-бот, AI консультант, чатgpt диалог, чат с ии, искусственный интеллект чат, чатбот без регистрации" />
       </Helmet>
 
       <div className="min-h-screen w-full">
@@ -132,15 +132,15 @@ const ChatPage: React.FC = () => {
                 <ModelSelector />
               </div>
 
-              <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 md:p-4">
+              <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 md:p-4" aria-live="polite">
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400 p-4">
                     <div className="w-12 h-12 md:w-16 md:h-16 mb-3 md:mb-4 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
                       <Send className="h-6 w-6 md:h-8 md:w-8 text-primary-600 dark:text-primary-400" />
                     </div>
-                    <h3 className="text-lg md:text-xl font-medium mb-2">Начните общение</h3>
+                    <h3 className="text-lg md:text-xl font-medium mb-2">Начните общение с AI</h3>
                     <p className="max-w-sm text-sm md:text-base">
-                      Задайте вопрос или напишите что-нибудь, чтобы начать разговор с ChatGPT.
+                      Задайте вопрос или напишите что-нибудь, чтобы начать разговор с искусственным интеллектом.
                     </p>
                   </div>
                 ) : (
@@ -160,7 +160,7 @@ const ChatPage: React.FC = () => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Напишите сообщение..."
+                    placeholder="Задайте вопрос искусственному интеллекту..."
                     className="flex-1 h-10 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 dark:focus:border-primary-500 bg-white dark:bg-gray-800 outline-none resize-none text-sm md:text-base leading-normal"
                     style={{ minHeight: '40px', maxHeight: '40px' }}
                     rows={1}

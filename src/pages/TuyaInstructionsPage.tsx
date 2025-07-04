@@ -19,9 +19,9 @@ const TuyaInstructionsPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Инструкция по получению токенов Tuya через Postman | aimarkethub.pro</title>
-        <meta name="description" content="Пошаговая инструкция по получению токенов API Tuya с помощью Postman. Скачайте готовую коллекцию и получите токены за несколько минут." />
-        <meta name="keywords" content="tuya api postman, инструкция tuya токены, postman коллекция tuya, умный дом api" />
+        <title>Tuya API интеграции | Получение токенов для умного дома</title>
+        <meta name="description" content="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman." />
+        <meta name="keywords" content="интеграция с Tuya, Tuya API документация, умный дом Tuya, подключение устройств через Tuya, автоматизация Tuya устройств, разработка с Tuya API, tuya api postman, инструкция tuya токены" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
@@ -40,11 +40,11 @@ const TuyaInstructionsPage: React.FC = () => {
               <Key className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-              Tuya Token Generator
+              Tuya API интеграции
             </h1>
           </div>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            Простой способ получить токены доступа к API Tuya без программирования
+            Инструменты для интеграции с API Tuya и автоматизации устройств умного дома
           </p>
         </div>
 

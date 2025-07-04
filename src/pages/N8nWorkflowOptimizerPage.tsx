@@ -328,9 +328,9 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>n8n Workflow Debugger & Optimizer | aimarkethub.pro</title>
-        <meta name="description" content="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации." />
-        <meta name="keywords" content="n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n, оптимизация workflow" />
+        <title>n8n Workflow Optimizer | Оптимизация и отладка n8n процессов</title>
+        <meta name="description" content="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации рабочих процессов." />
+        <meta name="keywords" content="n8n workflow оптимизация, автоматизация рабочих процессов, улучшение n8n процессов, настройка n8n интеграций, оптимизация производительности n8n, ускорение работы автоматизаций, n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n" />
         <link rel="canonical" href="https://aimarkethub.pro/n8n-workflow-optimizer" />
       </Helmet>
 
@@ -346,11 +346,11 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
         {/* Header */}
         <section className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-            n8n Workflow Debugger & Optimizer
+            n8n Workflow Optimizer
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto mb-8">
-            Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки конфигурации, 
-            улучшайте производительность и повышайте надежность автоматизации.
+            Профессиональный инструмент для анализа и оптимизации n8n workflow. Выявляйте ошибки конфигурации, 
+            улучшайте производительность и повышайте надежность автоматизации рабочих процессов.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 mb-8">
