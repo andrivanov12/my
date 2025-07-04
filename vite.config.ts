@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,10 +10,12 @@ export default defineConfig({
     compression({
       algorithm: 'gzip',
       ext: '.gz',
+      fileName: (file) => path.relative(path.resolve(__dirname, 'dist'), file) + '.gz',
     }),
     compression({
       algorithm: 'brotliCompress',
       ext: '.br',
+      fileName: (file) => path.relative(path.resolve(__dirname, 'dist'), file) + '.br',
     }),
   ],
   build: {
