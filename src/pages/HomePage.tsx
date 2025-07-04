@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Cpu } from 'lucide-react';
+import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Settings, Cpu } from 'lucide-react';
 import FAQ from '../components/FAQ';
 import SEOTags from '../components/SEOTags';
 import StructuredData from '../components/StructuredData';
