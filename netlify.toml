@@ -130,3 +130,9 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["axios"]
+
+# Настройки для Netlify Functions
+[functions."n8n-assistant"]
+  included_files = []
+  external_node_modules = ["axios"]
+  node_bundler = "esbuild"

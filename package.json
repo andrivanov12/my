@@ -33,6 +33,7 @@
   "devDependencies": {
     "@capacitor/cli": "^5.7.0",
     "@types/js-cookie": "^3.0.6",
+    "@types/node": "^20.10.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@types/uuid": "^9.0.7",
@@ -44,6 +45,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "netlify-cli": "^17.0.0",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.4.31",
     "sitemap": "^7.1.1",
     "tailwindcss": "^3.3.5",
@@ -53,6 +55,7 @@
     "vite": "^5.4.2",
     "vite-bundle-analyzer": "^0.7.0",
     "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-css-injected-by-js": "^3.3.0",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-pwa": "^1.0.1"
   },
