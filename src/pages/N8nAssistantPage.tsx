@@ -407,9 +407,9 @@ const N8nAssistantPage: React.FC = () => {
   return (
     <>
       <SEOTags
-        title="n8n Assistant | Помощник по автоматизации рабочих процессов | AIMarketHub"
-        description="Специализированный AI-ассистент для n8n. Получите точные ответы по созданию workflows, настройке узлов и автоматизации бизнес-процессов с n8n."
-        keywords="помощник по n8n, n8n интеграции, автоматизация процессов n8n, настройка рабочих потоков n8n, создание n8n воркфлоу, n8n для начинающих, n8n assistant, n8n автоматизация, n8n workflow, n8n nodes"
+        title="Автоматизация маркетинга с n8n | AI-ассистент для создания маркетинговых workflow"
+        description="Специализированный AI-ассистент для автоматизации маркетинговых процессов с n8n. Создавайте эффективные workflow для сбора лидов, email-маркетинга, аналитики и персонализации коммуникаций с клиентами."
+        keywords="автоматизация маркетинга с n8n, маркетинговые workflow, интеграция маркетинговых инструментов, автоматизация сбора лидов, автоматизация email-маркетинга, персонализация коммуникаций, маркетинговая аналитика с n8n, автоматизация социальных сетей, n8n для маркетологов, n8n интеграции с CRM"
         canonicalUrl="https://aimarkethub.pro/n8n-assistant"
         imageUrl="https://aimarkethub.pro/images/n8n-assistant.jpg"
         structuredData={[faqSchema]}
@@ -433,10 +433,10 @@ const N8nAssistantPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                  n8n Assistant
+                  Автоматизация маркетинга с n8n
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-                  Специализированный AI-ассистент для автоматизации рабочих процессов с n8n
+                  AI-ассистент для создания эффективных маркетинговых workflow и автоматизации процессов
                 </p>
               </div>
               

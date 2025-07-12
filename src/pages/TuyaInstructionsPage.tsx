@@ -54,16 +54,16 @@ const TuyaInstructionsPage: React.FC = () => {
   return (
     <>
       <SEOTags
-        title="Tuya API интеграции | Получение токенов для умного дома"
-        description="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman."
-        keywords="интеграция с Tuya, Tuya API документация, умный дом Tuya, подключение устройств через Tuya, автоматизация Tuya устройств, разработка с Tuya API, tuya api postman, инструкция tuya токены"
+        title="Интеграция маркетинговых инструментов с IoT | API для умного дома и бизнес-автоматизации"
+        description="Интегрируйте маркетинговые инструменты с IoT-устройствами для создания инновационных бизнес-решений. Автоматизируйте сбор данных с умных устройств и персонализируйте маркетинговые коммуникации."
+        keywords="интеграция маркетинга с IoT, умный дом для бизнеса, автоматизация с IoT устройствами, сбор данных с умных устройств, персонализация маркетинга с IoT, бизнес-кейсы IoT, маркетинговая аналитика IoT, интеграция CRM с умным домом, автоматизация бизнес-процессов с IoT, API для маркетинговых интеграций"
         canonicalUrl="https://aimarkethub.pro/tuya-instructions"
         imageUrl="https://aimarkethub.pro/images/tuya-api-integration.jpg"
         structuredData={[faqSchema]}
       >
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Tuya API интеграции | Получение токенов для умного дома" />
-        <meta property="og:description" content="Пошаговая инструкция по интеграции с Tuya API для умного дома. Получите токены API Tuya с помощью нашего генератора и готовой коллекции Postman." />
+        <meta property="og:title" content="Интеграция маркетинговых инструментов с IoT | API для умного дома и бизнес-автоматизации" />
+        <meta property="og:description" content="Интегрируйте маркетинговые инструменты с IoT-устройствами для создания инновационных бизнес-решений. Автоматизируйте сбор данных с умных устройств и персонализируйте маркетинговые коммуникации." />
         <meta property="og:url" content="https://aimarkethub.pro/tuya-instructions" />
         <meta property="og:image" content="https://aimarkethub.pro/images/tuya-api-integration.jpg" />
       </SEOTags>
@@ -84,11 +84,11 @@ const TuyaInstructionsPage: React.FC = () => {
               <Key className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-              Tuya API интеграции
+              Интеграция маркетинга с IoT-устройствами
             </h1>
           </div>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            Инструменты для интеграции с API Tuya и автоматизации устройств умного дома
+            Инновационные решения для интеграции маркетинговых инструментов с IoT-устройствами и автоматизации бизнес-процессов
           </p>
         </div>
 

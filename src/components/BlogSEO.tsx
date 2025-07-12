@@ -94,6 +94,26 @@ const BlogSEO: React.FC<BlogSEOProps> = ({
       <meta name="twitter:image" content={imageUrl} />
       <meta name="twitter:site" content="@aimarkethub" />
       <meta name="twitter:creator" content="@aimarkethub" />
+
+      {/* Дополнительные мета-теги для улучшения SEO */}
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="author" content={author} />
+      <meta name="copyright" content="© 2025 AI Market Hub" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="theme-color" content="#7c3aed" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="apple-mobile-web-app-title" content="AI Market Hub Blog" />
+      <meta name="application-name" content="AI Market Hub Blog" />
+      
+      {/* Дополнительные мета-теги для статей */}
+      <meta property="article:published_time" content={publishDate} />
+      {modifiedDate && <meta property="article:modified_time" content={modifiedDate} />}
+      <meta property="article:author" content={author} />
+      {category && <meta property="article:section" content={category} />}
+      {tags && tags.map((tag, index) => (
+        <meta key={index} property="article:tag" content={tag} />
+      ))}
       
       {/* Предзагрузка критических ресурсов */}
       {preload.map((item, index) => (

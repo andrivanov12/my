@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Приоритетные страницы и инструменты для индексации
+# Приоритетные страницы для маркетинга и бизнеса
 Allow: /chat
 Allow: /chatgpt-bez-registracii
 Allow: /chat-gpt-besplatno
@@ -18,6 +18,14 @@ Allow: /tuya-instructions
 Allow: /about
 Allow: /contact
 
+# Маркетинговые страницы с высоким приоритетом
+Allow: /marketing-ai-tools
+Allow: /business-automation
+Allow: /content-generation
+Allow: /data-analysis
+Allow: /personalization-with-ai
+Allow: /marketing-automation
+
 # Запрещенные для индексации области
 Disallow: /admin/
 Disallow: /private/
@@ -33,14 +41,20 @@ Disallow: /build/
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
+Disallow: /dev/
+Disallow: /test/
 
 User-agent: Yandex
 Allow: /
 Crawl-delay: 1
+Disallow: /dev/
+Disallow: /test/
 
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
+Disallow: /dev/
+Disallow: /test/
 
 User-agent: facebookexternalhit
 Allow: /
@@ -54,7 +68,7 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
-# Блокировка нежелательных ботов
+# Блокировка нежелательных ботов и краулеров
 User-agent: AhrefsBot
 Disallow: /
 
@@ -70,10 +84,16 @@ Disallow: /
 User-agent: Baiduspider
 Disallow: /
 
+User-agent: PetalBot
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
 # Карта сайта
 Sitemap: https://aimarkethub.pro/sitemap.xml
 
 # Дополнительные инструкции
 Host: aimarkethub.pro
-Clean-param: ref /blog/*
-Clean-param: utm_source&utm_medium&utm_campaign /
+Clean-param: ref /blog/* /n8n-assistant/* /ai-prompt-optimizer/*
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term /

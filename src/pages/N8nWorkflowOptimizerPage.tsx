@@ -339,9 +339,9 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
   return (
     <>
       <SEOTags
-        title="n8n Workflow Optimizer | Оптимизация и отладка n8n процессов"
-        description="Анализируйте и оптимизируйте ваши n8n workflow. Выявляйте ошибки, улучшайте производительность и повышайте надежность автоматизации рабочих процессов."
-        keywords="n8n workflow оптимизация, автоматизация рабочих процессов, улучшение n8n процессов, настройка n8n интеграций, оптимизация производительности n8n, ускорение работы автоматизаций, n8n workflow optimizer, n8n debugger, n8n анализатор, автоматизация n8n"
+        title="Автоматизация маркетинговых процессов с n8n | Оптимизация workflow для маркетинга"
+        description="Создавайте и оптимизируйте маркетинговые workflow с n8n. Автоматизируйте сбор лидов, email-маркетинг, аналитику, персонализацию и интеграцию с CRM для повышения эффективности маркетинга."
+        keywords="автоматизация маркетинга с n8n, маркетинговые workflow, оптимизация маркетинговых процессов, автоматизация сбора лидов, автоматизация email-маркетинга, интеграция маркетинговых инструментов, n8n для маркетологов, маркетинговая аналитика с n8n, автоматизация социальных сетей, n8n интеграции с CRM"
         canonicalUrl="https://aimarkethub.pro/n8n-workflow-optimizer"
         imageUrl="https://aimarkethub.pro/images/n8n-workflow-optimizer.jpg"
         structuredData={[faqSchema]}
@@ -362,11 +362,12 @@ const N8nWorkflowOptimizerPage: React.FC = () => {
         {/* Header */}
         <section className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-            n8n Workflow Optimizer
+            Автоматизация маркетинговых процессов с n8n
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto mb-8">
-            Профессиональный инструмент для анализа и оптимизации n8n workflow. Выявляйте ошибки конфигурации, 
-            улучшайте производительность и повышайте надежность автоматизации рабочих процессов.
+            Создавайте эффективные маркетинговые workflow с n8n. Автоматизируйте сбор и нуртуринг лидов, 
+            email-маркетинг, аналитику, персонализацию коммуникаций и интеграцию с CRM для повышения 
+            эффективности вашего маркетинга.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 mb-8">

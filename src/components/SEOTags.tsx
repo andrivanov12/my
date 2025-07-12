@@ -53,6 +53,18 @@ const SEOTags: React.FC<SEOTagsProps> = ({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
       
+      <meta name="twitter:creator" content="@aimarkethub" />
+      
+      {/* Дополнительные мета-теги для улучшения SEO */}
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="author" content="AI Market Hub Team" />
+      <meta name="copyright" content="© 2025 AI Market Hub" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="theme-color" content="#7c3aed" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="apple-mobile-web-app-title" content="AI Market Hub" />
+      <meta name="application-name" content="AI Market Hub" />
       {/* Предзагрузка критических ресурсов */}
       {preload.map((item, index) => (
         <link 
