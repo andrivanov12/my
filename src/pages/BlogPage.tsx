@@ -1,594 +1,524 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, ArrowRight, TrendingUp, Lightbulb, Shield, Loader2, RefreshCw, Filter, Search } from 'lucide-react';
-import { airtableService, AirtableArticle } from '../services/airtableService';
+import { Link } from 'react-router-dom';
+import { MessageSquare, Brain, Lock, Sparkles, BookOpen, Users, Award, ArrowRight, Star, CheckCircle, Zap, Globe, Shield, TrendingUp, Settings, Cpu } from 'lucide-react';
+import FAQ from '../components/FAQ';
 import SEOTags from '../components/SEOTags';
 import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
-import { generateBreadcrumbSchema } from '../utils/seoHelpers';
+import { airtableService, AirtableArticle } from '../services/airtableService';
+import { generateWebAppSchema, generateOrganizationSchema, generateFAQSchema } from '../utils/seoHelpers';
 
-const BlogPage: React.FC = () => {
-  const [articles, setArticles] = useState<AirtableArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("Все");
-  const [selectedArticle, setSelectedArticle] = useState<AirtableArticle | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const navigate = useNavigate();
-
-  // Статические статьи как fallback
-  const staticArticles: AirtableArticle[] = [
-    {
-      id: 'n8n-guide-1',
-      title: "Полное руководство по n8n: от новичка до профессионала",
-      excerpt: "Подробное руководство по использованию n8n для автоматизации рабочих процессов, от базовых понятий до продвинутых техник.",
-      publishedAt: "2025-01-25",
-      author: "Команда AI Hub",
-      category: "n8n",
-      imageUrl: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>n8n — это мощный инструмент для автоматизации рабочих процессов, который позволяет соединять различные сервисы и создавать сложные автоматизации без необходимости глубоких технических знаний.</p>
-      `,
-      tags: ['n8n', 'Автоматизация', 'Руководство'],
-      slug: 'n8n-complete-guide'
-    },
-    {
-      id: 'n8n-marketing-2',
-      title: "10 готовых workflow в n8n для автоматизации маркетинга",
-      excerpt: "Готовые решения для автоматизации маркетинговых задач с помощью n8n: от сбора лидов до аналитики кампаний.",
-      publishedAt: "2025-01-20",
-      author: "Эксперт n8n",
-      category: "n8n",
-      imageUrl: "https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Маркетологи постоянно ищут способы оптимизировать свои процессы и повысить эффективность кампаний.</p>
-      `,
-      tags: ['n8n', 'Маркетинг', 'Автоматизация'],
-      slug: 'top-10-n8n-workflows-for-marketers'
-    },
-    {
-      id: 'n8n-ai-3',
-      title: "Интеграция AI инструментов с n8n: пошаговое руководство",
-      excerpt: "Как интегрировать ChatGPT, Gemini и другие AI инструменты с n8n для создания интеллектуальных автоматизаций.",
-      publishedAt: "2025-01-15",
-      author: "AI эксперт",
-      category: "AI",
-      imageUrl: "https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Объединение возможностей AI и n8n открывает новые горизонты для автоматизации бизнес-процессов.</p>
-      `,
-      tags: ['AI', 'n8n', 'Интеграция'],
-      slug: 'ai-tools-n8n-integration'
-    },
-    {
-      id: 'csv-analysis-4',
-      title: "Как анализировать данные с помощью Chat with CSV",
-      excerpt: "Пошаговое руководство по использованию Chat with CSV для анализа данных с примерами и практическими советами.",
-      publishedAt: "2025-01-10",
-      author: "Аналитик данных",
-      category: "Анализ данных",
-      imageUrl: "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Chat with CSV — это мощный инструмент для интерактивного анализа данных с помощью естественного языка.</p>
-      `,
-      tags: ['Анализ данных', 'CSV', 'AI'],
-      slug: 'chat-with-csv-data-analysis'
-    },
-    {
-      id: 'automation-comparison-5',
-      title: "Сравнение n8n, Zapier и Make.com: что выбрать в 2025 году",
-      excerpt: "Детальное сравнение популярных инструментов автоматизации: функциональность, цены, ограничения и преимущества.",
-      publishedAt: "2025-01-05",
-      author: "Эксперт по автоматизации",
-      category: "Обзоры",
-      imageUrl: "https://images.pexels.com/photos/7376/startup-photos.jpg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Выбор правильного инструмента автоматизации может значительно повлиять на эффективность вашего бизнеса.</p>
-      `,
-      tags: ['n8n', 'Zapier', 'Make.com', 'Сравнение'],
-      slug: 'n8n-zapier-make-comparison-2025'
-    },
-    {
-      id: 'gpt-content-6',
-      title: "Автоматизация генерации контента с GPT",
-      excerpt: "Как настроить автоматическую генерацию контента с помощью GPT и n8n для блогов, соцсетей и email-рассылок.",
-      publishedAt: "2024-12-28",
-      author: "Контент-маркетолог",
-      category: "Маркетинг",
-      imageUrl: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Автоматизация генерации контента с помощью GPT позволяет значительно ускорить создание материалов для различных каналов.</p>
-      `,
-      tags: ['GPT', 'Контент', 'Автоматизация', 'Маркетинг'],
-      slug: 'content-generation-automation-gpt'
-    },
-    {
-      id: 'api-integration-7',
-      title: "API интеграции в n8n: работа с REST и GraphQL",
-      excerpt: "Подробное руководство по настройке интеграций с REST и GraphQL API в n8n с примерами и лучшими практиками.",
-      publishedAt: "2024-12-20",
-      author: "API специалист",
-      category: "Разработка",
-      imageUrl: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>API интеграции — основа большинства современных автоматизаций. n8n предоставляет мощные инструменты для работы с различными типами API.</p>
-      `,
-      tags: ['API', 'REST', 'GraphQL', 'n8n', 'Интеграция'],
-      slug: 'api-integrations-n8n-rest-graphql'
-    },
-    {
-      id: 'data-processing-8',
-      title: "Как настроить автоматизацию обработки данных в n8n",
-      excerpt: "Пошаговое руководство по созданию workflow для автоматической обработки, трансформации и анализа данных в n8n.",
-      publishedAt: "2024-12-15",
-      author: "Инженер данных",
-      category: "Данные",
-      imageUrl: "https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Автоматизация обработки данных позволяет сэкономить время и избежать ошибок при работе с большими объемами информации.</p>
-      `,
-      tags: ['Данные', 'ETL', 'n8n', 'Автоматизация'],
-      slug: 'data-processing-automation-n8n'
-    },
-    {
-      id: 'security-9',
-      title: "Лучшие практики безопасности при работе с API и AI инструментами",
-      excerpt: "Рекомендации по обеспечению безопасности при интеграции API и использовании AI инструментов в автоматизациях.",
-      publishedAt: "2024-12-10",
-      author: "Эксперт по безопасности",
-      category: "Безопасность",
-      imageUrl: "https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>Безопасность — критически важный аспект при работе с API и AI инструментами, особенно когда речь идет о конфиденциальных данных.</p>
-      `,
-      tags: ['Безопасность', 'API', 'AI', 'Лучшие практики'],
-      slug: 'security-best-practices-api-ai'
-    },
-    {
-      id: 'case-study-10',
-      title: "Кейс: как компания X сэкономила 20 часов в неделю с помощью n8n автоматизации",
-      excerpt: "Реальный пример внедрения n8n для автоматизации рутинных задач, приведший к значительной экономии времени и ресурсов.",
-      publishedAt: "2024-12-05",
-      author: "Бизнес-аналитик",
-      category: "Кейсы",
-      imageUrl: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
-      content: `
-        <p>В этом кейсе мы рассмотрим, как компания X трансформировала свои бизнес-процессы с помощью n8n и достигла впечатляющих результатов.</p>
-      `,
-      tags: ['Кейс', 'n8n', 'Бизнес', 'ROI', 'Автоматизация'],
-      slug: 'case-study-company-x-n8n-automation'
-    }
-  ];
+const HomePage: React.FC = () => {
+  const [latestArticles, setLatestArticles] = useState<AirtableArticle[]>([]);
 
   useEffect(() => {
-    loadArticles();
+    loadLatestArticles();
   }, []);
 
-  const loadArticles = async () => {
+  const loadLatestArticles = async () => {
     try {
-      setLoading(true);
+      const articles = await airtableService.getArticles();
+      setLatestArticles(articles.slice(0, 2));
       
-      // Загружаем статьи из Airtable
-      const airtableArticles = await airtableService.getArticles();
-      
-      // Объединяем статьи
-      const allArticles = [
-        ...airtableArticles, // Статьи из Airtable
-        ...staticArticles // Статические статьи (fallback)
-      ];
-      
-      // Удаляем дубликаты по заголовку
-      const uniqueArticles = allArticles.filter((article, index, self) => 
-        index === self.findIndex(a => a.title === article.title)
-      );
-      
-      // Сортируем по дате публикации
-      uniqueArticles.sort((a, b) => 
-        new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime()
-      );
-      
-      setArticles(uniqueArticles);
-      setLastUpdated(new Date().toLocaleString('ru-RU'));
-    } catch (err) {
-      console.warn('⚠️ Ошибка при загрузке статей:', err);
-      // Используем только статические статьи при ошибке
-      setArticles(staticArticles);
-      setLastUpdated(new Date().toLocaleString('ru-RU'));
-    } finally {
-      setLoading(false);
+      if (articles.length === 0) {
+        setLatestArticles([
+          {
+            id: 'fallback-1',
+            title: "ChatGPT 2025: Новые возможности искусственного интеллекта",
+            excerpt: "Обзор последних обновлений ChatGPT и новых функций для пользователей...",
+            publishedAt: "2025-01-27",
+            author: "Команда AI Hub",
+            category: "Технологии",
+            imageUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
+            content: "",
+            slug: "chatgpt-2025-new-features"
+          },
+          {
+            id: 'fallback-2',
+            title: "Как эффективно использовать AI для бизнеса в 2025 году",
+            excerpt: "Практические советы по внедрению искусственного интеллекта в бизнес-процессы...",
+            publishedAt: "2025-01-25",
+            author: "Эксперт AI",
+            category: "Бизнес",
+            imageUrl: "https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
+            content: "",
+            slug: "ai-for-business-2025"
+          }
+        ]);
+      }
+    } catch (error) {
+      console.warn('⚠️ Ошибка при загрузке последних статей:', error);
+      setLatestArticles([
+        {
+          id: 'fallback-1',
+          title: "ChatGPT 2025: Новые возможности искусственного интеллекта",
+          excerpt: "Обзор последних обновлений ChatGPT и новых функций для пользователей...",
+          publishedAt: "2025-01-27",
+          author: "Команда AI Hub",
+          category: "Технологии",
+          imageUrl: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800&h=400",
+          content: "",
+          slug: "chatgpt-2025-new-features"
+        }
+      ]);
     }
-  };
-
-  const refreshArticles = async () => {
-    setIsRefreshing(true);
-    await loadArticles();
-    setIsRefreshing(false);
-  };
-
-  // Получаем уникальные категории
-  const categories = ["Все", ...Array.from(new Set(articles.map(article => article.category)))];
-
-  // Фильтруем статьи по категории и поисковому запросу
-  const filteredArticles = articles.filter(article => {
-    const matchesCategory = selectedCategory === "Все" || article.category === selectedCategory;
-    const matchesSearch = !searchQuery || 
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesCategory && matchesSearch;
-  });
-
-  // Функция для создания fallback изображения
-  const createFallbackImage = (title: string, category: string) => {
-    const colors = {
-      'n8n': '6366f1',
-      'AI': '14b8a6', 
-      'Технологии': 'f59e0b',
-      'Образование': 'ef4444',
-      'Автоматизация': '8b5cf6',
-      'No-Code': '06b6d4',
-      'Продуктивность': 'f97316',
-      'Маркетинг': 'ec4899',
-      'Общее': '8b5cf6'
-    };
-    const color = colors[category as keyof typeof colors] || '6366f1';
-    const encodedTitle = encodeURIComponent(title.substring(0, 30) + '...');
-    return `https://via.placeholder.com/800x400/${color}/ffffff?text=${encodedTitle}`;
   };
 
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('ru-RU', {
-        year: 'numeric',
+        day: 'numeric',
         month: 'long',
-        day: 'numeric'
+        year: 'numeric'
       });
     } catch {
       return dateString;
     }
   };
 
-  // Хлебные крошки для структурированных данных
-  const breadcrumbItems = [
-    { name: 'Главная', url: 'https://aimarkethub.pro' },
-    { name: 'Блог', url: 'https://aimarkethub.pro/blog' }
+  // FAQ для структурированных данных
+  const faqItems = [
+    {
+      question: "Как искусственный интеллект может помочь в маркетинге?",
+      answer: "Искусственный интеллект трансформирует маркетинг через автоматизацию рутинных задач, персонализацию контента, анализ больших данных для выявления паттернов поведения клиентов, оптимизацию рекламных кампаний в реальном времени и создание высококачественного контента. AI Market Hub предоставляет все необходимые инструменты для внедрения ИИ в ваш маркетинг."
+    },
+    {
+      question: "Какие бизнес-процессы можно автоматизировать с помощью n8n и AI?",
+      answer: "С помощью n8n и искусственного интеллекта можно автоматизировать множество бизнес-процессов: сбор и анализ данных о клиентах, генерацию персонализированного контента, мониторинг упоминаний бренда в социальных сетях, автоматическую классификацию обращений клиентов, создание и оптимизацию рекламных кампаний, а также формирование аналитических отчетов."
+    },
+    {
+      question: "Как AI помогает в генерации и оптимизации контента?",
+      answer: "Искусственный интеллект революционизирует создание контента через автоматическую генерацию текстов разных форматов (статьи, посты, email-рассылки), оптимизацию существующего контента под SEO, анализ эффективности контента и предложение улучшений, создание персонализированных материалов для разных сегментов аудитории и автоматическое перепрофилирование контента для разных платформ."
+    },
+    {
+      question: "Какие преимущества дает анализ данных с помощью нейросетей?",
+      answer: "Анализ данных с использованием нейросетей предоставляет бизнесу глубокие инсайты через выявление скрытых паттернов и корреляций в больших массивах данных, прогнозирование поведения клиентов и рыночных трендов с высокой точностью, сегментацию аудитории на основе множества параметров, оптимизацию маркетинговых стратегий в реальном времени и автоматическую генерацию аналитических отчетов с рекомендациями."
+    }
   ];
 
-  // Структурированные данные для хлебных крошек
-  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+  // Структурированные данные для веб-приложения
+  const webAppSchema = generateWebAppSchema({
+    name: "AI Market Hub – Инструменты ИИ для Маркетинга и Бизнеса",
+    description: "Платформа инструментов искусственного интеллекта для маркетинга, бизнеса и автоматизации. Используйте ChatGPT без регистрации, n8n автоматизацию, генерацию контента и аналитику данных.",
+    url: "https://aimarkethub.pro",
+    applicationCategory: "BusinessApplication, MarketingApplication, AIApplication",
+    operatingSystem: "Any",
+    offers: { price: "0", priceCurrency: "RUB" },
+    features: [
+      "ChatGPT без регистрации для бизнес-задач",
+      "Автоматизация маркетинга с помощью n8n",
+      "Генерация контента искусственным интеллектом",
+      "Персонализация маркетинга с помощью ИИ",
+      "Анализ данных с помощью нейросетей",
+      "Оптимизация рабочих процессов",
+      "Интеграция с внешними сервисами и API"
+    ],
+    screenshot: "https://aimarkethub.pro/images/chatgpt-screenshot.jpg",
+    rating: { value: 4.9, count: 2847 }
+  });
 
-  if (selectedArticle) {
-    return (
-      <>
-        <PageSEO
-          title={selectedArticle.title}
-          description={selectedArticle.excerpt}
-          keywords={selectedArticle.tags?.join(', ')}
-          canonicalUrl={`https://aimarkethub.pro/blog/article/${selectedArticle.slug || selectedArticle.id}`}
-          imageUrl={selectedArticle.imageUrl}
-        />
+  // Структурированные данные для организации
+  const organizationSchema = generateOrganizationSchema({
+    name: "AI Market Hub",
+    url: "https://aimarkethub.pro",
+    logo: "https://aimarkethub.pro/images/logo.png",
+    description: "Платформа инструментов искусственного интеллекта для маркетинга, бизнеса и автоматизации",
+    foundingDate: "2024",
+    contactPoint: {
+      contactType: "customer service",
+      url: "https://t.me/solvillage",
+      availableLanguage: ["Russian", "English"]
+    },
+    sameAs: ["https://t.me/solvillage"]
+  });
 
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <button
-            onClick={() => setSelectedArticle(null)}
-            className="mb-6 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-2"
-          >
-            ← Вернуться к списку статей
-          </button>
-
-          <article className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-            <div className="relative">
-              <img 
-                src={selectedArticle.imageUrl} 
-                alt={selectedArticle.title}
-                className="w-full h-64 md:h-80 object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = createFallbackImage(selectedArticle.title, selectedArticle.category || 'Общее');
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-              <div className="absolute bottom-4 left-4">
-                <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {selectedArticle.category}
-                </span>
-              </div>
-            </div>
-            <div className="p-6 md:p-8">
-              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {formatDate(selectedArticle.publishedAt || '')}
-                </span>
-                <span className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  {selectedArticle.author}
-                </span>
-              </div>
-
-              <h1 className="text-2xl md:text-3xl font-bold mb-6">{selectedArticle.title}</h1>
-              
-              {selectedArticle.tags && selectedArticle.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {selectedArticle.tags.map((tag, index) => (
-                    <span 
-                      key={index}
-                      className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-sm"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              <div 
-                className="prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
-              />
-            </div>
-          </article>
-        </div>
-      </>
-    );
-  }
+  // Структурированные данные для FAQ
+  const faqSchema = generateFAQSchema(faqItems);
 
   return (
     <>
       <SEOTags
-        title="Блог о маркетинге с искусственным интеллектом | Нейросети для бизнеса"
-        description="Экспертные статьи о применении искусственного интеллекта в маркетинге и бизнесе. Узнайте, как нейросети помогают в генерации контента, анализе данных, персонализации и автоматизации маркетинговых процессов."
-        keywords="нейросети в маркетинге, искусственный интеллект для бизнеса, AI маркетинг, генерация контента с помощью ИИ, персонализация маркетинга, автоматизация маркетинговых процессов, анализ данных с помощью нейросетей, предиктивная аналитика в маркетинге, оптимизация рекламы с ИИ, маркетинговые стратегии с AI"
-        canonicalUrl="https://aimarkethub.pro/blog"
-        imageUrl="https://aimarkethub.pro/images/blog-placeholder.jpg"
-        structuredData={[breadcrumbSchema]}
+        title="AI Market Hub – Инструменты ИИ для Маркетинга и Бизнеса | Нейросети Без Регистрации"
+        description="⭐ AI Market Hub – платформа инструментов искусственного интеллекта для маркетинга и бизнеса. Автоматизация процессов, генерация контента, анализ данных и персонализация с помощью нейросетей. Доступ к ChatGPT без регистрации!"
+        keywords="нейросети для маркетинга, AI инструменты для бизнеса, автоматизация маркетинга с AI, генерация контента искусственным интеллектом, персонализация с ИИ, анализ данных с помощью нейросетей, оптимизация рабочих процессов, n8n автоматизация, prompt инженерия, искусственный интеллект для бизнеса, чат gpt без регистрации"
+        canonicalUrl="https://aimarkethub.pro"
+        imageUrl="https://aimarkethub.pro/images/aimarkethub-hero.jpg"
+        structuredData={[
+          webAppSchema,
+          organizationSchema,
+          faqSchema
+        ]}
+        preload={[
+          {href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style'},
+          {href: '/images/aimarkethub-hero.jpg', as: 'image'}
+        ]}
       >
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Блог о маркетинге с искусственным интеллектом | Нейросети для бизнеса" />
-        <meta property="og:description" content="Экспертные статьи о применении искусственного интеллекта в маркетинге и бизнесе. Узнайте, как нейросети помогают в генерации контента, анализе данных, персонализации и автоматизации маркетинговых процессов." />
-        <meta property="og:url" content="https://aimarkethub.pro/blog" />
-        <meta property="og:image" content="https://aimarkethub.pro/images/blog-placeholder.jpg" />
+        <meta name="author" content="AI Market Hub" />
+        <meta name="publisher" content="AI Market Hub" />
+        <meta name="copyright" content="© 2025 AI Market Hub" />
+        <meta name="language" content="Russian" />
+        <meta name="geo.region" content="RU" />
+        <meta name="geo.country" content="Russia" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        <meta name="revisit-after" content="1 day" />
       </SEOTags>
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-            Маркетинг с искусственным интеллектом
-          </h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            Экспертные статьи о применении нейросетей в маркетинге, генерации контента, 
-            анализе данных и автоматизации бизнес-процессов.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Последнее обновление: {lastUpdated}
-          </p>
-        </div>
-
-        {/* Рекламный баннер */}
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        {/* Главный рекламный баннер */}
         <AdaptiveAdBlock 
-          blockId="R-A-16048264-7" 
-          containerId="yandex_rtb_R-A-16048264-7_blog" 
+          blockId="R-A-16048264-1" 
+          containerId="yandex_rtb_R-A-16048264-1_main" 
           position="main-banner"
-          className="mb-8"
+          className="mb-8 md:mb-12"
         />
 
-        {/* Поиск и фильтры */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Поиск статей..."
-              className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            <div className="relative">
-              <button
-                className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2 text-gray-700 dark:text-gray-300"
-              >
-                <Filter className="h-5 w-5" />
-                <span className="hidden md:inline">Фильтр: {selectedCategory}</span>
-                <span className="md:hidden">Фильтр</span>
-              </button>
-              
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`block w-full text-left px-4 py-2 text-sm ${
-                      selectedCategory === category
-                        ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+        {/* Hero секция с улучшенным SEO контентом */}
+        <section className="max-w-5xl mx-auto text-center mb-12 md:mb-16">
+          <div className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 p-8 md:p-12 rounded-2xl mb-8">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+              Инструменты Искусственного Интеллекта для Маркетинга и Бизнеса
+            </h1>
+            
+            <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed">
+              ⭐ Автоматизация маркетинга, генерация контента, анализ данных и персонализация с помощью нейросетей
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-4 mb-8 text-sm md:text-base">
+              <div className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span className="font-medium">Маркетинг с ИИ</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                <Shield className="h-5 w-5 text-blue-500" />
+                <span className="font-medium">Бизнес-аналитика</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                <Globe className="h-5 w-5 text-purple-500" />
+                <span className="font-medium">Автоматизация процессов</span>
               </div>
             </div>
             
-            <button
-              onClick={refreshArticles}
-              disabled={isRefreshing}
-              className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-gray-700 dark:text-gray-300"
-              title="Обновить статьи"
+            <Link 
+              to="/chat"
+              className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-4 md:py-5 px-8 md:px-10 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg md:text-xl animate-bounce-short transform hover:scale-105"
             >
-              {isRefreshing ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <RefreshCw className="h-5 w-5" />
-              )}
-            </button>
+              <MessageSquare className="h-6 w-6 md:h-7 md:w-7" />
+              <span>Начать использовать ИИ для бизнеса</span>
+            </Link>
           </div>
-        </div>
+        </section>
 
-        {/* Статус загрузки */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-            <span className="ml-2 text-gray-600 dark:text-gray-400">Загружаем статьи...</span>
-          </div>
-        )}
-
-        {!loading && (
-          <>
-            {/* Категории */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                    selectedCategory === category
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            {/* Статьи */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredArticles.map(article => (
-                <article 
-                  key={article.id}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer flex flex-col"
-                  onClick={() => navigate(`/blog/article/${article.slug || article.id}`)}
-                  aria-label={`Статья: ${article.title}`}
-                >
-                  <div className="relative">
-                    <img 
-                      src={article.imageUrl} 
-                      alt={article.title}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = createFallbackImage(article.title, article.category || 'Общее');
-                      }}
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        {article.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {formatDate(article.publishedAt || '')}
-                      </span>
-                    </div>
-
-                    <h2 className="text-xl font-bold mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 line-clamp-2">
-                      {article.title}
-                    </h2>
-                    
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed line-clamp-3 flex-grow">
-                      {article.excerpt}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        <User className="h-4 w-4" />
-                        {article.author}
-                      </div>
-                      
-                      <div className="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-medium">
-                        Читать далее
-                        <ArrowRight className="h-4 w-4" />
-                      </div>
-                    </div>
-                    
-                    {/* Теги статьи */}
-                    {article.tags && article.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {article.tags.slice(0, 3).map((tag, tagIndex) => (
-                          <span key={tagIndex} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {filteredArticles.length === 0 && !loading && (
-              <div className="text-center py-12">
-                <p className="text-gray-600 dark:text-gray-400">
-                  {searchQuery 
-                    ? `По запросу "${searchQuery}" ничего не найдено. Попробуйте изменить поисковый запрос.` 
-                    : `В категории "${selectedCategory}" пока нет статей.`}
-                </p>
+        {/* Подробное SEO описание */}
+        <section className="max-w-4xl mx-auto mb-12 md:mb-16 px-4">
+          <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-md">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
+              Как искусственный интеллект трансформирует маркетинг и бизнес
+            </h2>
+            
+            <div className="prose dark:prose-invert max-w-none">
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                <strong>AI Market Hub</strong> — это комплексная платформа инструментов искусственного интеллекта, разработанная специально для <strong>маркетологов и бизнеса</strong>. 
+                Наши решения помогают автоматизировать рутинные задачи, генерировать высококачественный контент, анализировать большие объемы данных 
+                и создавать персонализированные маркетинговые кампании с помощью <strong>передовых нейросетей</strong>.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-6 my-6">
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-primary-600 dark:text-primary-400">
+                    🚀 Нейросети для маркетинга
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li>• Генерация контента для разных каналов</li>
+                    <li>• Персонализация коммуникаций с клиентами</li>
+                    <li>• Анализ эффективности маркетинговых кампаний</li>
+                    <li>• Оптимизация контента для SEO</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-secondary-600 dark:text-secondary-400">
+                    🎯 Автоматизация бизнес-процессов
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li>• Интеграция с CRM и маркетинговыми платформами</li>
+                    <li>• Автоматический сбор и анализ данных</li>
+                    <li>• Оптимизация рабочих процессов с n8n</li>
+                    <li>• Мониторинг и отчетность в реальном времени</li>
+                  </ul>
+                </div>
               </div>
-            )}
-          </>
-        )}
-
-        {/* Популярные темы */}
-        <div className="mt-16 bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 p-8 rounded-xl">
-          <h2 className="text-2xl font-bold mb-6 text-center">Популярные темы</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <TrendingUp className="h-12 w-12 text-primary-600 dark:text-primary-400 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">n8n Автоматизация</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Руководства и примеры workflow для автоматизации бизнес-процессов с n8n
+              
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <strong>AI Market Hub</strong> — это не просто набор инструментов, а стратегический партнер для бизнеса, 
+                стремящегося использовать потенциал искусственного интеллекта для роста и оптимизации. 
+                Наши решения помогают компаниям любого размера внедрять передовые AI технологии без необходимости 
+                найма дорогостоящих специалистов по данным и машинному обучению.
               </p>
-            </div>
-            <div className="text-center">
-              <Lightbulb className="h-12 w-12 text-secondary-600 dark:text-secondary-400 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">AI интеграции</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Как эффективно использовать AI инструменты в автоматизации процессов
-              </p>
-            </div>
-            <div className="text-center">
-              <Shield className="h-12 w-12 text-primary-600 dark:text-primary-400 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">Лучшие практики</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Советы по безопасности, оптимизации и масштабированию автоматизаций
-              </p>
+              
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3">💡 Как ИИ трансформирует маркетинг:</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-medium mb-2">📊 Аналитика и прогнозирование:</p>
+                    <ul className="space-y-1 text-gray-600 dark:text-gray-400">
+                      <li>• Прогнозирование поведения клиентов</li>
+                      <li>• Анализ эффективности каналов</li>
+                      <li>• Выявление скрытых паттернов</li>
+                      <li>• Оптимизация маркетингового бюджета</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-2">🎨 Контент и креатив:</p>
+                    <ul className="space-y-1 text-gray-600 dark:text-gray-400">
+                      <li>• Автоматическая генерация контента</li>
+                      <li>• Персонализация сообщений</li>
+                      <li>• Оптимизация заголовков и текстов</li>
+                      <li>• Создание визуального контента</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Рекламный баннер */}
+        {/* Статистика с улучшенными цифрами */}
+        <section className="max-w-4xl mx-auto mb-12 md:mb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+            Эффективность искусственного интеллекта в цифрах
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">+37%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Рост конверсии</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-secondary-600 dark:text-secondary-400 mb-2">-42%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Снижение затрат</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">+68%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Рост вовлеченности</div>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="text-2xl md:text-3xl font-bold text-secondary-600 dark:text-secondary-400 mb-2">5x</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Ускорение процессов</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Преимущества с расширенным контентом */}
+        <section className="max-w-5xl mx-auto grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16 px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8 sm:col-span-2 md:col-span-3">
+            Как искусственный интеллект трансформирует ваш бизнес
+          </h2>
+          
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-primary-100 dark:bg-primary-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <Brain className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Персонализация маркетинга</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Нейросети анализируют поведение клиентов и создают персонализированные предложения, увеличивая конверсию до 37%. Автоматическая сегментация аудитории и индивидуальные коммуникации на всех этапах воронки продаж.
+            </p>
+          </article>
+          
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-secondary-100 dark:bg-secondary-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <Lock className="h-8 w-8 text-secondary-600 dark:text-secondary-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Генерация контента</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Создавайте высококачественные тексты для сайта, блога, социальных сетей и email-рассылок в 5 раз быстрее. ИИ генерирует SEO-оптимизированный контент, адаптированный под вашу целевую аудиторию и бренд-голос.
+            </p>
+          </article>
+          
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-primary-100 dark:bg-primary-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <Sparkles className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Предиктивная аналитика</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Прогнозируйте поведение клиентов и рыночные тренды с точностью до 85%. Выявляйте скрытые закономерности в данных и принимайте стратегические решения на основе предиктивных моделей, созданных нейросетями.
+            </p>
+          </article>
+
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <Globe className="h-8 w-8 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Оптимизация рекламы</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Снижайте стоимость привлечения клиентов на 42% с помощью ИИ-оптимизации рекламных кампаний. Автоматическое тестирование креативов, таргетинга и ставок для достижения максимальной эффективности вашего рекламного бюджета.
+            </p>
+          </article>
+
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <TrendingUp className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Автоматизация процессов</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Автоматизируйте до 80% рутинных маркетинговых задач с помощью n8n и искусственного интеллекта. Настройте автоматический сбор лидов, квалификацию, нуртуринг и аналитику без необходимости написания кода.
+            </p>
+          </article>
+
+          <article className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg">
+            <div className="mb-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full w-14 h-14 flex items-center justify-center">
+              <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Клиентский сервис</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              Повышайте удовлетворенность клиентов на 68% с помощью AI-чатботов и автоматизированных систем поддержки. Мгновенные ответы на вопросы, интеллектуальная маршрутизация обращений и проактивная помощь клиентам.
+            </p>
+          </article>
+        </section>
+
+        {/* Возможности использования с расширенным списком */}
+        <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+            Комплексные решения для маркетинга и бизнеса
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <MessageSquare className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Маркетинговая аналитика с ИИ</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Глубокий анализ маркетинговых данных с помощью нейросетей для принятия стратегических решений
+              </p>
+              <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                <li>• Мультиканальная атрибуция</li>
+                <li>• Прогнозирование LTV клиентов</li>
+                <li>• Анализ эффективности кампаний</li>
+                <li>• Выявление точек роста</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <Settings className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Автоматизация маркетинга</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Комплексная автоматизация маркетинговых процессов с интеграцией всех ваших инструментов
+              </p>
+              <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                <li>• Автоматический сбор и нуртуринг лидов</li>
+                <li>• Персонализированные email-кампании</li>
+                <li>• Мультиканальные маркетинговые сценарии</li>
+                <li>• Интеграция с CRM и аналитикой</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <Zap className="h-8 w-8 text-primary-600 dark:text-primary-400 mb-4" />
+              <h3 className="font-semibold mb-2">Генерация контента с ИИ</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Создание высококачественного контента для всех маркетинговых каналов с помощью нейросетей
+              </p>
+              <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                <li>• SEO-оптимизированные статьи для блога</li>
+                <li>• Контент для социальных сетей</li>
+                <li>• Email-рассылки и лендинги</li>
+                <li>• Рекламные тексты и описания продуктов</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Последние статьи из блога */}
+        <section className="max-w-5xl mx-auto mb-12 md:mb-16 px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">Полезные статьи о AI и n8n</h2>
+            <Link 
+              to="/blog"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1"
+            >
+              Все статьи
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {latestArticles.map((article) => (
+              <article key={article.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+                <h3 className="font-semibold mb-2 text-lg line-clamp-2">
+                  <Link to={`/blog/article/${article.slug || article.id}`} className="hover:text-primary-600 dark:hover:text-primary-400">
+                    {article.title}
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                  {article.excerpt}
+                </p>
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                  {formatDate(article.publishedAt || '')}
+                </div>
+                <div className="mt-3">
+                  <Link 
+                    to={`/blog/article/${article.slug || article.id}`}
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1"
+                  >
+                    Читать полностью
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <FAQ />
+        
+        {/* Финальный CTA с улучшенным дизайном */}
+        <section className="max-w-4xl mx-auto text-center px-4 mt-12 md:mt-16">
+          <div className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white p-8 md:p-12 rounded-2xl shadow-xl">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Готовы трансформировать ваш маркетинг с помощью ИИ?
+            </h2>
+            <p className="text-lg md:text-xl mb-8 opacity-90">
+              Присоединяйтесь к тысячам компаний, которые уже увеличили эффективность маркетинга с AI Market Hub
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+              <Link 
+                to="/chat"
+                className="inline-flex items-center gap-2 bg-white text-primary-600 font-medium py-4 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg hover:bg-gray-50 transform hover:scale-105"
+              >
+                <MessageSquare className="h-6 w-6" />
+                <span>Начать трансформацию маркетинга</span>
+              </Link>
+              
+              <div className="flex items-center gap-2 text-white/80">
+                <Star className="h-5 w-5 fill-current text-yellow-300" />
+                <span className="text-sm">4.9/5 на основе 2,847 отзывов</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4 text-center text-sm opacity-80">
+              <div>
+                <div className="font-semibold">100%</div>
+                <div>ROI</div>
+              </div>
+              <div>
+                <div className="font-semibold">+37%</div>
+                <div>Конверсия</div>
+              </div>
+              <div>
+                <div className="font-semibold">-42%</div>
+                <div>Затраты</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Нижний рекламный баннер */}
         <AdaptiveAdBlock 
-          blockId="R-A-16048264-8" 
-          containerId="yandex_rtb_R-A-16048264-8_blog_bottom" 
+          blockId="R-A-16048264-2" 
+          containerId="yandex_rtb_R-A-16048264-2_bottom" 
           position="bottom-banner"
-          className="mt-12"
+          className="mt-8 md:mt-12"
         />
-
-        <div className="text-center mt-12">
-          <h2 className="text-2xl font-bold mb-4">Нужна помощь с n8n?</h2>
-          <p className="text-gray-700 dark:text-gray-300 mb-6">
-            Получите персональную консультацию от нашего AI-ассистента
-          </p>
-          <Link 
-            to="/n8n-assistant"
-            className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-          >
-            Открыть n8n Assistant
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-        </div>
       </div>
     </>
   );
 };
 
-export default BlogPage;
+export default HomePage;
