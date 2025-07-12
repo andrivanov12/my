@@ -1,7 +1,13 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import LoadingSpinner from './components/LoadingSpinner';
+
+// Более легкий компонент загрузки
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+  </div>
+);
 
 // Ленивая загрузка страниц с обработкой ошибок
 const HomePage = lazy(() => 
@@ -112,12 +118,12 @@ const AiPromptOptimizerPage = lazy(() =>
 
 // Компонент загрузки с таймаутом
 const LoadingFallback = () => {
-  const [showError, setShowError] = React.useState(false);
+  const [showError, setShowError] = React.useState(false); 
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowError(true);
-    }, 10000); // 10 секунд таймаут
+    }, 15000); // Увеличиваем таймаут до 15 секунд
 
     return () => clearTimeout(timer);
   }, []);

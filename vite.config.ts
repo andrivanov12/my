@@ -53,9 +53,20 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          utils: ['lucide-react', 'uuid', 'js-cookie']
+        manualChunks(id) {
+          // Создаем более оптимальные чанки
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('router')) {
+              return 'vendor-router';
+            }
+            return 'vendor'; // Остальные зависимости
+          }
         }
       }
     },
@@ -63,14 +74,17 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Оставляем консоль для отладки в превью
         drop_debugger: true
       }
     }
   },
   server: {
     port: 3000,
-    host: true
+    host: true,
+    hmr: {
+      overlay: false // Отключаем оверлей ошибок для ускорения
+    }
   },
   preview: {
     port: 3000,
