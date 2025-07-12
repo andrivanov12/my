@@ -14,6 +14,7 @@ interface BlogSEOProps {
   category?: string;
   tags?: string[];
   slug: string;
+  preload?: Array<{href: string, as: string, type?: string}>;
 }
 
 const BlogSEO: React.FC<BlogSEOProps> = ({
@@ -27,7 +28,8 @@ const BlogSEO: React.FC<BlogSEOProps> = ({
   author,
   category,
   tags,
-  slug
+  slug,
+  preload = []
 }) => {
   // Генерируем структурированные данные для статьи
   const articleSchema = generateArticleSchema({
@@ -67,6 +69,7 @@ const BlogSEO: React.FC<BlogSEOProps> = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
       
       {/* Open Graph */}
       <meta property="og:title" content={title} />
@@ -91,6 +94,18 @@ const BlogSEO: React.FC<BlogSEOProps> = ({
       <meta name="twitter:image" content={imageUrl} />
       <meta name="twitter:site" content="@aimarkethub" />
       <meta name="twitter:creator" content="@aimarkethub" />
+      
+      {/* Предзагрузка критических ресурсов */}
+      {preload.map((item, index) => (
+        <link 
+          key={index}
+          rel="preload" 
+          href={item.href} 
+          as={item.as}
+          type={item.type}
+          crossOrigin={item.as === 'font' ? 'anonymous' : undefined}
+        />
+      ))}
       
       {/* Структурированные данные */}
       <script type="application/ld+json">

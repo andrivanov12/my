@@ -17,6 +17,7 @@ interface PageSEOProps {
     screenshot?: string;
     rating?: { value: number; count: number };
   };
+  preload?: Array<{href: string, as: string, type?: string}>;
   children?: React.ReactNode;
 }
 
@@ -29,6 +30,7 @@ const PageSEO: React.FC<PageSEOProps> = ({
   breadcrumbs,
   isWebApp = false,
   webAppData,
+  preload = [],
   children
 }) => {
   // Генерируем структурированные данные для хлебных крошек
@@ -63,6 +65,7 @@ const PageSEO: React.FC<PageSEOProps> = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
       
       {/* Open Graph */}
       <meta property="og:title" content={title} />
@@ -79,6 +82,18 @@ const PageSEO: React.FC<PageSEOProps> = ({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
       <meta name="twitter:site" content="@aimarkethub" />
+      
+      {/* Предзагрузка критических ресурсов */}
+      {preload.map((item, index) => (
+        <link 
+          key={index}
+          rel="preload" 
+          href={item.href} 
+          as={item.as}
+          type={item.type}
+          crossOrigin={item.as === 'font' ? 'anonymous' : undefined}
+        />
+      ))}
       
       {/* Структурированные данные */}
       <script type="application/ld+json">

@@ -1,0 +1,43 @@
+{
+  "name": "AI Market Hub - ChatGPT без регистрации",
+  "short_name": "AI Chat",
+  "description": "Бесплатный доступ к ChatGPT и другим AI моделям без необходимости регистрации",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Открыть чат",
+      "short_name": "Чат",
+      "description": "Начать общение с AI",
+      "url": "/chat",
+      "icons": [{ "src": "/images/chat-icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "n8n Assistant",
+      "short_name": "n8n",
+      "description": "Помощник по n8n автоматизации",
+      "url": "/n8n-assistant",
+      "icons": [{ "src": "/images/n8n-icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["ai", "productivity", "utilities"],
+  "lang": "ru-RU",
+  "orientation": "any",
+  "prefer_related_applications": false
+}
