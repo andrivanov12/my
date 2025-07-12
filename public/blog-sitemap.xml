@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 
+                           http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- Блог главная -->
+  <url>
+    <loc>https://aimarkethub.pro/blog</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/blog-placeholder.jpg</image:loc>
+      <image:title>Блог AI Market Hub</image:title>
+      <image:caption>Статьи о ChatGPT, нейросетях и автоматизации маркетинга</image:caption>
+    </image:image>
+  </url>
+  
+  <!-- Блог категории -->
+  <url>
+    <loc>https://aimarkethub.pro/blog/n8n</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/n8n-placeholder.jpg</image:loc>
+      <image:title>n8n автоматизация</image:title>
+      <image:caption>Статьи об автоматизации с n8n</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/ai-tools</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/ai-placeholder.jpg</image:loc>
+      <image:title>AI инструменты</image:title>
+      <image:caption>Статьи об инструментах искусственного интеллекта</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/data-analysis</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/data-analysis-placeholder.jpg</image:loc>
+      <image:title>Анализ данных</image:title>
+      <image:caption>Статьи об анализе данных с помощью AI</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/case-studies</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/case-studies-placeholder.jpg</image:loc>
+      <image:title>Кейсы использования</image:title>
+      <image:caption>Примеры успешного внедрения AI и автоматизации</image:caption>
+    </image:image>
+  </url>
+  
+  <!-- Популярные статьи блога -->
+  <url>
+    <loc>https://aimarkethub.pro/blog/article/n8n-complete-guide</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/n8n-placeholder.jpg</image:loc>
+      <image:title>Полное руководство по n8n</image:title>
+      <image:caption>Подробное руководство по использованию n8n для автоматизации</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/article/top-10-n8n-workflows-for-marketers</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/n8n-placeholder.jpg</image:loc>
+      <image:title>10 готовых workflow в n8n для автоматизации маркетинга</image:title>
+      <image:caption>Готовые решения для автоматизации маркетинговых задач с помощью n8n</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/article/chatgpt-n8n-integration</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/ai-placeholder.jpg</image:loc>
+      <image:title>Интеграция ChatGPT с n8n</image:title>
+      <image:caption>Как интегрировать ChatGPT с n8n для создания умных автоматизаций</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/article/data-analysis-with-n8n</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/data-analysis-placeholder.jpg</image:loc>
+      <image:title>Анализ данных в n8n</image:title>
+      <image:caption>Как использовать n8n для создания полноценного пайплайна анализа данных</image:caption>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://aimarkethub.pro/blog/article/case-study-company-x-n8n</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://aimarkethub.pro/images/case-studies-placeholder.jpg</image:loc>
+      <image:title>Кейс: Как компания X увеличила продажи с помощью n8n автоматизации</image:title>
+      <image:caption>Реальный пример внедрения n8n для автоматизации маркетинговых процессов</image:caption>
+    </image:image>
+  </url>
+</urlset>
