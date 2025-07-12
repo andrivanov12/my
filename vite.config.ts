@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import compression from 'vite-plugin-compression';
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
@@ -27,25 +29,33 @@ export default defineConfig({
         name: 'AI Market Hub',
         short_name: 'AI Hub',
         description: 'Платформа AI инструментов с ChatGPT без регистрации',
-        theme_color: '#3b82f6',
+        theme_color: '#7c3aed',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {
-            src: '/images/logo.png',
+            src: '/images/icon-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/images/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }
-    })
+    }),
+    compression()
   ],
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          utils: ['lucide-react']
+          utils: ['lucide-react', 'uuid', 'js-cookie']
         }
       }
     },
