@@ -18,7 +18,7 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            core: ['react', 'react-dom', 'react-router-dom'],
+            // React packages only in one chunk
             vendor: ['react', 'react-dom'],
             router: ['react-router-dom'],
             icons: ['lucide-react'],
