@@ -15,6 +15,8 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Определяем тип устройства
@@ -28,7 +30,29 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Используем Intersection Observer для отложенной загрузки рекламы
   useEffect(() => {
+    if (!adRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(adRef.current);
+    
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // Не загружаем рекламу, пока блок не видим
+    if (!isVisible) return;
+    
     // Проверяем, что мы находимся на продакшн домене
     const isProductionDomain = window.location.hostname === 'aimarkethub.pro' || 
                               window.location.hostname === 'www.aimarkethub.pro';
@@ -108,35 +132,39 @@ const AdaptiveAdBlock: React.FC<AdaptiveAdBlockProps> = ({
   }
 
   return (
-    <div className={`w-full ${className}`}>
+    <div ref={adRef} className={`w-full ${className}`}>
       {/* Yandex.RTB блоки */}
-      <div 
-        id={containerId}
-        className="w-full flex items-center justify-center"
-        style={getAdDimensions(position, isMobile)}
-      >
-        {/* Fallback контент пока загружается реклама */}
-        {!isLoaded && (
-          <div className="text-gray-300 dark:text-gray-700 text-center">
-            <div className="animate-pulse text-xs">Загрузка рекламы...</div>
+      {isVisible && (
+        <>
+          <div 
+            id={containerId}
+            className="w-full flex items-center justify-center"
+            style={getAdDimensions(position, isMobile)}
+          >
+            {/* Fallback контент пока загружается реклама */}
+            {!isLoaded && (
+              <div className="text-gray-300 dark:text-gray-700 text-center">
+                <div className="animate-pulse text-xs">Загрузка рекламы...</div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.yaContextCb = window.yaContextCb || [];
-            window.yaContextCb.push(() => {
-              if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
-                window.Ya.Context.AdvManager.render({
-                  "blockId": "${blockId}",
-                  "renderTo": "${containerId}"
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.yaContextCb = window.yaContextCb || [];
+                window.yaContextCb.push(() => {
+                  if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+                    window.Ya.Context.AdvManager.render({
+                      "blockId": "${blockId}",
+                      "renderTo": "${containerId}"
+                    });
+                  }
                 });
-              }
-            });
-          `
-        }}
-      />
+              `
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

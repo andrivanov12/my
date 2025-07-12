@@ -8,6 +8,61 @@ import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 import { airtableService, AirtableArticle } from '../services/airtableService';
 import { generateWebAppSchema, generateOrganizationSchema, generateFAQSchema } from '../utils/seoHelpers';
 
+const LazyImage = ({ 
+  src, 
+  alt, 
+  className = '', 
+  width, 
+  height, 
+  onLoad, 
+  onError,
+  placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZWVlIi8+PC9zdmc+'
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Оптимизируем URL изображения, если это Pexels
+  const optimizedSrc = src.includes('pexels.com') 
+    ? `${src}?auto=compress&cs=tinysrgb&w=${width || 800}&h=${height || 600}&dpr=1` 
+    : src;
+
+  const handleLoad = () => {
+    setIsLoaded(true);
+    if (onLoad) onLoad();
+  };
+
+  const handleError = () => {
+    setIsError(true);
+    if (onError) onError();
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      {!isLoaded && !isError && (
+        <div 
+          className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"
+          style={{
+            backgroundImage: `url(${placeholder})`,
+            backgroundSize: '30px 30px',
+            backgroundRepeat: 'repeat'
+          }}
+        />
+      )}
+      <img
+        src={isError ? '/images/placeholder.jpg' : optimizedSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+        onLoad={handleLoad}
+        onError={handleError}
+        className={`w-full h-full object-cover transition-opacity duration-200 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </div>
+  );
+};
+
 const HomePage: React.FC = () => {
   const [latestArticles, setLatestArticles] = useState<AirtableArticle[]>([]);
 
