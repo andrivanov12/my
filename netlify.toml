@@ -1,6 +1,7 @@
 [build]
   publish = "dist"
   command = "npm run build"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -124,3 +125,8 @@
   for = "/robots.txt"
   [headers.values]
     Content-Type = "text/plain"
+
+# Настройки для Netlify Functions
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["axios"]

@@ -4,6 +4,7 @@ import SEOTags from '../components/SEOTags';
 import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 import { generateFAQSchema } from '../utils/seoHelpers';
+import N8nTemplateSearch from '../components/N8nTemplateSearch';
 
 interface Message {
   id: string;
@@ -549,12 +550,11 @@ const N8nAssistantPage: React.FC = () => {
           )}
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {/* Messages Container - Fixed Height */}
             <div 
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4"
-              style={{ height: 'calc(100vh - 280px)' }}
+              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 h-[calc(100vh-280px)]"
             >
               {messages.map((message) => (
                 <div
@@ -642,6 +642,13 @@ const N8nAssistantPage: React.FC = () => {
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span>n8n Assistant на связи</span>
               </div>
+            </div>
+          </div>
+          
+          {/* Templates Sidebar - Only visible on larger screens */}
+          <div className="hidden lg:block w-80 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
+            <div className="p-4">
+              <N8nTemplateSearch />
             </div>
           </div>
         </div>
@@ -777,6 +784,11 @@ const N8nAssistantPage: React.FC = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Templates Section for Mobile - Shown below chat on mobile */}
+      <div className="lg:hidden mt-8 container mx-auto px-4">
+        <N8nTemplateSearch className="mb-8" />
       </div>
 
       <style jsx>{`
