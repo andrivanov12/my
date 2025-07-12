@@ -10,6 +10,7 @@ interface SEOTagsProps {
   ogType?: 'website' | 'article';
   twitterCard?: 'summary' | 'summary_large_image';
   structuredData?: Record<string, any>[];
+  preload?: Array<{href: string, as: string, type?: string}>;
   children?: React.ReactNode;
 }
 
@@ -25,6 +26,7 @@ const SEOTags: React.FC<SEOTagsProps> = ({
   ogType = 'website',
   twitterCard = 'summary_large_image',
   structuredData = [],
+  preload = [],
   children
 }) => {
   return (
@@ -34,6 +36,7 @@ const SEOTags: React.FC<SEOTagsProps> = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
       
       {/* Open Graph мета-теги */}
       <meta property="og:title" content={title} />
@@ -49,6 +52,18 @@ const SEOTags: React.FC<SEOTagsProps> = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
+      
+      {/* Предзагрузка критических ресурсов */}
+      {preload.map((item, index) => (
+        <link 
+          key={index}
+          rel="preload" 
+          href={item.href} 
+          as={item.as}
+          type={item.type}
+          crossOrigin={item.as === 'font' ? 'anonymous' : undefined}
+        />
+      ))}
       
       {/* Структурированные данные */}
       {structuredData.map((data, index) => (

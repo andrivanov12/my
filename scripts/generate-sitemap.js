@@ -59,7 +59,12 @@ links.forEach(link => {
     url: link.url,
     changefreq: link.changefreq,
     priority: link.priority,
-    lastmod: link.lastmod
+    lastmod: link.lastmod,
+    img: link.url.includes('blog/article') ? [{
+      url: 'https://aimarkethub.pro/images/blog-placeholder.jpg',
+      title: 'Статья блога AI Market Hub',
+      caption: 'Изображение для статьи блога'
+    }] : undefined
   });
 });
 

@@ -27,11 +27,6 @@ export const throttle = <T extends (...args: any[]) => any>(
   };
 };
 
-// Ленивая загрузка модулей
-export const lazyLoad = <T>(importFunc: () => Promise<{ default: T }>) => {
-  return React.lazy(importFunc);
-};
-
 // Предзагрузка ресурсов
 export const preloadResource = (href: string, as: string, type?: string) => {
   const link = document.createElement('link');
@@ -56,10 +51,23 @@ export const createOptimizedImageUrl = (
     if (height) url.searchParams.set('h', height.toString());
     url.searchParams.set('auto', 'compress');
     url.searchParams.set('cs', 'tinysrgb');
+    url.searchParams.set('q', quality.toString());
+    
+    // Проверяем поддержку WebP
+    if (supportsWebP()) {
+      url.searchParams.set('format', 'webp');
+    }
+    
     return url.toString();
   }
   
   return originalUrl;
+};
+
+// Проверка поддержки WebP
+export const supportsWebP = (): boolean => {
+  const canvas = document.createElement('canvas');
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
 };
 
 // Мониторинг производительности
@@ -84,24 +92,12 @@ export const cleanupResources = () => {
     performance.clearMarks();
     performance.clearMeasures();
   }
-  
-  // Очистка неиспользуемых event listeners
-  const unusedEvents = ['resize', 'scroll', 'mousemove'];
-  unusedEvents.forEach(event => {
-    const listeners = (window as any)._eventListeners?.[event] || [];
-    listeners.forEach((listener: EventListener) => {
-      window.removeEventListener(event, listener);
-    });
-  });
 };
 
 // Проверка поддержки современных возможностей браузера
 export const getModernFeatureSupport = () => {
   return {
-    webp: (() => {
-      const canvas = document.createElement('canvas');
-      return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-    })(),
+    webp: supportsWebP(),
     intersectionObserver: 'IntersectionObserver' in window,
     serviceWorker: 'serviceWorker' in navigator,
     webWorker: 'Worker' in window,

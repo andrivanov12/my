@@ -3,7 +3,6 @@ import { Send, Trash2, Loader2, Settings, Heart, ChevronDown } from 'lucide-reac
 import { useChat } from '../contexts/ChatContext';
 import ChatMessage from '../components/ChatMessage';
 import SEOTags from '../components/SEOTags';
-import StructuredData from '../components/StructuredData';
 import AdaptiveAdBlock from '../components/AdaptiveAdBlock';
 import { generateFAQSchema } from '../utils/seoHelpers';
 
@@ -120,11 +119,17 @@ const ChatPage: React.FC = () => {
         canonicalUrl="https://aimarkethub.pro/chat"
         imageUrl="https://aimarkethub.pro/images/chatgpt-screenshot.jpg"
         structuredData={[faqSchema]}
+        preload={[
+          {href: '/images/chatgpt-screenshot.jpg', as: 'image'},
+          {href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style'}
+        ]}
       >
         <meta name="application-name" content="AI чат-бот без регистрации" />
         <meta name="apple-mobile-web-app-title" content="AI чат-бот" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#7c3aed" />
+        <link rel="apple-touch-icon" href="/images/chatgpt-icon-192.png" />
       </SEOTags>
 
       <div className="min-h-screen w-full">

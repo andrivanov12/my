@@ -148,6 +148,10 @@ const HomePage: React.FC = () => {
           organizationSchema,
           faqSchema
         ]}
+        preload={[
+          {href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style'},
+          {href: '/images/aimarkethub-hero.jpg', as: 'image'}
+        ]}
       >
         <meta name="author" content="AI Market Hub" />
         <meta name="publisher" content="AI Market Hub" />

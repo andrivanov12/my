@@ -61,6 +61,7 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
       if (height) url.searchParams.set('h', height.toString());
       url.searchParams.set('auto', 'compress');
       url.searchParams.set('cs', 'tinysrgb');
+      url.searchParams.set('q', '80');
       
       // Добавляем формат WebP, если поддерживается
       if (supportsWebP) {
@@ -93,6 +94,7 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
         <div 
           className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"
           style={{ backgroundImage: `url(${placeholder})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          aria-hidden="true"
         />
       )}
       
